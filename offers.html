@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Special Offers</title>
+    <link rel="stylesheet" href="styles/offers.css">
+</head>
+<body>
+    <header>
+        <h1>Exclusive Offers</h1>
+        <a href="index.html">Home</a>
+    </header>
+    <main class="offers-container">
+        <div class="offer-card">
+            <img src="offer1.jpg" alt="Offer 1">
+            <h2>Flat 20% Off</h2>
+            <p>Enjoy a flat 20% discount on all generic medicines. Limited period offer!</p>
+            <button>Claim Offer</button>
+        </div>
+        <div class="offer-card">
+            <img src="offer2.jpg" alt="Offer 2">
+            <h2>Buy 1 Get 1 Free</h2>
+            <p>Buy one health supplement and get another absolutely free!</p>
+            <button>Claim Offer</button>
+        </div>
+        <div class="offer-card">
+            <img src="offer3.jpg" alt="Offer 3">
+            <h2>Free Delivery</h2>
+            <p>Free delivery on orders above ₹1000. Shop now and save more!</p>
+            <button>Claim Offer</button>
+        </div>
+    
+    <section id="customer-balance-section" class="balance-container">
+        <h2>Customer Balance</h2>
+        <form id="balanceForm" class="balance-form">
+            <label for="customerId">Customer ID</label>
+            <input type="text" id="customerId" name="customerId" placeholder="Enter your Customer ID">
+            <button type="button" id="fetchBalance">Fetch Balance</button>
+        </form>
+        <div id="balanceResult">
+            <h3>Balance Details</h3>
+            <table id="balanceTable" class="balance-table">
+                <thead>
+                    <tr>
+                        <th>Invoice ID</th>
+                        <th>Amount</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be dynamically populated -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+    </main>
+    
+    <footer>
+        <a href="#">Contact Us</a> | <a href="#">Privacy Policy | <a href="C:\Users\admin\Desktop\aaradhyaapp2\2612start\arc-main (1)\arc-main\offers.html">Offers</a>
+        <p>&copy; 2024 Aaradhya Pharmaceuticals. All rights reserved.</p>
+       
+    </footer>
+<script>
+// Fetch Customer Balance using Google Sheets API
+document.getElementById('fetchBalance').addEventListener('click', async () => {
+    const customerId = document.getElementById('customerId').value;
+    if (!customerId) {
+        alert('Please enter a Customer ID');
+        return;
+    }
+
+    try {
+        const response = await fetch('https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec?customerId=' + customerId);
+        const data = await response.json();
+
+        // Clear existing rows
+        const balanceTableBody = document.querySelector('#balanceTable tbody');
+        balanceTableBody.innerHTML = '';
+
+        // Populate table with fetched data
+        data.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.invoiceId}</td>
+                <td>${item.amount}</td>
+                <td>${item.dueDate}</td>
+                <td>${item.status}</td>
+            `;
+            balanceTableBody.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Error fetching balance:', error);
+        alert('Failed to fetch balance. Please try again later.');
+    }
+});
+</script>
+</body>
+</html>

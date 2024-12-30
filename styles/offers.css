@@ -1,0 +1,120 @@
+
+//offers.css
+
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(to right, #d9ecf2, #eef6fc);
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+header {
+    text-align: center;
+    padding: 20px;
+    background-color: #4a90e2;
+    color: white;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2rem;
+}
+.offers-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 25px;
+    gap: 20px;
+}
+
+.offer-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 300px;
+    padding: 15px;
+    text-align: center;
+    transition: transform 0.3s;
+}
+
+.offer-card:hover {
+    transform: scale(1.05);
+}
+
+.offer-card img {
+    width: 100%;
+    border-radius: 10px 10px 0 0;
+}
+
+.offer-card h2 {
+    margin: 15px 0;
+    font-size: 1.5rem;
+    color: #4a90e2;
+}
+
+.offer-card p {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.offer-card button {
+    padding: 10px 15px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.offer-card button:hover {
+    background-color: #357abd;
+}
+
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #333;
+    color: white;
+    font-size: 0.8rem;
+}
+/* For screens smaller than 768px */
+@media (max-width: 768px) {
+  .header-group img {
+    max-width: 100%; /* Image will take up full width of its container */
+    height: auto; /* Maintain aspect ratio */
+  }
+}
+
+/* For screens larger than 768px */
+@media (min-width: 769px) {
+  .header-group img {
+    max-width: 50%; /* Image will take up 50% of its container's width */
+    height: auto; /* Maintain aspect ratio */
+  }
+}
+``
+/* For smaller screens */
+@media (max-width: 768px) {
+  .login-container {
+    flex-direction: column; /* Stack items vertically on smaller screens */
+  }
+}
+
+/* For larger screens */
+@media (min-width: 769px) {
+  .login-container {
+    flex-direction: row; /* Arrange items horizontally on larger screens */
+  }
+}
+
+
+
+
+
