@@ -1,42 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aaradhya Pharmaceuticals - Login</title>
-  <link rel="stylesheet" href="styles/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aaradhya Pharmaceuticals - Order Form</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input, select { padding: 5px; margin: 5px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    .total { font-weight: bold; margin-top: 10px; }
+  </style>
 </head>
 <body>
-    <header>
-    <h1>Home</h1>
-    <a href="index.html">Home</a>
-    </header>
-    <main class="login-container">
-          <div class="header-group">
-              <img src="images/logo.jpg" alt="Aaradhya Pharmaceuticals Logo">
-              <h2 style="text-align:center">Aaradhya Pharmaceuticals</h2>
-          </div>
-          <div class="login-group">
-           <form id="loginForm" class="login-form">
-            <h2 style="text-align:center">Login</h2>
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" placeholder="Enter your username">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" placeholder="Enter your password">
-            <button type="submit">Login</button>
-            <a href="#" class="forgot-password">Forgot Password?</a>
-            <p id="errorMessage" class="text-danger text-center mt-3"></p>
-           </form>
-	  </div>
-     </main>
-       <footer>
-          <a href="#">Contact Us</a> | <a href="#">Privacy Policy | <a href="offers.html">Offers</a>
-	   <p>&copy; 2024 Aaradhya Pharmaceuticals. All rights reserved.</p>
-       </footer>
-  <script src="scripts/config.js"></script>
-  <script src="scripts/pagination.js"></script>
-  <script src="scripts/google-sheets-api.js"></script>
-  <script src="scripts/auth.js"></script>
+  <h2>Aaradhya Pharmaceuticals - Order Form</h2>
+
+  <form id="orderForm">
+    <label>Customer Name: <input type="text" id="customerName" required></label><br>
+    <label>Phone Number: <input type="tel" id="phone" required></label><br>
+    <label>Date: <input type="date" id="date" required></label><br>
+    <label>Order Taken By: <input type="text" id="takenBy" required></label><br><br>
+
+    <label>Item: 
+      <select id="itemSelect" style="width: 300px;">
+        <option value="PANKOL DSR" data-rate="21.00">PANKOL DSR - ₹21.00</option>
+        <option value="SELONAC MR TAB" data-rate="20.50">SELONAC MR TAB - ₹20.50</option>
+        <option value="FORTAFEN MR TAB" data-rate="19.56">FORTAFEN MR TAB - ₹19.56</option>
+        <option value="PANPAZOLE DSR CAP" data-rate="9.00">PANPAZOLE DSR CAP - ₹9.00</option>
+        <option value="LOPRAKING TAB" data-rate="2.16">LOPRAKING TAB - ₹2.16</option>
+        <option value="VOLINI GEL 12GM" data-rate="38.00">VOLINI GEL 12GM - ₹38.00</option>
+        <option value="VOLINI MAXX SPRAY" data-rate="173.00">VOLINI MAXX SPRAY - ₹173.00</option>
+        <option value="CALCILAB K TAB" data-rate="19.00">CALCILAB K TAB - ₹19.00</option>
+        <option value="FCZOL 400 TAB" data-rate="12.50">FCZOL 400 TAB - ₹12.50</option>
+        <option value="AXCLOPAIN-TH TAB" data-rate="65.00">AXCLOPAIN-TH TAB - ₹65.00</option>
+        <!-- Add more items here following the same pattern -->
+      </select>
+    </label>
+    <label>Quantity: <input type="number" id="quantity" min="1"></label>
+    <button type="button" onclick="addItem()">Add</button>
+  </form>
+
+  <table id="orderTable">
+    <thead>
+      <tr><th>Item</th><th>Rate</th><th>Quantity</th><th>Total</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <div class="total">Grand Total: ₹<span id="grandTotal">0.00</span></div>
+
+  <button onclick="generatePDF()">Download PDF</button>
+  <button onclick="sendWhatsApp()">Send via WhatsApp</button>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    const orderItems = [];
+
+    function addItem() {
+      const itemSelect = document.getElementById('itemSelect');
+      const selectedOption = itemSelect.options[itemSelect.selectedIndex];
+      const itemName = selectedOption.value;
+      const rate = parseFloat(selectedOption.getAttribute('data-rate'));
+      const quantity = parseInt(document.getElementById('quantity').value);
+      if (!quantity || quantity <= 0) return;
+
+      const total = rate * quantity;
+      orderItems.push({ item: itemName, rate, quantity, total });
+      updateTable();
+    }
+
+    function updateTable() {
+      const tbody = document.querySelector('#orderTable tbody');
+      tbody.innerHTML = '';
+      let grandTotal = 0;
+      orderItems.forEach(row => {
+        grandTotal += row.total;
+        const tr = `<tr><td>${row.item}</td><td>₹${row.rate}</td><td>${row.quantity}</td><td>₹${row.total.toFixed(2)}</td></tr>`;
+        tbody.innerHTML += tr;
+      });
+      document.getElementById('grandTotal').innerText = grandTotal.toFixed(2);
+    }
+
+    function generatePDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const customerName = document.getElementById('customerName').value;
+      const phone = document.getElementById('phone').value;
+      const date = document.getElementById('date').value;
+      const takenBy = document.getElementById('takenBy').value;
+
+      let y = 10;
+      doc.text(`Customer: ${customerName}`, 10, y);
+      y += 10;
+      doc.text(`Phone: ${phone}`, 10, y);
+      y += 10;
+      doc.text(`Date: ${date}`, 10, y);
+      y += 10;
+      doc.text(`Order Taken By: ${takenBy}`, 10, y);
+      y += 10;
+
+      orderItems.forEach((item, idx) => {
+        y += 10;
+        doc.text(`${idx + 1}. ${item.item} - Qty: ${item.quantity}, Rate: ₹${item.rate}, Total: ₹${item.total.toFixed(2)}`, 10, y);
+      });
+
+      y += 10;
+      doc.text(`Grand Total: ₹${document.getElementById('grandTotal').innerText}`, 10, y);
+      doc.save("order.pdf");
+    }
+
+    function sendWhatsApp() {
+      const customerName = document.getElementById('customerName').value;
+      const phone = document.getElementById('phone').value;
+      const date = document.getElementById('date').value;
+      const takenBy = document.getElementById('takenBy').value;
+      let message = `Order Details\nCustomer: ${customerName}\nPhone: ${phone}\nDate: ${date}\nTaken By: ${takenBy}\n`;
+
+      orderItems.forEach((item, idx) => {
+        message += `\n${idx + 1}. ${item.item} - Qty: ${item.quantity}, Rate: ₹${item.rate}, Total: ₹${item.total.toFixed(2)}`;
+      });
+      message += `\n\nGrand Total: ₹${document.getElementById('grandTotal').innerText}`;
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+    }
+  </script>
 </body>
 </html>
-
