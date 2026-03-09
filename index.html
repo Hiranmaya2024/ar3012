@@ -1,165 +1,202 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aaradhya Pharmaceuticals - Order Form</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    input, select { padding: 5px; margin: 5px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    .total { font-weight: bold; margin-top: 10px; }
-  </style>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Aaradhya Pharmaceuticals - Order Dashboard</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f4f6f9;
+margin:0;
+padding:20px;
+}
+
+.header{
+font-size:26px;
+font-weight:bold;
+margin-bottom:20px;
+}
+
+.stats{
+display:flex;
+gap:20px;
+margin-bottom:20px;
+flex-wrap:wrap;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 4px 8px rgba(0,0,0,0.1);
+min-width:200px;
+}
+
+.card h3{
+margin:0;
+font-size:14px;
+color:#888;
+}
+
+.card h2{
+margin:5px 0 0 0;
+}
+
+.search{
+padding:10px;
+width:300px;
+margin-bottom:20px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+background:white;
+}
+
+th,td{
+padding:10px;
+border-bottom:1px solid #ddd;
+text-align:left;
+}
+
+th{
+background:#2c3e50;
+color:white;
+}
+
+</style>
+
 </head>
+
 <body>
-  <h2>Aaradhya Pharmaceuticals - Order Form</h2>
 
-  <form id="orderForm">
-    <label>Customer Name: <input type="text" id="customerName" required></label><br>
-    <label>Phone Number: <input type="tel" id="phone" required></label><br>
-    <label>Date: <input type="date" id="date" required></label><br>
-    <label>Order Taken By: <input type="text" id="takenBy" required></label><br><br>
+<div class="header">
+📊 Aaradhya Pharmaceuticals Order Dashboard
+</div>
 
-    <label>Item: 
-      <select id="itemSelect" style="width: 300px;">
-        <option value="PANKOL DSR" data-rate="21.00">PANKOL DSR - ₹21.00</option>
-        <option value="SELONAC MR TAB" data-rate="20.50">SELONAC MR TAB - ₹20.50</option>
-        <option value="FORTAFEN MR TAB" data-rate="19.56">FORTAFEN MR TAB - ₹19.56</option>
-        <option value="PANPAZOLE DSR CAP" data-rate="9.00">PANPAZOLE DSR CAP - ₹9.00</option>
-        <option value="LOPRAKING TAB" data-rate="2.16">LOPRAKING TAB - ₹2.16</option>
-        <option value="VOLINI GEL 12GM" data-rate="38.00">VOLINI GEL 12GM - ₹38.00</option>
-        <option value="VOLINI MAXX SPRAY" data-rate="173.00">VOLINI MAXX SPRAY - ₹173.00</option>
-        <option value="CALCILAB K TAB" data-rate="19.00">CALCILAB K TAB - ₹19.00</option>
-        <option value="FCZOL 400 TAB" data-rate="12.50">FCZOL 400 TAB - ₹12.50</option>
-        <option value="AXCLOPAIN-TH TAB" data-rate="65.00">AXCLOPAIN-TH TAB - ₹65.00</option>
-        <option value="PANKOL DSR" data-rate="21.00">PANKOL DSR - ₹21.00</option>
-<option value="SELONAC MR TAB" data-rate="20.50">SELONAC MR TAB - ₹20.50</option>
-<option value="SELONAC SP TAB" data-rate="20.50">SELONAC SP TAB - ₹20.50</option>
-<option value="FORTAFEN MR TAB" data-rate="19.56">FORTAFEN MR TAB - ₹19.56</option>
-<option value="FORTAFEN SP TAB" data-rate="19.50">FORTAFEN SP TAB - ₹19.50</option>
-<option value="PANPAZOLE DSR CAP" data-rate="9.00">PANPAZOLE DSR CAP - ₹9.00</option>
-<option value="LOPRAKING TAB" data-rate="2.16">LOPRAKING TAB - ₹2.16</option>
-<option value="PARAVIS PLUS DS SYP" data-rate="19.40">PARAVIS PLUS DS SYP - ₹19.40</option>
-<option value="AUSTRO SHILAJEET MALT" data-rate="120.00">AUSTRO SHILAJEET MALT - ₹120.00</option>
-<option value="CALCILAB K TAB" data-rate="19.00">CALCILAB K TAB - ₹19.00</option>
-<option value="FCZOL 400 TAB" data-rate="12.50">FCZOL 400 TAB - ₹12.50</option>
-<option value="AXCLOPAIN-TH TAB" data-rate="65.00">AXCLOPAIN-TH TAB - ₹65.00</option>
-<option value="CARE VAGINAL WASH" data-rate="72.00">CARE VAGINAL WASH - ₹72.00</option>
-<option value="CAREPLEX GOLD CAPSULE" data-rate="35.00">CAREPLEX GOLD CAPSULE - ₹35.00</option>
-<option value="LINEZOLID 600 TAB" data-rate="105.00">LINEZOLID 600 TAB - ₹105.00</option>
-<option value="LYCOMAN SYP" data-rate="40.00">LYCOMAN SYP - ₹40.00</option>
-<option value="LYCOZENA-SG CAP" data-rate="45.00">LYCOZENA-SG CAP - ₹45.00</option>
-<option value="MANCARE MULTIVITAMIN SYP" data-rate="33.00">MANCARE MULTIVITAMIN SYP - ₹33.00</option>
-<option value="MONOPOD OF TAB" data-rate="98.00">MONOPOD OF TAB - ₹98.00</option>
-<option value="ZYMCARE FORTE SYP" data-rate="45.00">ZYMCARE FORTE SYP - ₹45.00</option>
-<option value="ALTIMIX-ZM SYP" data-rate="88.14">ALTIMIX-ZM SYP - ₹88.14</option>
-<option value="ALYJOINT OIL" data-rate="85.72">ALYJOINT OIL - ₹85.72</option>
-<option value="APRADOM DSR CAPS" data-rate="82.14">APRADOM DSR CAPS - ₹82.14</option>
-<option value="AZPAR COLD TAB" data-rate="19.00">AZPAR COLD TAB - ₹19.00</option>
-<option value="CEFTORE CV TAB" data-rate="136.00">CEFTORE CV TAB - ₹136.00</option>
-<option value="CYPTOL SYRUP(NEW)" data-rate="85.72">CYPTOL SYRUP(NEW) - ₹85.72</option>
-<option value="DICLEAF GEL" data-rate="82.15">DICLEAF GEL - ₹82.15</option>
-<option value="HUNGEST 200ML" data-rate="34.50">HUNGEST 200ML - ₹34.50</option>
-<option value="JVTUSS ADX SYP" data-rate="36.00">JVTUSS ADX SYP - ₹36.00</option>
-<option value="JVTUSS AX SYP" data-rate="28.00">JVTUSS AX SYP - ₹28.00</option>
-<option value="JVTUSS SYP" data-rate="28.00">JVTUSS SYP - ₹28.00</option>
-<option value="JVTUSS-LS SYP" data-rate="35.00">JVTUSS-LS SYP - ₹35.00</option>
-<option value="LITFER-XT TAB" data-rate="25.00">LITFER-XT TAB - ₹25.00</option>
-<option value="LITZOLE-OC CREAM" data-rate="23.00">LITZOLE-OC CREAM - ₹23.00</option>
-<option value="MOJER LC TAB" data-rate="24.00">MOJER LC TAB - ₹24.00</option>
-<option value="ROMOJET SYRINGE 3ML(24G)" data-rate="2.16">ROMOJET SYRINGE 3ML(24G) - ₹2.16</option>
-<option value="ROMOJET SYRINGE 5ML(24G)" data-rate="2.55">ROMOJET SYRINGE 5ML(24G) - ₹2.55</option>
-<option value="SPECICAN 30ML" data-rate="4.65">SPECICAN 30ML - ₹4.65</option>
-        <!-- Add more items here following the same pattern -->
-      </select>
-    </label>
-    <label>Quantity: <input type="number" id="quantity" min="1"></label>
-    <button type="button" onclick="addItem()">Add</button>
-  </form>
+<div class="stats">
 
-  <table id="orderTable">
-    <thead>
-      <tr><th>Item</th><th>Rate</th><th>Quantity</th><th>Total</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  <div class="total">Grand Total: ₹<span id="grandTotal">0.00</span></div>
+<div class="card">
+<h3>Total Orders</h3>
+<h2 id="totalOrders">0</h2>
+</div>
 
-  <button onclick="generatePDF()">Download PDF</button>
-  <button onclick="sendWhatsApp()">Send via WhatsApp</button>
+<div class="card">
+<h3>Total Sales</h3>
+<h2 id="totalSales">₹0</h2>
+</div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script>
-    const orderItems = [];
+</div>
 
-    function addItem() {
-      const itemSelect = document.getElementById('itemSelect');
-      const selectedOption = itemSelect.options[itemSelect.selectedIndex];
-      const itemName = selectedOption.value;
-      const rate = parseFloat(selectedOption.getAttribute('data-rate'));
-      const quantity = parseInt(document.getElementById('quantity').value);
-      if (!quantity || quantity <= 0) return;
+<input class="search" placeholder="Search Shop / Mobile..." onkeyup="searchOrders(this.value)">
 
-      const total = rate * quantity;
-      orderItems.push({ item: itemName, rate, quantity, total });
-      updateTable();
-    }
+<table>
 
-    function updateTable() {
-      const tbody = document.querySelector('#orderTable tbody');
-      tbody.innerHTML = '';
-      let grandTotal = 0;
-      orderItems.forEach(row => {
-        grandTotal += row.total;
-        const tr = `<tr><td>${row.item}</td><td>₹${row.rate}</td><td>${row.quantity}</td><td>₹${row.total.toFixed(2)}</td></tr>`;
-        tbody.innerHTML += tr;
-      });
-      document.getElementById('grandTotal').innerText = grandTotal.toFixed(2);
-    }
+<thead>
 
-    function generatePDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      const customerName = document.getElementById('customerName').value;
-      const phone = document.getElementById('phone').value;
-      const date = document.getElementById('date').value;
-      const takenBy = document.getElementById('takenBy').value;
+<tr>
+<th>OrderID</th>
+<th>Date</th>
+<th>Shop</th>
+<th>Mobile</th>
+<th>Item</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>LineTotal</th>
+<th>OrderTotal</th>
+</tr>
 
-      let y = 10;
-      doc.text(`Customer: ${customerName}`, 10, y);
-      y += 10;
-      doc.text(`Phone: ${phone}`, 10, y);
-      y += 10;
-      doc.text(`Date: ${date}`, 10, y);
-      y += 10;
-      doc.text(`Order Taken By: ${takenBy}`, 10, y);
-      y += 10;
+</thead>
 
-      orderItems.forEach((item, idx) => {
-        y += 10;
-        doc.text(`${idx + 1}. ${item.item} - Qty: ${item.quantity}, Rate: ₹${item.rate}, Total: ₹${item.total.toFixed(2)}`, 10, y);
-      });
+<tbody id="tableBody">
 
-      y += 10;
-      doc.text(`Grand Total: ₹${document.getElementById('grandTotal').innerText}`, 10, y);
-      doc.save("order.pdf");
-    }
+</tbody>
 
-    function sendWhatsApp() {
-      const customerName = document.getElementById('customerName').value;
-      const phone = document.getElementById('phone').value;
-      const date = document.getElementById('date').value;
-      const takenBy = document.getElementById('takenBy').value;
-      let message = `Order Details\nCustomer: ${customerName}\nPhone: ${phone}\nDate: ${date}\nTaken By: ${takenBy}\n`;
+</table>
 
-      orderItems.forEach((item, idx) => {
-        message += `\n${idx + 1}. ${item.item} - Qty: ${item.quantity}, Rate: ₹${item.rate}, Total: ₹${item.total.toFixed(2)}`;
-      });
-      message += `\n\nGrand Total: ₹${document.getElementById('grandTotal').innerText}`;
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-      window.open(whatsappUrl, '_blank');
-    }
-  </script>
+<script>
+
+const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQjkW5XHuvf8ocW1devsrfnMxAhEoYL1p_wkHFjXNleB_GHfLaqO3nrZi6ZqMh3DvzJE6Krrk3L3kk0/pub?gid=0&single=true&output=csv"
+
+let orders=[]
+
+async function loadOrders(){
+
+let res = await fetch(sheetURL)
+let data = await res.text()
+
+let rows = data.split("\n").slice(1)
+
+orders = rows.map(r => r.split(","))
+
+renderTable(orders)
+calculateStats()
+
+}
+
+function renderTable(data){
+
+let html=""
+
+data.forEach(o=>{
+
+if(o.length<8) return
+
+html+=`
+<tr>
+<td>${o[0]}</td>
+<td>${o[1]}</td>
+<td>${o[2]}</td>
+<td>${o[3]}</td>
+<td>${o[4]}</td>
+<td>${o[5]}</td>
+<td>${o[6]}</td>
+<td>${o[7]}</td>
+<td>${o[8]}</td>
+</tr>
+`
+
+})
+
+document.getElementById("tableBody").innerHTML=html
+
+}
+
+function calculateStats(){
+
+document.getElementById("totalOrders").innerText = orders.length
+
+let total=0
+
+orders.forEach(o=>{
+total += parseFloat(o[8] || 0)
+})
+
+document.getElementById("totalSales").innerText = "₹"+total.toLocaleString()
+
+}
+
+function searchOrders(q){
+
+q=q.toLowerCase()
+
+let filtered = orders.filter(o => 
+(o[2] && o[2].toLowerCase().includes(q)) ||
+(o[3] && o[3].toLowerCase().includes(q))
+)
+
+renderTable(filtered)
+
+}
+
+loadOrders()
+
+</script>
+
 </body>
 </html>
