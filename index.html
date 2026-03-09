@@ -4,7 +4,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Aaradhya Pharmaceuticals - Order Dashboard</title>
+<title>Aaradhya Pharma Order Dashboard</title>
 
 <style>
 
@@ -16,57 +16,72 @@ padding:20px;
 }
 
 .header{
-font-size:26px;
+font-size:24px;
 font-weight:bold;
 margin-bottom:20px;
 }
 
-.stats{
-display:flex;
-gap:20px;
-margin-bottom:20px;
-flex-wrap:wrap;
-}
+.orderCard{
 
-.card{
 background:white;
+border-radius:12px;
 padding:20px;
-border-radius:10px;
-box-shadow:0 4px 8px rgba(0,0,0,0.1);
-min-width:200px;
+margin-bottom:20px;
+
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+
 }
 
-.card h3{
-margin:0;
-font-size:14px;
-color:#888;
+.orderHeader{
+
+display:flex;
+justify-content:space-between;
+margin-bottom:10px;
+
 }
 
-.card h2{
-margin:5px 0 0 0;
+.orderNumber{
+
+font-size:18px;
+font-weight:bold;
+
+}
+
+.shop{
+
+color:#555;
+
+}
+
+.items{
+
+margin-top:10px;
+
+}
+
+.itemRow{
+
+display:flex;
+justify-content:space-between;
+
+padding:8px 0;
+
+border-bottom:1px solid #eee;
+
+}
+
+.total{
+
+margin-top:10px;
+font-weight:bold;
+font-size:16px;
+
 }
 
 .search{
 padding:10px;
 width:300px;
 margin-bottom:20px;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-background:white;
-}
-
-th,td{
-padding:10px;
-border-bottom:1px solid #ddd;
-text-align:left;
-}
-
-th{
-background:#2c3e50;
-color:white;
 }
 
 </style>
@@ -76,108 +91,129 @@ color:white;
 <body>
 
 <div class="header">
-📊 Aaradhya Pharmaceuticals Order Dashboard
+📦 Aaradhya Pharmaceuticals Order History
 </div>
 
-<div class="stats">
+<input class="search" placeholder="Search Shop / Mobile" onkeyup="searchOrders(this.value)">
 
-<div class="card">
-<h3>Total Orders</h3>
-<h2 id="totalOrders">0</h2>
-</div>
-
-<div class="card">
-<h3>Total Sales</h3>
-<h2 id="totalSales">₹0</h2>
-</div>
-
-</div>
-
-<input class="search" placeholder="Search Shop / Mobile..." onkeyup="searchOrders(this.value)">
-
-<table>
-
-<thead>
-
-<tr>
-<th>OrderID</th>
-<th>Date</th>
-<th>Shop</th>
-<th>Mobile</th>
-<th>Item</th>
-<th>Qty</th>
-<th>Rate</th>
-<th>LineTotal</th>
-<th>OrderTotal</th>
-</tr>
-
-</thead>
-
-<tbody id="tableBody">
-
-</tbody>
-
-</table>
+<div id="ordersContainer"></div>
 
 <script>
 
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQjkW5XHuvf8ocW1devsrfnMxAhEoYL1p_wkHFjXNleB_GHfLaqO3nrZi6ZqMh3DvzJE6Krrk3L3kk0/pub?gid=0&single=true&output=csv"
 
-let orders=[]
+let groupedOrders = []
 
 async function loadOrders(){
 
 let res = await fetch(sheetURL)
-let data = await res.text()
+let csv = await res.text()
 
-let rows = data.split("\n").slice(1)
+let rows = csv.split("\n").slice(1)
 
-orders = rows.map(r => r.split(","))
+let orders={}
 
-renderTable(orders)
-calculateStats()
+rows.forEach(r=>{
+
+let c = r.split(",")
+
+let orderId = c[0]
+
+if(!orders[orderId]){
+
+orders[orderId]={
+
+orderId:c[0],
+date:c[1],
+shop:c[2],
+mobile:c[3],
+items:[],
+total:c[8]
 
 }
 
-function renderTable(data){
+}
+
+orders[orderId].items.push({
+
+item:c[4],
+qty:c[5],
+rate:c[6],
+lineTotal:c[7]
+
+})
+
+})
+
+groupedOrders = Object.values(orders)
+
+renderOrders(groupedOrders)
+
+}
+
+function renderOrders(data){
+
+let container=document.getElementById("ordersContainer")
 
 let html=""
 
 data.forEach(o=>{
 
-if(o.length<8) return
+html+=`
+
+<div class="orderCard">
+
+<div class="orderHeader">
+
+<div>
+
+<div class="orderNumber">Order #${o.orderId}</div>
+<div class="shop">${o.shop} | ${o.mobile}</div>
+<div>${o.date}</div>
+
+</div>
+
+</div>
+
+<div class="items">
+
+`
+
+o.items.forEach(i=>{
 
 html+=`
-<tr>
-<td>${o[0]}</td>
-<td>${o[1]}</td>
-<td>${o[2]}</td>
-<td>${o[3]}</td>
-<td>${o[4]}</td>
-<td>${o[5]}</td>
-<td>${o[6]}</td>
-<td>${o[7]}</td>
-<td>${o[8]}</td>
-</tr>
+
+<div class="itemRow">
+
+<div>${i.item}</div>
+
+<div>
+${i.qty} × ₹${i.rate} = ₹${i.lineTotal}
+</div>
+
+</div>
+
 `
 
 })
 
-document.getElementById("tableBody").innerHTML=html
+html+=`
 
-}
+</div>
 
-function calculateStats(){
+<div class="total">
 
-document.getElementById("totalOrders").innerText = orders.length
+Order Total: ₹${o.total}
 
-let total=0
+</div>
 
-orders.forEach(o=>{
-total += parseFloat(o[8] || 0)
+</div>
+
+`
+
 })
 
-document.getElementById("totalSales").innerText = "₹"+total.toLocaleString()
+container.innerHTML=html
 
 }
 
@@ -185,12 +221,12 @@ function searchOrders(q){
 
 q=q.toLowerCase()
 
-let filtered = orders.filter(o => 
-(o[2] && o[2].toLowerCase().includes(q)) ||
-(o[3] && o[3].toLowerCase().includes(q))
+let filtered = groupedOrders.filter(o =>
+o.shop.toLowerCase().includes(q) ||
+o.mobile.includes(q)
 )
 
-renderTable(filtered)
+renderOrders(filtered)
 
 }
 
