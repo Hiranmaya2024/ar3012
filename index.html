@@ -1,238 +1,570 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" data-theme="dark-clinical">
 <head>
-
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aaradhya Pharmaceuticals · Order Dashboard</title>
 
-<title>Aaradhya Pharma Order Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
 
 <style>
-
-body{
-font-family:Arial;
-background:#f4f6f9;
-margin:0;
-padding:20px;
+/* ═══════════════════════════════════════════════
+   THEME VARIABLES — mirrors main app exactly
+═══════════════════════════════════════════════ */
+:root {
+  --bg:            #080c16;
+  --s1:            #0d1528;
+  --s2:            #121d35;
+  --s3:            #172240;
+  --b1:            #1a2a50;
+  --b2:            #223368;
+  --acc:           #00e5ff;
+  --acc2:          #00b8cc;
+  --acc-bg:        rgba(0,229,255,.07);
+  --acc2-bg:       rgba(0,229,255,.12);
+  --red:           #ff3355;
+  --amber:         #ffbb00;
+  --green:         #00e070;
+  --text:          #c0d4f0;
+  --text2:         #5a80b0;
+  --muted:         #1e3060;
+  --rule:          #1a2a50;
+  --rule2:         #223368;
+  --font-disp:     'Orbitron', monospace;
+  --font-head:     'Rajdhani', sans-serif;
+  --font-body:     'Roboto Condensed', sans-serif;
+  --font-mono:     'Roboto Condensed', monospace;
+  --header-bg:     rgba(8,12,22,.97);
+  --header-border: #1a2a50;
+  --header-text:   #00e5ff;
+  --header-sub:    #5a80b0;
+  --card-bg:       #0d1528;
+  --card-border:   #1a2a50;
+  --card-head-bg:  #121d35;
+  --input-bg:      #121d35;
+  --panel-bg:      #0d1528;
+  --badge-good-bg: rgba(0,224,112,.1);
+  --badge-good-fg: #00e070;
+  --badge-good-bdr:rgba(0,224,112,.2);
+  --badge-warn-bg: rgba(255,187,0,.1);
+  --badge-warn-fg: #ffbb00;
+  --badge-warn-bdr:rgba(255,187,0,.2);
+  --badge-bad-bg:  rgba(255,51,85,.1);
+  --badge-bad-fg:  #ff3355;
+  --badge-bad-bdr: rgba(255,51,85,.2);
+  --border-radius: 6px;
+  --card-radius:   6px;
+  --btn-radius:    4px;
+  --shadow:        0 8px 32px rgba(0,0,0,.5);
+  --sweep-color:   linear-gradient(90deg, transparent, #00e5ff, #00b8cc, transparent);
 }
 
-.header{
-font-size:24px;
-font-weight:bold;
-margin-bottom:20px;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-.orderCard{
-
-background:white;
-border-radius:12px;
-padding:20px;
-margin-bottom:20px;
-
-box-shadow:0 4px 10px rgba(0,0,0,0.1);
-
+/* dot grid */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: radial-gradient(circle, rgba(128,128,128,.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none; z-index: 0;
 }
 
-.orderHeader{
+/* ─── LOADER ─── */
+.loader {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 9999;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 16px;
+  transition: opacity .7s;
+}
+.loader.out { opacity: 0; pointer-events: none; }
+.loader-icon { font-size: 44px; animation: loaderFloat 1.8s ease-in-out infinite; }
+@keyframes loaderFloat { 0%,100%{transform:translateY(0) rotate(-5deg)} 50%{transform:translateY(-12px) rotate(5deg)} }
+.loader-title { font-family: var(--font-disp); font-size: 18px; color: var(--acc); letter-spacing: .08em; }
+.loader-bar { width: 160px; height: 3px; background: var(--b1); overflow: hidden; border-radius: 2px; }
+.loader-fill { height: 100%; width: 0; background: var(--acc); animation: barFill 1.8s ease forwards; border-radius: 2px; }
+@keyframes barFill { to { width: 100%; } }
+.loader-sub { font-family: var(--font-mono); font-size: 10px; color: var(--text2); letter-spacing: .18em; text-transform: uppercase; }
 
-display:flex;
-justify-content:space-between;
-margin-bottom:10px;
+/* ─── HEADER ─── */
+header {
+  position: sticky; top: 0; z-index: 200;
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--header-border);
+  backdrop-filter: blur(20px);
+}
+header::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: var(--sweep-color);
+  background-size: 200%;
+  animation: sweep 3s linear infinite;
+}
+@keyframes sweep { 0%{background-position:0%} 100%{background-position:200%} }
 
+.h-inner {
+  max-width: 1400px; margin: auto;
+  padding: 0 20px; height: 60px;
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+}
+.logo { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.logo-icon {
+  width: 38px; height: 38px;
+  background: var(--acc-bg);
+  border: 1.5px solid var(--acc);
+  border-radius: var(--card-radius);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.brand-name {
+  font-family: var(--font-disp);
+  font-size: 15px; color: var(--header-text);
+  letter-spacing: .04em; line-height: 1;
+  white-space: nowrap;
+}
+.brand-sub {
+  font-family: var(--font-mono);
+  font-size: 9px; color: var(--header-sub);
+  letter-spacing: .16em; text-transform: uppercase; margin-top: 3px;
+}
+.v-badge {
+  font-family: var(--font-mono); font-size: 9px; font-weight: 700;
+  color: var(--bg); background: var(--acc);
+  border-radius: 3px; padding: 2px 6px;
+  letter-spacing: .06em; opacity: .85;
+}
+.h-mid { flex: 1; display: flex; justify-content: center; }
+.live-chip {
+  display: flex; align-items: center; gap: 7px;
+  background: var(--acc-bg); border: 1px solid var(--b2);
+  border-radius: 20px; padding: 4px 14px;
+  font-family: var(--font-mono); font-size: 10px; color: var(--text2); letter-spacing: .08em;
+}
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--acc); animation: ldot 1.8s ease-in-out infinite; }
+@keyframes ldot { 0%,100%{opacity:.3;transform:scale(.8)} 50%{opacity:1;transform:scale(1.2)} }
+.h-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.stat-chip {
+  background: var(--acc-bg); border: 1px solid var(--b1);
+  border-radius: var(--btn-radius); padding: 5px 14px;
+  font-family: var(--font-mono); font-size: 11px; color: var(--text2);
+  white-space: nowrap;
+}
+.stat-chip strong { color: var(--acc); }
+
+/* ─── WRAP ─── */
+.wrap { max-width: 1400px; margin: auto; padding: 20px; position: relative; z-index: 1; }
+
+/* ─── SECTION LABEL ─── */
+.s-lbl {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+  font-family: var(--font-mono); font-size: 10px; color: var(--acc);
+  letter-spacing: .18em; text-transform: uppercase;
+}
+.s-lbl::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, var(--b2), transparent); }
+
+/* ─── TOOLBAR ─── */
+.toolbar {
+  background: var(--panel-bg); border: 1px solid var(--card-border);
+  border-radius: var(--card-radius); padding: 12px 14px; margin-bottom: 16px;
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;
+}
+.field { flex: 1; min-width: 200px; }
+.f-lbl { font-family: var(--font-mono); font-size: 9px; color: var(--text2); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 5px; }
+.sw { position: relative; }
+.si { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text2); pointer-events: none; font-size: 13px; }
+input, select {
+  background: var(--input-bg); border: 1px solid var(--b1);
+  color: var(--text); padding: 9px 10px 9px 33px;
+  border-radius: var(--btn-radius);
+  font-family: var(--font-body); font-size: 13px; font-weight: 500;
+  width: 100%; outline: none; transition: all .2s; -webkit-appearance: none;
+}
+select { padding-left: 10px; }
+input:focus, select:focus { border-color: var(--acc); box-shadow: 0 0 0 2px var(--acc-bg); }
+input::placeholder { color: var(--muted); font-weight: 400; }
+
+/* ─── SORT TABS ─── */
+.tabs { display: flex; gap: 5px; margin-bottom: 16px; flex-wrap: wrap; }
+.tab {
+  padding: 7px 18px; border: 1px solid var(--b1);
+  background: var(--panel-bg); cursor: pointer;
+  font-family: var(--font-head); font-size: 12px; font-weight: 600; color: var(--text2);
+  border-radius: var(--btn-radius); transition: all .2s; letter-spacing: .02em;
+}
+.tab:hover:not(.on) { border-color: var(--b2); color: var(--text); background: var(--s2); }
+.tab.on { background: var(--acc); color: var(--bg); border-color: var(--acc2); font-weight: 700; }
+
+/* ─── SUMMARY CARDS ─── */
+.summary-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px; margin-bottom: 20px;
+}
+.sum-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--card-radius); padding: 16px;
+  display: flex; flex-direction: column; gap: 4px;
+  box-shadow: var(--shadow); animation: cardIn .4s ease both;
+  position: relative; overflow: hidden;
+}
+.sum-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--acc);
+}
+.sum-lbl { font-family: var(--font-mono); font-size: 9px; color: var(--text2); letter-spacing: .16em; text-transform: uppercase; }
+.sum-val { font-family: var(--font-disp); font-size: 22px; color: var(--acc); letter-spacing: .04em; line-height: 1.2; }
+.sum-sub { font-family: var(--font-mono); font-size: 9px; color: var(--muted); }
+
+/* ─── ORDER CARDS ─── */
+.orders-list { display: flex; flex-direction: column; gap: 12px; }
+.order-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--card-radius); overflow: hidden;
+  box-shadow: var(--shadow); transition: all .25s;
+  animation: cardIn .4s ease both;
+}
+@keyframes cardIn { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+.order-card:hover { border-color: var(--b2); transform: translateY(-2px); }
+
+.order-top-bar { height: 3px; background: var(--acc); }
+
+.order-head {
+  padding: 12px 16px; background: var(--card-head-bg);
+  border-bottom: 1px solid var(--b1);
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+  flex-wrap: wrap;
+}
+.order-id {
+  font-family: var(--font-disp); font-size: 13px; color: var(--acc);
+  letter-spacing: .04em;
+}
+.order-meta {
+  display: flex; gap: 16px; flex-wrap: wrap; margin-top: 4px;
+}
+.meta-item {
+  display: flex; align-items: center; gap: 5px;
+  font-family: var(--font-mono); font-size: 10px; color: var(--text2);
+}
+.meta-item span { color: var(--text); font-weight: 600; }
+.order-date {
+  font-family: var(--font-mono); font-size: 10px; color: var(--text2);
+  letter-spacing: .06em; text-align: right; flex-shrink: 0;
+}
+.order-total-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--acc-bg); border: 1px solid var(--acc2);
+  border-radius: var(--btn-radius); padding: 4px 10px;
+  font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--acc);
+  white-space: nowrap;
 }
 
-.orderNumber{
-
-font-size:18px;
-font-weight:bold;
-
+/* ─── ITEM TABLE ─── */
+.items-table { width: 100%; border-collapse: collapse; }
+.items-table thead tr {
+  background: var(--s2);
+  border-bottom: 1px solid var(--b1);
+}
+.items-table th {
+  font-family: var(--font-mono); font-size: 9px; color: var(--text2);
+  letter-spacing: .14em; text-transform: uppercase;
+  padding: 7px 16px; text-align: left; font-weight: 600;
+}
+.items-table th:last-child, .items-table td:last-child { text-align: right; }
+.items-table tbody tr {
+  border-bottom: 1px solid var(--b1);
+  transition: background .15s;
+}
+.items-table tbody tr:last-child { border-bottom: none; }
+.items-table tbody tr:hover { background: var(--acc-bg); }
+.items-table td {
+  padding: 9px 16px;
+  font-family: var(--font-body); font-size: 12px; color: var(--text);
+}
+.item-name { font-weight: 600; color: var(--text); }
+.td-mono { font-family: var(--font-mono); font-size: 11px; }
+.td-green { color: var(--green); font-weight: 700; }
+.item-count-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--badge-warn-bg); border: 1px solid var(--badge-warn-bdr);
+  border-radius: var(--btn-radius); padding: 2px 7px;
+  font-family: var(--font-mono); font-size: 9px; color: var(--badge-warn-fg);
 }
 
-.shop{
-
-color:#555;
-
+/* ─── ORDER FOOTER ─── */
+.order-foot {
+  padding: 10px 16px;
+  background: var(--s2); border-top: 1px solid var(--b1);
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  flex-wrap: wrap;
 }
-
-.items{
-
-margin-top:10px;
-
+.foot-items { font-family: var(--font-mono); font-size: 10px; color: var(--text2); }
+.foot-total {
+  font-family: var(--font-disp); font-size: 14px; color: var(--acc);
+  letter-spacing: .04em;
 }
+.foot-total small { font-family: var(--font-mono); font-size: 9px; color: var(--text2); margin-right: 6px; letter-spacing: .1em; }
 
-.itemRow{
+/* ─── EMPTY STATE ─── */
+.empty-s { padding: 64px 20px; text-align: center; }
+.empty-icon { font-size: 40px; opacity: .1; display: block; margin-bottom: 14px; }
+.empty-title { font-family: var(--font-head); font-size: 16px; color: var(--text2); font-weight: 700; }
+.empty-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
 
-display:flex;
-justify-content:space-between;
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--s1); }
+::-webkit-scrollbar-thumb { background: var(--b2); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--acc); }
 
-padding:8px 0;
-
-border-bottom:1px solid #eee;
-
+/* ─── RESPONSIVE ─── */
+@media(max-width:768px) {
+  .h-mid { display: none; }
+  .h-inner { height: 54px; padding: 0 14px; }
+  .brand-sub { display: none; }
+  .summary-grid { grid-template-columns: 1fr 1fr; }
+  .items-table th:nth-child(3), .items-table td:nth-child(3) { display: none; }
 }
-
-.total{
-
-margin-top:10px;
-font-weight:bold;
-font-size:16px;
-
+@media(max-width:480px) {
+  .wrap { padding: 10px; }
+  .summary-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .order-head { flex-direction: column; }
+  .items-table th:nth-child(4), .items-table td:nth-child(4) { display: none; }
 }
-
-.search{
-padding:10px;
-width:300px;
-margin-bottom:20px;
-}
-
 </style>
-
 </head>
-
 <body>
 
-<div class="header">
-📦 Aaradhya Pharmaceuticals Order History
+<!-- ─── LOADER ─── -->
+<div class="loader" id="loader">
+  <div class="loader-icon">📦</div>
+  <div class="loader-title">Aaradhya Pharmaceuticals</div>
+  <div class="loader-bar"><div class="loader-fill"></div></div>
+  <div class="loader-sub">Loading Order History</div>
 </div>
 
-<input class="search" placeholder="Search Shop / Mobile" onkeyup="searchOrders(this.value)">
+<!-- ─── HEADER ─── -->
+<header>
+  <div class="h-inner">
+    <div class="logo">
+      <div class="logo-icon">📦</div>
+      <div>
+        <div class="brand-name">Aaradhya Pharmaceuticals</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
+          <div class="brand-sub">Order Dashboard</div>
+          <span class="v-badge">v1.1</span>
+        </div>
+      </div>
+    </div>
+    <div class="h-mid">
+      <div class="live-chip">
+        <div class="live-dot"></div>
+        Order History · <span id="totalOrdersChip" style="color:var(--acc);margin:0 3px">—</span> Orders · <span id="totalRevenueChip" style="color:var(--acc);margin:0 3px">₹—</span> Revenue
+      </div>
+    </div>
+    <div class="h-right">
+      <div class="stat-chip">Orders Today: <strong id="todayCount">—</strong></div>
+    </div>
+  </div>
+</header>
 
-<div id="ordersContainer"></div>
+<!-- ─── MAIN ─── -->
+<div class="wrap">
+
+  <!-- Summary strip -->
+  <div class="s-lbl">📊 Summary</div>
+  <div class="summary-grid" id="summaryGrid">
+    <div class="sum-card"><div class="sum-lbl">Total Orders</div><div class="sum-val" id="sumOrders">—</div><div class="sum-sub">All time</div></div>
+    <div class="sum-card"><div class="sum-lbl">Total Revenue</div><div class="sum-val" id="sumRevenue">—</div><div class="sum-sub">Order totals</div></div>
+    <div class="sum-card"><div class="sum-lbl">Total Items Sold</div><div class="sum-val" id="sumItems">—</div><div class="sum-sub">Units dispatched</div></div>
+    <div class="sum-card"><div class="sum-lbl">Unique Shops</div><div class="sum-val" id="sumShops">—</div><div class="sum-sub">Active customers</div></div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="s-lbl">🔍 Filter Orders</div>
+  <div class="toolbar">
+    <div class="field">
+      <div class="f-lbl">🔍 Search Shop / Mobile</div>
+      <div class="sw">
+        <span class="si">⌕</span>
+        <input id="searchInput" placeholder="Type shop name or phone number..." oninput="applyFilters()">
+      </div>
+    </div>
+    <div class="field" style="max-width:200px">
+      <div class="f-lbl">📅 Sort By</div>
+      <select id="sortSelect" onchange="applyFilters()">
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+        <option value="total_high">Highest Total</option>
+        <option value="total_low">Lowest Total</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Orders list -->
+  <div class="s-lbl">📦 Order History</div>
+  <div class="orders-list" id="ordersContainer"></div>
+
+</div>
 
 <script>
+const SHEET = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQjkW5XHuvf8ocW1devsrfnMxAhEoYL1p_wkHFjXNleB_GHfLaqO3nrZi6ZqMh3DvzJE6Krrk3L3kk0/pub?gid=0&single=true&output=csv";
 
-const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQjkW5XHuvf8ocW1devsrfnMxAhEoYL1p_wkHFjXNleB_GHfLaqO3nrZi6ZqMh3DvzJE6Krrk3L3kk0/pub?gid=0&single=true&output=csv"
+let allOrders = [];
 
-let groupedOrders = []
+async function loadOrders() {
+  try {
+    const res = await fetch(SHEET);
+    const csv = await res.text();
+    const rows = csv.split("\n").slice(1).filter(r => r.trim());
 
-async function loadOrders(){
+    const map = {};
+    rows.forEach(r => {
+      // Handle commas inside quoted fields
+      const c = r.match(/(".*?"|[^,]+)(?=,|$)/g) || r.split(",");
+      const clean = c.map(v => v.replace(/^"|"$/g, '').trim());
 
-let res = await fetch(sheetURL)
-let csv = await res.text()
+      const orderId = clean[0];
+      if (!orderId) return;
 
-let rows = csv.split("\n").slice(1)
+      if (!map[orderId]) {
+        map[orderId] = {
+          orderId: clean[0],
+          date:    clean[1],
+          shop:    clean[2],
+          mobile:  clean[3],
+          items:   [],
+          total:   parseFloat(clean[8]) || 0,
+        };
+      }
+      map[orderId].items.push({
+        item:      clean[4],
+        qty:       parseFloat(clean[5]) || 0,
+        rate:      parseFloat(clean[6]) || 0,
+        lineTotal: parseFloat(clean[7]) || 0,
+      });
+    });
 
-let orders={}
+    allOrders = Object.values(map).reverse(); // newest first by default
+    updateSummary();
+    applyFilters();
 
-rows.forEach(r=>{
-
-let c = r.split(",")
-
-let orderId = c[0]
-
-if(!orders[orderId]){
-
-orders[orderId]={
-
-orderId:c[0],
-date:c[1],
-shop:c[2],
-mobile:c[3],
-items:[],
-total:c[8]
-
+    // Hide loader
+    const l = document.getElementById("loader");
+    l.classList.add("out");
+    setTimeout(() => l.remove(), 800);
+  } catch(err) {
+    document.getElementById("loader").innerHTML = `
+      <div style="font-size:40px;opacity:.15">⚠</div>
+      <div style="font-family:var(--font-head);font-size:18px;color:var(--red)">Failed to load orders</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:6px">Please refresh the page</div>`;
+  }
 }
 
+function updateSummary() {
+  const totalRev  = allOrders.reduce((s, o) => s + o.total, 0);
+  const totalItems= allOrders.reduce((s, o) => s + o.items.reduce((si, i) => si + i.qty, 0), 0);
+  const shops     = new Set(allOrders.map(o => o.mobile)).size;
+
+  document.getElementById("sumOrders").textContent  = allOrders.length;
+  document.getElementById("sumRevenue").textContent = "₹" + totalRev.toLocaleString('en-IN', {maximumFractionDigits:0});
+  document.getElementById("sumItems").textContent   = totalItems.toLocaleString('en-IN');
+  document.getElementById("sumShops").textContent   = shops;
+
+  document.getElementById("totalOrdersChip").textContent = allOrders.length;
+  document.getElementById("totalRevenueChip").textContent = "₹" + totalRev.toLocaleString('en-IN', {maximumFractionDigits:0});
+
+  const today = new Date().toLocaleDateString('en-IN');
+  const todayOrders = allOrders.filter(o => o.date.includes(new Date().toLocaleDateString('en-IN', {day:'2-digit',month:'2-digit',year:'numeric'}))).length;
+  document.getElementById("todayCount").textContent = todayOrders || "—";
 }
 
-orders[orderId].items.push({
+function applyFilters() {
+  const q    = document.getElementById("searchInput").value.toLowerCase().trim();
+  const sort = document.getElementById("sortSelect").value;
 
-item:c[4],
-qty:c[5],
-rate:c[6],
-lineTotal:c[7]
+  let data = allOrders.filter(o =>
+    (o.shop   || "").toLowerCase().includes(q) ||
+    (o.mobile || "").includes(q) ||
+    (o.orderId|| "").toLowerCase().includes(q)
+  );
 
-})
+  if (sort === "oldest")     data = [...data].reverse();
+  if (sort === "total_high") data = [...data].sort((a,b) => b.total - a.total);
+  if (sort === "total_low")  data = [...data].sort((a,b) => a.total - b.total);
 
-})
-
-groupedOrders = Object.values(orders)
-
-renderOrders(groupedOrders)
-
+  renderOrders(data);
 }
 
-function renderOrders(data){
+function renderOrders(data) {
+  const container = document.getElementById("ordersContainer");
 
-let container=document.getElementById("ordersContainer")
+  if (!data.length) {
+    container.innerHTML = `
+      <div class="empty-s">
+        <span class="empty-icon">📦</span>
+        <div class="empty-title">No Orders Found</div>
+        <div class="empty-sub">Try adjusting your search</div>
+      </div>`;
+    return;
+  }
 
-let html=""
+  container.innerHTML = data.map((o, idx) => {
+    const itemRows = o.items.map(i => `
+      <tr>
+        <td class="item-name">${i.item || "—"}</td>
+        <td class="td-mono">${i.qty}</td>
+        <td class="td-mono">₹${i.rate.toFixed(2)}</td>
+        <td class="td-mono td-green">₹${i.lineTotal.toFixed(2)}</td>
+      </tr>`).join("");
 
-data.forEach(o=>{
-
-html+=`
-
-<div class="orderCard">
-
-<div class="orderHeader">
-
-<div>
-
-<div class="orderNumber">Order #${o.orderId}</div>
-<div class="shop">${o.shop} | ${o.mobile}</div>
-<div>${o.date}</div>
-
-</div>
-
-</div>
-
-<div class="items">
-
-`
-
-o.items.forEach(i=>{
-
-html+=`
-
-<div class="itemRow">
-
-<div>${i.item}</div>
-
-<div>
-${i.qty} × ₹${i.rate} = ₹${i.lineTotal}
-</div>
-
-</div>
-
-`
-
-})
-
-html+=`
-
-</div>
-
-<div class="total">
-
-Order Total: ₹${o.total}
-
-</div>
-
-</div>
-
-`
-
-})
-
-container.innerHTML=html
-
+    return `
+      <div class="order-card" style="animation-delay:${idx * .04}s">
+        <div class="order-top-bar"></div>
+        <div class="order-head">
+          <div>
+            <div class="order-id">${o.orderId}</div>
+            <div class="order-meta">
+              <div class="meta-item">🏪 <span>${o.shop || "—"}</span></div>
+              <div class="meta-item">📱 <span>${o.mobile || "—"}</span></div>
+              <div class="meta-item">
+                <span class="item-count-badge">${o.items.length} item${o.items.length !== 1 ? 's' : ''}</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+            <div class="order-date">${o.date || "—"}</div>
+            <div class="order-total-badge">₹${o.total.toFixed(2)}</div>
+          </div>
+        </div>
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th>Medicine</th>
+              <th>Qty</th>
+              <th>Rate</th>
+              <th>Line Total</th>
+            </tr>
+          </thead>
+          <tbody>${itemRows}</tbody>
+        </table>
+        <div class="order-foot">
+          <div class="foot-items">${o.items.length} medicine${o.items.length !== 1 ? 's' : ''} in this order</div>
+          <div class="foot-total"><small>ORDER TOTAL</small>₹${o.total.toFixed(2)}</div>
+        </div>
+      </div>`;
+  }).join("");
 }
 
-function searchOrders(q){
-
-q=q.toLowerCase()
-
-let filtered = groupedOrders.filter(o =>
-o.shop.toLowerCase().includes(q) ||
-o.mobile.includes(q)
-)
-
-renderOrders(filtered)
-
-}
-
-loadOrders()
-
+loadOrders();
 </script>
-
 </body>
 </html>
