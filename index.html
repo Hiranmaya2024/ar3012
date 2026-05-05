@@ -2,917 +2,435 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>NexusCAM — Surveillance Control System</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #030a0f;
-    --panel: #050e17;
-    --panel2: #071422;
-    --border: #0d2a3a;
-    --accent: #00d4ff;
-    --accent2: #00ff88;
-    --accent3: #ff4444;
-    --warn: #ffaa00;
-    --text: #c8e8f0;
-    --muted: #4a7a8a;
-    --glow: 0 0 20px rgba(0,212,255,0.3);
-    --glow2: 0 0 20px rgba(0,255,136,0.3);
-  }
+:root{
+  --bg:#030a0f;--panel:#050e17;--panel2:#071422;--border:#0d2a3a;
+  --accent:#00d4ff;--accent2:#00ff88;--accent3:#ff4444;--warn:#ffaa00;
+  --text:#c8e8f0;--muted:#4a7a8a;
+  --glow:0 0 20px rgba(0,212,255,.3);--glow2:0 0 20px rgba(0,255,136,.3);
+  --sidebar-w:260px;--topbar-h:56px;--bottombar-h:58px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{height:100%}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;min-height:100dvh;overflow-x:hidden;touch-action:manipulation}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(0,80,120,.22) 0%,transparent 70%),repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,212,255,.025) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(0,212,255,.025) 40px);pointer-events:none;z-index:0}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+/* SCREENS */
+.screen{display:none;position:relative;z-index:1}
+.screen.active{display:flex}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 16px;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+/* AUTH */
+#screen-connect,#screen-login{
+  min-height:100dvh;align-items:center;justify-content:center;
+  flex-direction:column;padding:clamp(16px,4vw,48px) clamp(12px,4vw,24px);overflow-y:auto
+}
+.logo-wrap{text-align:center;margin-bottom:clamp(20px,4vh,44px);animation:fadeDown .8s ease both}
+.brand{font-family:'Orbitron',monospace;font-size:clamp(1.7rem,5.5vw,2.8rem);font-weight:900;letter-spacing:.18em;color:var(--accent);text-shadow:0 0 40px rgba(0,212,255,.55),0 0 80px rgba(0,212,255,.18)}
+.brand span{color:var(--accent2)}
+.tagline{font-family:'Share Tech Mono',monospace;font-size:clamp(.5rem,.8vw,.72rem);color:var(--muted);letter-spacing:clamp(.1em,.3vw,.28em);margin-top:6px;word-break:break-word}
+.connect-card{background:var(--panel);border:1px solid var(--border);border-top:2px solid var(--accent);width:100%;max-width:520px;padding:clamp(18px,4vw,40px);position:relative;animation:fadeUp .8s .2s ease both;box-shadow:0 24px 80px rgba(0,0,0,.6),inset 0 1px 0 rgba(0,212,255,.1)}
+.connect-card::before{content:'';position:absolute;top:0;left:0;width:56px;height:2px;background:var(--accent2)}
+.connect-card::after{content:'';position:absolute;bottom:0;right:0;width:56px;height:2px;background:var(--accent2)}
+.card-title{font-family:'Orbitron',monospace;font-size:clamp(.66rem,.85vw,.82rem);font-weight:700;letter-spacing:.16em;color:var(--accent);margin-bottom:22px;display:flex;align-items:center;gap:9px}
+.card-title::before{content:'';width:6px;height:6px;background:var(--accent2);border-radius:50%;animation:blink 1.2s infinite;flex-shrink:0}
+.field-group{margin-bottom:16px}
+.field-label{font-family:'Share Tech Mono',monospace;font-size:.64rem;color:var(--muted);letter-spacing:.16em;margin-bottom:7px;display:block}
+select,input[type="text"],input[type="password"]{
+  width:100%;background:rgba(0,0,0,.4);border:1px solid var(--border);border-left:3px solid var(--accent);
+  color:var(--text);font-family:'Share Tech Mono',monospace;font-size:clamp(.78rem,1.8vw,.9rem);
+  padding:12px 14px;outline:none;transition:all .3s;appearance:none;-webkit-appearance:none;border-radius:0
+}
+select:focus,input:focus{border-color:var(--accent);background:rgba(0,212,255,.04);box-shadow:var(--glow)}
+select{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='6'%3E%3Cpath d='M0 0l5.5 6L11 0z' fill='%234a7a8a'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
+select option{background:#071422}
+.btn{width:100%;padding:13px;background:transparent;border:1px solid var(--accent);color:var(--accent);font-family:'Orbitron',monospace;font-size:clamp(.66rem,.85vw,.8rem);font-weight:700;letter-spacing:.16em;cursor:pointer;position:relative;overflow:hidden;transition:all .3s;margin-top:6px;border-radius:0}
+.btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--accent),var(--accent2));opacity:0;transition:opacity .3s}
+.btn:hover,.btn:active{color:var(--bg);box-shadow:var(--glow)}
+.btn:hover::before,.btn:active::before{opacity:1}
+.btn span{position:relative;z-index:1}
+.btn.danger{border-color:var(--accent3);color:var(--accent3)}
+.btn.danger:hover,.btn.danger:active{box-shadow:0 0 18px rgba(255,68,68,.4)}
+.btn.danger::before{background:linear-gradient(135deg,var(--accent3),#ff8888)}
+.btn.sm{width:auto;padding:7px 14px;font-size:.64rem;margin-top:0}
+.error-msg{color:var(--accent3);font-family:'Share Tech Mono',monospace;font-size:.7rem;margin-top:9px;display:none;animation:shake .4s ease;line-height:1.4}
+.error-msg.show{display:block}
+.login-meta{text-align:center;margin-bottom:26px;animation:fadeDown .6s ease both}
+.ip-display{font-family:'Share Tech Mono',monospace;font-size:clamp(.6rem,.85vw,.76rem);color:var(--muted);letter-spacing:.08em;margin-top:6px;word-break:break-all}
+.ip-display strong{color:var(--accent2)}
 
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: 
-      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,80,120,0.25) 0%, transparent 70%),
-      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(0,212,255,0.03) 40px),
-      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(0,212,255,0.03) 40px);
-    pointer-events: none;
-    z-index: 0;
-  }
+/* DASHBOARD */
+#screen-dashboard{flex-direction:column;min-height:100dvh}
 
-  /* ─── SCREENS ─── */
-  .screen { display: none; position: relative; z-index: 1; }
-  .screen.active { display: flex; }
+/* Topbar */
+.topbar{background:var(--panel);border-bottom:1px solid var(--border);padding:0 clamp(10px,2.5vw,26px);height:var(--topbar-h);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;flex-shrink:0;gap:8px}
+.topbar-left{display:flex;align-items:center;gap:clamp(8px,2vw,18px);min-width:0}
+.topbar-brand{font-family:'Orbitron',monospace;font-size:clamp(.75rem,2.2vw,.98rem);font-weight:900;color:var(--accent);letter-spacing:.12em;white-space:nowrap}
+.topbar-brand span{color:var(--accent2)}
+.topbar-status{display:flex;align-items:center;gap:5px;font-family:'Share Tech Mono',monospace;font-size:clamp(.52rem,.75vw,.65rem);color:var(--accent2);white-space:nowrap}
+.topbar-status .dot{width:6px;height:6px;background:var(--accent2);border-radius:50%;animation:blink 1.2s infinite;flex-shrink:0}
+.topbar-right{display:flex;align-items:center;gap:clamp(5px,1.5vw,14px);flex-shrink:0}
+.ip-pill{background:rgba(0,212,255,.06);border:1px solid var(--border);padding:3px 9px;color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:.62rem;white-space:nowrap}
+.dash-clock{color:var(--text);font-family:'Share Tech Mono',monospace;font-size:.64rem;white-space:nowrap}
 
-  /* ─── STEP 1: MODEL + IP ─── */
-  #screen-connect {
-    min-height: 100vh;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 0;
-    padding: 40px 20px;
-  }
+/* Layout */
+.dash-body{display:flex;flex:1;overflow:hidden;height:calc(100dvh - var(--topbar-h))}
 
-  .logo-wrap {
-    text-align: center;
-    margin-bottom: 48px;
-    animation: fadeDown 0.8s ease both;
-  }
-  .logo-wrap .brand {
-    font-family: 'Orbitron', monospace;
-    font-size: 2.8rem;
-    font-weight: 900;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-    text-shadow: 0 0 40px rgba(0,212,255,0.6), 0 0 80px rgba(0,212,255,0.2);
-  }
-  .logo-wrap .brand span { color: var(--accent2); }
-  .logo-wrap .tagline {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.75rem;
-    color: var(--muted);
-    letter-spacing: 0.3em;
-    margin-top: 6px;
-  }
+/* Sidebar */
+.sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;transition:transform .28s ease}
+.sidebar-section{margin-bottom:2px}
+.sidebar-section-title{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--muted);letter-spacing:.26em;padding:10px 16px 5px;text-transform:uppercase}
+.ctrl-btn{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;border:none;background:transparent;width:100%;text-align:left;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.88rem;font-weight:500;transition:all .2s;border-left:3px solid transparent}
+.ctrl-btn:hover,.ctrl-btn:active{background:rgba(0,212,255,.05);border-left-color:var(--accent);color:var(--accent)}
+.ctrl-btn.active{background:rgba(0,212,255,.08);border-left-color:var(--accent2);color:var(--accent2)}
+.ctrl-btn .ico{font-size:.98rem;width:20px;text-align:center;flex-shrink:0}
+.ctrl-btn .badge{margin-left:auto;background:var(--accent3);color:#fff;font-family:'Share Tech Mono',monospace;font-size:.56rem;padding:2px 5px;min-width:17px;text-align:center}
+.ptz-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:8px 14px;margin:2px 0}
+.ptz-btn{background:rgba(0,0,0,.4);border:1px solid var(--border);color:var(--text);padding:9px 0;cursor:pointer;font-size:.95rem;transition:all .2s;text-align:center;border-radius:0;user-select:none}
+.ptz-btn:hover,.ptz-btn:active{background:rgba(0,212,255,.12);border-color:var(--accent);color:var(--accent)}
+.ptz-btn.center{background:rgba(255,170,0,.08);border-color:rgba(255,170,0,.3);color:var(--warn)}
+.slider-row{padding:5px 14px;display:flex;flex-direction:column;gap:4px}
+.slider-label{display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--muted)}
+.slider-label span{color:var(--accent)}
+input[type="range"]{width:100%;accent-color:var(--accent);height:4px;cursor:pointer;border:none;background:var(--border);padding:0;border-left:none;-webkit-appearance:auto}
+.divider{height:1px;background:var(--border);margin:8px 14px}
 
-  .connect-card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-top: 2px solid var(--accent);
-    width: 100%;
-    max-width: 520px;
-    padding: 40px;
-    position: relative;
-    animation: fadeUp 0.8s 0.2s ease both;
-    box-shadow: 0 24px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(0,212,255,0.1);
-  }
-  .connect-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 60px; height: 2px;
-    background: var(--accent2);
-  }
-  .connect-card::after {
-    content: '';
-    position: absolute;
-    bottom: 0; right: 0;
-    width: 60px; height: 2px;
-    background: var(--accent2);
-  }
+/* Main */
+.main-content{flex:1;overflow-y:auto;padding:clamp(10px,2vw,22px);min-width:0;padding-bottom:calc(var(--bottombar-h) + 10px)}
 
-  .card-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 0.85rem;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-    margin-bottom: 28px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .card-title::before {
-    content: '';
-    width: 6px; height: 6px;
-    background: var(--accent2);
-    border-radius: 50%;
-    animation: blink 1.2s infinite;
-  }
+/* Section header */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px;flex-wrap:wrap}
+.section-header h2{font-family:'Orbitron',monospace;font-size:clamp(.68rem,.85vw,.86rem);font-weight:700;letter-spacing:.13em;color:var(--accent);display:flex;align-items:center;gap:7px}
+.section-header h2::before{content:'';display:block;width:4px;height:15px;background:var(--accent2);flex-shrink:0}
+.section-header-actions{display:flex;gap:6px;flex-wrap:wrap}
 
-  .field-group { margin-bottom: 22px; }
-  .field-label {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--muted);
-    letter-spacing: 0.2em;
-    margin-bottom: 8px;
-    display: block;
-  }
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(6px,1.2vw,12px);margin-bottom:clamp(10px,1.8vw,18px)}
+.stat-card{background:var(--panel2);border:1px solid var(--border);padding:clamp(8px,1.5vw,14px);position:relative;overflow:hidden;animation:fadeUp .5s ease both}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat-card:nth-child(1)::before{background:var(--accent2)}.stat-card:nth-child(2)::before{background:var(--accent)}
+.stat-card:nth-child(3)::before{background:var(--warn)}.stat-card:nth-child(4)::before{background:var(--accent3)}
+.stat-value{font-family:'Orbitron',monospace;font-size:clamp(1.2rem,3.5vw,1.9rem);font-weight:900;line-height:1}
+.stat-card:nth-child(1) .stat-value{color:var(--accent2)}.stat-card:nth-child(2) .stat-value{color:var(--accent)}
+.stat-card:nth-child(3) .stat-value{color:var(--warn)}.stat-card:nth-child(4) .stat-value{color:var(--accent3)}
+.stat-label{font-family:'Share Tech Mono',monospace;font-size:clamp(.46rem,.65vw,.6rem);color:var(--muted);letter-spacing:.12em;margin-top:4px}
 
-  select, input[type="text"], input[type="password"] {
-    width: 100%;
-    background: rgba(0,0,0,0.4);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--accent);
-    color: var(--text);
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.9rem;
-    padding: 13px 16px;
-    outline: none;
-    transition: all 0.3s;
-    appearance: none;
-    -webkit-appearance: none;
-  }
-  select:focus, input:focus {
-    border-color: var(--accent);
-    background: rgba(0,212,255,0.04);
-    box-shadow: var(--glow), inset 0 0 20px rgba(0,212,255,0.03);
-  }
-  select { cursor: pointer; }
-  select option { background: #071422; }
+/* Camera grid */
+.cam-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(220px,28vw,300px),1fr));gap:clamp(8px,1.5vw,14px);margin-bottom:16px}
+.cam-card{background:var(--panel2);border:1px solid var(--border);border-top:2px solid transparent;cursor:pointer;transition:all .3s;animation:fadeUp .5s ease both}
+.cam-card:hover{border-top-color:var(--accent);box-shadow:var(--glow);transform:translateY(-2px)}
+.cam-card.selected{border-top-color:var(--accent2);border-color:rgba(0,255,136,.28);box-shadow:var(--glow2)}
+.cam-card.offline{opacity:.5}
+.cam-feed{width:100%;aspect-ratio:16/9;background:#000;position:relative;overflow:hidden}
+.cam-feed-inner{width:100%;height:100%;background:linear-gradient(135deg,#0a1a20,#050e17);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.cam-feed-inner::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,200,255,.01) 4px),repeating-linear-gradient(90deg,transparent,transparent 3px,rgba(0,200,255,.01) 4px)}
+.cam-feed-inner canvas{position:absolute;inset:0;width:100%;height:100%}
+.cam-offline-msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--muted);letter-spacing:.12em;flex-direction:column;gap:8px}
+.cam-offline-msg .oico{font-size:1.6rem;opacity:.35}
+.cam-feed-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:6px;pointer-events:none}
+.cam-overlay-top,.cam-overlay-bottom{display:flex;justify-content:space-between;align-items:flex-start}
+.cam-overlay-bottom{align-items:flex-end}
+.cam-ts{font-family:'Share Tech Mono',monospace;font-size:.56rem;color:var(--accent2);background:rgba(0,0,0,.62);padding:2px 5px}
+.cam-rec-badge{display:flex;align-items:center;gap:3px;font-family:'Share Tech Mono',monospace;font-size:.56rem;color:var(--accent3);background:rgba(0,0,0,.62);padding:2px 5px}
+.cam-rec-badge .rdot{width:5px;height:5px;background:var(--accent3);border-radius:50%;animation:blink 1s infinite}
+.cam-res{font-family:'Share Tech Mono',monospace;font-size:.56rem;color:var(--muted);background:rgba(0,0,0,.5);padding:2px 5px}
+.cam-motion-lbl{font-family:'Share Tech Mono',monospace;font-size:.56rem;color:var(--warn);background:rgba(0,0,0,.62);padding:2px 5px;display:none}
+.cam-motion-lbl.show{display:block}
+.scanline{position:absolute;left:0;right:0;height:2px;background:linear-gradient(transparent,rgba(0,212,255,.1),transparent);animation:scanline 5s linear infinite;pointer-events:none}
+.cam-info{padding:9px 11px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.cam-name{font-weight:700;font-size:clamp(.78rem,.88vw,.9rem);letter-spacing:.03em;min-width:0}
+.cam-num{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--muted);display:block;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cam-status{display:flex;align-items:center;gap:4px;font-family:'Share Tech Mono',monospace;font-size:.6rem;white-space:nowrap;flex-shrink:0}
+.sdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.sdot.online{background:var(--accent2);box-shadow:0 0 5px var(--accent2);animation:blink 2s infinite}
+.sdot.offline{background:var(--muted)}
+.sdot.motion{background:var(--warn);box-shadow:0 0 5px var(--warn)}
+.cam-tags{padding:0 11px 9px;display:flex;gap:4px;flex-wrap:wrap}
+.tag{font-family:'Share Tech Mono',monospace;font-size:.54rem;color:var(--muted);border:1px solid var(--border);padding:2px 6px;letter-spacing:.03em}
+.tag.ptz{color:var(--accent);border-color:rgba(0,212,255,.28)}.tag.motion{color:var(--warn);border-color:rgba(255,170,0,.28)}
+.tag.ir{color:#aa88ff;border-color:rgba(170,136,255,.28)}.tag.outdoor{color:var(--accent2);border-color:rgba(0,255,136,.28)}
+.tag.indoor{color:#aaa;border-color:rgba(170,170,170,.18)}.tag.varifocal{color:#ff88aa;border-color:rgba(255,136,170,.22)}
 
-  .btn {
-    width: 100%;
-    padding: 15px;
-    background: transparent;
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    font-family: 'Orbitron', monospace;
-    font-size: 0.85rem;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s;
-    margin-top: 8px;
-  }
-  .btn::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  .btn:hover { color: var(--bg); box-shadow: var(--glow); }
-  .btn:hover::before { opacity: 1; }
-  .btn span { position: relative; z-index: 1; }
-  .btn.danger { border-color: var(--accent3); color: var(--accent3); }
-  .btn.danger:hover { box-shadow: 0 0 20px rgba(255,68,68,0.4); }
-  .btn.danger::before { background: linear-gradient(135deg, var(--accent3), #ff8888); }
-  .btn.sm { width: auto; padding: 8px 20px; font-size: 0.72rem; margin-top: 0; }
+/* Settings */
+.settings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(220px,42%,360px),1fr));gap:clamp(8px,1.5vw,14px);margin-bottom:16px}
+.setting-card{background:var(--panel2);border:1px solid var(--border);padding:clamp(12px,2vw,18px);animation:fadeUp .5s ease both}
+.setting-title{font-family:'Orbitron',monospace;font-size:.68rem;color:var(--accent);letter-spacing:.1em;margin-bottom:11px}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(13,42,58,.5);font-size:.86rem;font-weight:500;gap:10px}
+.toggle-row:last-child{border-bottom:none}
+.toggle{width:36px;height:20px;background:var(--border);border-radius:10px;position:relative;cursor:pointer;transition:background .3s;flex-shrink:0}
+.toggle.on{background:var(--accent2)}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;background:#fff;border-radius:50%;transition:left .3s}
+.toggle.on::after{left:19px}
 
-  .error-msg {
-    color: var(--accent3);
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.75rem;
-    margin-top: 10px;
-    display: none;
-    animation: shake 0.4s ease;
-  }
-  .error-msg.show { display: block; }
+/* Alerts */
+.alert-list{display:flex;flex-direction:column;gap:7px;margin-bottom:18px}
+.alert-item{background:var(--panel2);border:1px solid var(--border);border-left:3px solid var(--warn);padding:10px 13px;display:flex;justify-content:space-between;align-items:center;font-size:.86rem;animation:fadeUp .4s ease both;gap:8px;flex-wrap:wrap}
+.alert-item.critical{border-left-color:var(--accent3)}.alert-item.info{border-left-color:var(--accent)}
+.alert-time{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--muted);white-space:nowrap}
 
-  /* ─── STEP 2: LOGIN ─── */
-  #screen-login {
-    min-height: 100vh;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    padding: 40px 20px;
-  }
+/* Recordings */
+.rec-item{background:var(--panel2);border:1px solid var(--border);border-left:3px solid var(--accent);padding:11px 13px;display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;transition:background .2s;animation:fadeUp .4s ease both;flex-wrap:wrap}
+.rec-item:hover,.rec-item:active{background:rgba(0,212,255,.04)}
 
-  .login-meta {
-    text-align: center;
-    margin-bottom: 32px;
-    animation: fadeDown 0.6s ease both;
-  }
-  .login-meta .ip-display {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.8rem;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-    margin-top: 6px;
-  }
-  .login-meta .ip-display strong { color: var(--accent2); }
+/* Device info table */
+.dev-table{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--muted);line-height:2.1;width:100%}
+.dev-table td:first-child{color:var(--muted);padding-right:12px}
+.dev-table td:last-child{color:var(--text)}
 
-  /* ─── STEP 3: DASHBOARD ─── */
-  #screen-dashboard {
-    flex-direction: column;
-    min-height: 100vh;
-  }
+/* Tab content */
+.tab-content{display:none}
+.tab-content.active{display:block}
 
-  .topbar {
-    background: var(--panel);
-    border-bottom: 1px solid var(--border);
-    padding: 0 28px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    flex-shrink: 0;
-  }
-  .topbar-left {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-  .topbar-brand {
-    font-family: 'Orbitron', monospace;
-    font-size: 1rem;
-    font-weight: 900;
-    color: var(--accent);
-    letter-spacing: 0.15em;
-  }
-  .topbar-brand span { color: var(--accent2); }
-  .topbar-status {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--accent2);
-  }
-  .topbar-status .dot {
-    width: 7px; height: 7px;
-    background: var(--accent2);
-    border-radius: 50%;
-    animation: blink 1.2s infinite;
-  }
-  .topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.72rem;
-    color: var(--muted);
-  }
-  .topbar-right .ip-pill {
-    background: rgba(0,212,255,0.06);
-    border: 1px solid var(--border);
-    padding: 4px 12px;
-    color: var(--accent);
-  }
+/* Info banner */
+.info-banner{background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.18);border-left:3px solid var(--accent);padding:9px 13px;font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--muted);line-height:1.55;margin-bottom:14px}
+.info-banner strong{color:var(--accent)}
 
-  .dash-layout {
-    display: grid;
-    grid-template-columns: 260px 1fr;
-    flex: 1;
-    min-height: calc(100vh - 60px);
-  }
+/* Bottom nav */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--panel);border-top:1px solid var(--border);height:var(--bottombar-h);z-index:200;grid-template-columns:repeat(4,1fr)}
+.bnav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;border:none;background:transparent;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:.5rem;letter-spacing:.06em;transition:color .2s;padding:5px 0;border-top:2px solid transparent;width:100%}
+.bnav-item.active{color:var(--accent);border-top-color:var(--accent)}
+.bnav-item .bico{font-size:1.1rem}
 
-  /* Sidebar */
-  .sidebar {
-    background: var(--panel);
-    border-right: 1px solid var(--border);
-    padding: 20px 0;
-    overflow-y: auto;
-  }
+/* Sidebar overlay */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:155;backdrop-filter:blur(2px)}
+.sidebar-overlay.show{display:block}
 
-  .sidebar-section {
-    margin-bottom: 4px;
-  }
-  .sidebar-section-title {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--muted);
-    letter-spacing: 0.3em;
-    padding: 10px 20px 6px;
-    text-transform: uppercase;
-  }
+/* Controls FAB (mobile) */
+.ctrl-fab{display:none;position:fixed;bottom:calc(var(--bottombar-h)+12px);right:14px;z-index:160;background:var(--panel);border:1px solid var(--accent);color:var(--accent);font-size:1.3rem;width:44px;height:44px;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--glow)}
+.ctrl-fab:active{background:rgba(0,212,255,.15)}
 
-  .ctrl-btn {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 11px 20px;
-    cursor: pointer;
-    border: none;
-    background: transparent;
-    width: 100%;
-    text-align: left;
-    color: var(--text);
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: all 0.2s;
-    border-left: 3px solid transparent;
-  }
-  .ctrl-btn:hover {
-    background: rgba(0,212,255,0.05);
-    border-left-color: var(--accent);
-    color: var(--accent);
-  }
-  .ctrl-btn.active {
-    background: rgba(0,212,255,0.08);
-    border-left-color: var(--accent2);
-    color: var(--accent2);
-  }
-  .ctrl-btn .ico {
-    font-size: 1.1rem;
-    width: 22px;
-    text-align: center;
-    opacity: 0.8;
-  }
-  .ctrl-btn .badge {
-    margin-left: auto;
-    background: var(--accent3);
-    color: white;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.6rem;
-    padding: 2px 6px;
-    min-width: 20px;
-    text-align: center;
-  }
+/* Loading */
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(3,10,15,.93);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:18px}
+.loading-overlay.show{display:flex}
+.loader-ring{width:46px;height:46px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+.loader-text{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--accent);letter-spacing:.18em;animation:blink 1s infinite;text-align:center;padding:0 20px}
 
-  /* ─── PTZ Controls ─── */
-  .ptz-pad {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 4px;
-    padding: 12px 20px;
-    margin: 4px 0;
-  }
-  .ptz-btn {
-    background: rgba(0,0,0,0.4);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 9px 0;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: all 0.2s;
-    text-align: center;
-  }
-  .ptz-btn:hover { background: rgba(0,212,255,0.1); border-color: var(--accent); color: var(--accent); }
-  .ptz-btn.center { background: rgba(255,170,0,0.08); border-color: rgba(255,170,0,0.3); color: var(--warn); }
+/* Toast */
+#actionToast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--bottombar-h)+10px);background:var(--panel2);border:1px solid var(--accent2);border-left:4px solid var(--accent2);padding:9px 16px;font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--accent2);z-index:400;display:none;letter-spacing:.08em;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis}
 
-  .slider-row {
-    padding: 6px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  .slider-label {
-    display: flex;
-    justify-content: space-between;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.68rem;
-    color: var(--muted);
-  }
-  .slider-label span { color: var(--accent); }
-  input[type="range"] {
-    width: 100%;
-    accent-color: var(--accent);
-    height: 4px;
-    background: var(--border);
-    outline: none;
-    cursor: pointer;
-  }
+/* KEYFRAMES */
+@keyframes fadeDown{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.28}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+@keyframes scanline{0%{top:-4%}100%{top:106%}}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 10px 20px;
-  }
+/* ═══════ RESPONSIVE BREAKPOINTS ═══════ */
 
-  /* Main content */
-  .main-content { padding: 24px; overflow-y: auto; }
+/* Tablet portrait & small laptop ≤900px */
+@media(max-width:900px){
+  :root{--sidebar-w:248px}
+  .sidebar{position:fixed;top:var(--topbar-h);left:0;bottom:0;height:calc(100dvh - var(--topbar-h));transform:translateX(-100%);z-index:160}
+  .sidebar.open{transform:translateX(0)}
+  .bottom-nav{display:grid}
+  .ctrl-fab{display:flex}
+  .ip-pill,.dash-clock{display:none!important}
+  .topbar-right .btn.sm{display:none}
+  .cam-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .settings-grid{grid-template-columns:1fr}
+}
 
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-  }
-  .section-header h2 {
-    font-family: 'Orbitron', monospace;
-    font-size: 0.9rem;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    color: var(--accent);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .section-header h2::before {
-    content: '';
-    display: block;
-    width: 4px;
-    height: 18px;
-    background: var(--accent2);
-  }
+/* Phone landscape ≤640px landscape */
+@media(max-width:700px) and (orientation:landscape){
+  :root{--topbar-h:46px;--bottombar-h:48px}
+  .cam-grid{grid-template-columns:repeat(2,1fr)}
+  .stats-row{grid-template-columns:repeat(4,1fr)}
+  .logo-wrap{margin-bottom:12px}
+}
 
-  .cam-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-    margin-bottom: 28px;
-  }
+/* Phone portrait ≤480px */
+@media(max-width:480px){
+  .cam-grid{grid-template-columns:1fr}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .connect-card{padding:18px 14px}
+  .brand{letter-spacing:.12em}
+  .tagline{letter-spacing:.1em}
+  .section-header{flex-direction:column;align-items:flex-start}
+  .btn{padding:12px;letter-spacing:.1em}
+}
 
-  .cam-card {
-    background: var(--panel2);
-    border: 1px solid var(--border);
-    border-top: 2px solid transparent;
-    position: relative;
-    cursor: pointer;
-    transition: all 0.3s;
-    animation: fadeUp 0.5s ease both;
-  }
-  .cam-card:nth-child(2) { animation-delay: 0.1s; }
-  .cam-card:nth-child(3) { animation-delay: 0.2s; }
-  .cam-card:nth-child(4) { animation-delay: 0.3s; }
-  .cam-card:nth-child(5) { animation-delay: 0.4s; }
-  .cam-card:nth-child(6) { animation-delay: 0.5s; }
+/* Very small ≤360px */
+@media(max-width:360px){
+  :root{--sidebar-w:88vw}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .stat-value{font-size:1.1rem}
+  .brand{font-size:1.5rem;letter-spacing:.08em}
+  .tagline{display:none}
+}
 
-  .cam-card:hover { border-top-color: var(--accent); box-shadow: var(--glow); transform: translateY(-2px); }
-  .cam-card.selected { border-top-color: var(--accent2); border-color: rgba(0,255,136,0.3); box-shadow: var(--glow2); }
-  .cam-card.offline { opacity: 0.5; }
-  .cam-card.offline .cam-feed { filter: grayscale(1); }
+/* Large ≥1400px */
+@media(min-width:1400px){
+  :root{--sidebar-w:290px}
+  .cam-grid{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+}
 
-  .cam-feed {
-    width: 100%;
-    aspect-ratio: 16/9;
-    background: #000;
-    position: relative;
-    overflow: hidden;
-  }
-  .cam-feed-inner {
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #0a1a20, #050e17);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-  }
-  .cam-feed-inner::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: 
-      repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,200,255,0.015) 4px),
-      repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(0,200,255,0.015) 4px);
-  }
-
-  /* Simulated camera feeds */
-  .cam-feed-inner canvas { position: absolute; inset: 0; }
-
-  .cam-feed-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 8px;
-    pointer-events: none;
-  }
-  .cam-overlay-top { display: flex; justify-content: space-between; align-items: flex-start; }
-  .cam-overlay-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
-  .cam-timestamp {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.6rem;
-    color: var(--accent2);
-    background: rgba(0,0,0,0.6);
-    padding: 2px 6px;
-  }
-  .cam-rec {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.6rem;
-    color: var(--accent3);
-    background: rgba(0,0,0,0.6);
-    padding: 2px 6px;
-  }
-  .cam-rec .rdot { width: 5px; height: 5px; background: var(--accent3); border-radius: 50%; animation: blink 1s infinite; }
-  .cam-res {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.6rem;
-    color: var(--muted);
-    background: rgba(0,0,0,0.5);
-    padding: 2px 6px;
-  }
-  .cam-motion {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.6rem;
-    color: var(--warn);
-    background: rgba(0,0,0,0.6);
-    padding: 2px 6px;
-    display: none;
-  }
-  .cam-motion.show { display: block; }
-
-  .cam-info {
-    padding: 12px 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .cam-name {
-    font-weight: 700;
-    font-size: 0.9rem;
-    letter-spacing: 0.05em;
-  }
-  .cam-name .cam-num {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--muted);
-    display: block;
-  }
-  .cam-status {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.65rem;
-  }
-  .status-dot { width: 6px; height: 6px; border-radius: 50%; }
-  .status-dot.online { background: var(--accent2); box-shadow: 0 0 6px var(--accent2); animation: blink 2s infinite; }
-  .status-dot.offline { background: var(--muted); }
-  .status-dot.motion { background: var(--warn); box-shadow: 0 0 6px var(--warn); }
-
-  .cam-tags {
-    padding: 0 14px 12px;
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
-  .tag {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.6rem;
-    color: var(--muted);
-    border: 1px solid var(--border);
-    padding: 2px 8px;
-    letter-spacing: 0.05em;
-  }
-  .tag.ptz { color: var(--accent); border-color: rgba(0,212,255,0.3); }
-  .tag.motion { color: var(--warn); border-color: rgba(255,170,0,0.3); }
-  .tag.ir { color: #aa88ff; border-color: rgba(170,136,255,0.3); }
-  .tag.outdoor { color: var(--accent2); border-color: rgba(0,255,136,0.3); }
-
-  /* Stats row */
-  .stats-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-  .stat-card {
-    background: var(--panel2);
-    border: 1px solid var(--border);
-    padding: 16px;
-    position: relative;
-    overflow: hidden;
-    animation: fadeUp 0.5s ease both;
-  }
-  .stat-card:nth-child(2) { animation-delay: 0.1s; }
-  .stat-card:nth-child(3) { animation-delay: 0.2s; }
-  .stat-card:nth-child(4) { animation-delay: 0.3s; }
-  .stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-  }
-  .stat-card:nth-child(1)::before { background: var(--accent2); }
-  .stat-card:nth-child(2)::before { background: var(--accent); }
-  .stat-card:nth-child(3)::before { background: var(--warn); }
-  .stat-card:nth-child(4)::before { background: var(--accent3); }
-  .stat-value {
-    font-family: 'Orbitron', monospace;
-    font-size: 2rem;
-    font-weight: 900;
-    line-height: 1;
-  }
-  .stat-card:nth-child(1) .stat-value { color: var(--accent2); }
-  .stat-card:nth-child(2) .stat-value { color: var(--accent); }
-  .stat-card:nth-child(3) .stat-value { color: var(--warn); }
-  .stat-card:nth-child(4) .stat-value { color: var(--accent3); }
-  .stat-label {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--muted);
-    letter-spacing: 0.2em;
-    margin-top: 6px;
-  }
-
-  /* Settings panel */
-  .settings-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 20px;
-  }
-  .setting-card {
-    background: var(--panel2);
-    border: 1px solid var(--border);
-    padding: 18px;
-    animation: fadeUp 0.5s ease both;
-  }
-  .setting-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 0.72rem;
-    color: var(--accent);
-    letter-spacing: 0.1em;
-    margin-bottom: 14px;
-  }
-  .toggle-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 7px 0;
-    border-bottom: 1px solid rgba(13,42,58,0.5);
-    font-size: 0.88rem;
-    font-weight: 500;
-  }
-  .toggle-row:last-child { border-bottom: none; }
-  .toggle {
-    width: 36px; height: 20px;
-    background: var(--border);
-    border-radius: 10px;
-    position: relative;
-    cursor: pointer;
-    transition: background 0.3s;
-    flex-shrink: 0;
-  }
-  .toggle.on { background: var(--accent2); }
-  .toggle::after {
-    content: '';
-    position: absolute;
-    top: 3px; left: 3px;
-    width: 14px; height: 14px;
-    background: white;
-    border-radius: 50%;
-    transition: left 0.3s;
-  }
-  .toggle.on::after { left: 19px; }
-
-  /* Alerts */
-  .alert-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
-  .alert-item {
-    background: var(--panel2);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--warn);
-    padding: 10px 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.88rem;
-    animation: fadeUp 0.4s ease both;
-  }
-  .alert-item.critical { border-left-color: var(--accent3); }
-  .alert-item.info { border-left-color: var(--accent); }
-  .alert-time {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--muted);
-  }
-
-  /* View tabs */
-  .view-tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
-  .view-tab {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.1em;
-    padding: 10px 20px;
-    cursor: pointer;
-    border: none;
-    background: transparent;
-    color: var(--muted);
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s;
-  }
-  .view-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-  .view-tab:hover { color: var(--text); }
-
-  .tab-content { display: none; }
-  .tab-content.active { display: block; }
-
-  /* ─── Animations ─── */
-  @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes fadeUp   { from { opacity: 0; transform: translateY(20px);  } to { opacity: 1; transform: translateY(0); } }
-  @keyframes blink    { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-  @keyframes shake    { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
-  @keyframes scanline { 0% { top: -5%; } 100% { top: 105%; } }
-
-  .scanline {
-    position: absolute;
-    left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(transparent, rgba(0,212,255,0.15), transparent);
-    animation: scanline 4s linear infinite;
-    pointer-events: none;
-  }
-
-  /* Loading */
-  .loading-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(3,10,15,0.9);
-    z-index: 999;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 20px;
-  }
-  .loading-overlay.show { display: flex; }
-  .loader-ring {
-    width: 50px; height: 50px;
-    border: 2px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loader-text {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.75rem;
-    color: var(--accent);
-    letter-spacing: 0.2em;
-    animation: blink 1s infinite;
-  }
-
-  @media (max-width: 900px) {
-    .dash-layout { grid-template-columns: 1fr; }
-    .sidebar { display: none; }
-    .stats-row { grid-template-columns: repeat(2, 1fr); }
-    .settings-grid { grid-template-columns: 1fr; }
-    .cam-grid { grid-template-columns: 1fr; }
-  }
+/* Ensure sidebar not blocking on desktop */
+@media(min-width:901px){
+  .sidebar{transform:none!important;position:relative;height:auto}
+  .bottom-nav{display:none!important}
+  .ctrl-fab{display:none!important}
+  .main-content{padding-bottom:clamp(10px,2vw,22px)}
+  #actionToast{bottom:18px}
+}
 </style>
 </head>
 <body>
 
-<!-- Loading Overlay -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loader-ring"></div>
   <div class="loader-text" id="loadingText">CONNECTING...</div>
 </div>
 
-<!-- ══════════════════════════════════
-     SCREEN 1: CONNECT
-══════════════════════════════════ -->
+<!-- ════════════════ SCREEN 1: CONNECT ════════════════ -->
 <div class="screen active" id="screen-connect">
-  <div class="logo-wrap">
-    <div class="brand">NEXUS<span>CAM</span></div>
-    <div class="tagline">SURVEILLANCE CONTROL SYSTEM v4.2.1</div>
-  </div>
-
-  <div class="connect-card">
-    <div class="card-title">DEVICE CONNECTION</div>
-
-    <div class="field-group">
-      <label class="field-label">CAMERA MODEL</label>
-      <select id="cameraModel">
-        <option value="">— SELECT MODEL —</option>
-        <optgroup label="Hikvision">
-          <option>Hikvision DS-2CD2143G2-I</option>
-          <option>Hikvision DS-2DE4A425IWG</option>
-          <option>Hikvision DS-2CD2T86G2-4I</option>
-        </optgroup>
-        <optgroup label="Dahua">
-          <option>Dahua IPC-HDW3849H-AS-PV</option>
-          <option>Dahua SD49425XB-HNR</option>
-          <option>Dahua IPC-HFW2849S-S-IL</option>
-        </optgroup>
-        <optgroup label="Axis">
-          <option>Axis P3245-V</option>
-          <option>Axis Q6135-LE PTZ</option>
-          <option>Axis M3106-L Mk II</option>
-        </optgroup>
-        <optgroup label="Reolink">
-          <option>Reolink RLC-810A</option>
-          <option>Reolink RLC-823A</option>
-          <option>Reolink TrackMix PoE</option>
-        </optgroup>
-        <optgroup label="Bosch">
-          <option>Bosch FLEXIDOME 5100i</option>
-          <option>Bosch MIC IP starlight 7100i</option>
-        </optgroup>
-        <optgroup label="Other">
-          <option>Generic ONVIF Camera</option>
-          <option>Custom / Other</option>
-        </optgroup>
-      </select>
+  <div style="width:100%;max-width:520px;margin:auto">
+    <div class="logo-wrap">
+      <div class="brand">NEXUS<span>CAM</span></div>
+      <div class="tagline">SURVEILLANCE CONTROL SYSTEM v4.3.0</div>
     </div>
-
-    <div class="field-group">
-      <label class="field-label">IP ADDRESS / HOST</label>
-      <input type="text" id="ipAddress" placeholder="192.168.1.100" autocomplete="off">
+    <div class="connect-card">
+      <div class="card-title">DEVICE CONNECTION</div>
+      <div class="field-group">
+        <label class="field-label">CAMERA / DVR / NVR BRAND &amp; MODEL</label>
+        <select id="cameraModel">
+          <option value="">— SELECT MODEL —</option>
+          <optgroup label="─── CP Plus ───">
+            <option value="CP Plus|CP-UNC-DA41PL3-V2|4MP|ptz,ir,outdoor">CP-UNC-DA41PL3-V2 (4MP Array IR Dome – PTZ)</option>
+            <option value="CP Plus|CP-UNC-DA21PL3|2MP|ir,indoor">CP-UNC-DA21PL3 (2MP IR Network Dome)</option>
+            <option value="CP Plus|CP-UNC-VB41PL3-V2|4MP|ir,outdoor,varifocal">CP-UNC-VB41PL3-V2 (4MP IR Bullet Varifocal)</option>
+            <option value="CP Plus|CP-UNC-VB21PL3|2MP|ir,outdoor">CP-UNC-VB21PL3 (2MP IR Bullet)</option>
+            <option value="CP Plus|CP-UNC-TC81L3-V2|8MP|ptz,ir,outdoor">CP-UNC-TC81L3-V2 (8MP 4K IR PTZ)</option>
+            <option value="CP Plus|CP-UNP-3601-V2|4MP|ptz,outdoor">CP-UNP-3601-V2 (36× Optical PTZ Network)</option>
+            <option value="CP Plus|CP-UNC-DA51PL3|5MP|ir,outdoor">CP-UNC-DA51PL3 (5MP Array IR Dome)</option>
+            <option value="CP Plus|CP-URC-DC21FL2C-0360|2MP|ir,indoor">CP-URC-DC21FL2C-0360 (2MP Full HD HDCVI)</option>
+            <option value="CP Plus|CP-UNP-1002TL3-D|2MP|ptz,outdoor">CP-UNP-1002TL3-D (2MP IP Speed Dome)</option>
+            <option value="CP Plus|CP-UNC-DA41PL3|4MP|ir,indoor,motion">CP-UNC-DA41PL3 (4MP IR Dome Indoor)</option>
+            <option value="CP Plus|CP-VAP-0401W1-S|4MP|ir,outdoor,varifocal">CP-VAP-0401W1-S (4MP Wi-Fi Bullet Varifocal)</option>
+            <option value="CP Plus|CP-UNC-TA20PL3-M|2MP|ptz,outdoor">CP-UNC-TA20PL3-M (2MP Mini PTZ)</option>
+            <option value="CP Plus|CP-ENR-0801-0200 NVR|—|indoor">CP-ENR-0801-0200 (8-Ch NVR 2TB)</option>
+            <option value="CP Plus|CP-UVR-0801E1-CS DVR|—|indoor">CP-UVR-0801E1-CS (8-Ch DVR)</option>
+          </optgroup>
+          <optgroup label="─── Hikvision ───">
+            <option value="Hikvision|DS-2CD2143G2-I|4MP|ir,outdoor">DS-2CD2143G2-I (4MP AcuSense Dome)</option>
+            <option value="Hikvision|DS-2DE4A425IWG|4MP|ptz,ir,outdoor">DS-2DE4A425IWG (4MP 25× PTZ)</option>
+            <option value="Hikvision|DS-2CD2T86G2-4I|8MP|ir,outdoor">DS-2CD2T86G2-4I (8MP AcuSense Bullet)</option>
+            <option value="Hikvision|DS-2CD2387G2-LU|8MP|outdoor,motion">DS-2CD2387G2-LU (8MP ColorVu Bullet)</option>
+            <option value="Hikvision|DS-7608NXI-K2 NVR|—|indoor">DS-7608NXI-K2 (8-Ch DeepInMind NVR)</option>
+          </optgroup>
+          <optgroup label="─── Dahua ───">
+            <option value="Dahua|IPC-HDW3849H-AS-PV|8MP|motion,outdoor">IPC-HDW3849H-AS-PV (8MP Full-Color Active Deterrence)</option>
+            <option value="Dahua|SD49425XB-HNR|4MP|ptz,ir,outdoor">SD49425XB-HNR (4MP IR PTZ AI)</option>
+            <option value="Dahua|IPC-HFW2849S-S-IL|8MP|motion,outdoor">IPC-HFW2849S-S-IL (8MP Smart Dual Light)</option>
+            <option value="Dahua|NVR4108HS-8P-4KS2L NVR|—|indoor">NVR4108HS-8P-4KS2L (8-Ch NVR PoE)</option>
+          </optgroup>
+          <optgroup label="─── Axis ───">
+            <option value="Axis|P3245-V|2MP|indoor,varifocal">P3245-V (2MP Fixed Dome Varifocal)</option>
+            <option value="Axis|Q6135-LE|4MP|ptz,outdoor">Q6135-LE (4MP PTZ Network)</option>
+            <option value="Axis|M3106-L Mk II|4MP|ir,indoor">M3106-L Mk II (4MP Fixed Mini Dome)</option>
+          </optgroup>
+          <optgroup label="─── Reolink ───">
+            <option value="Reolink|RLC-810A|8MP|ir,outdoor,motion">RLC-810A (8MP Smart Detection PoE)</option>
+            <option value="Reolink|RLC-823A|8MP|outdoor,motion">RLC-823A (8MP Color Night Vision)</option>
+            <option value="Reolink|TrackMix PoE|8MP|ptz,outdoor,motion">TrackMix PoE (8MP Dual-Lens Auto-Track)</option>
+          </optgroup>
+          <optgroup label="─── Bosch ───">
+            <option value="Bosch|FLEXIDOME 5100i|2MP|indoor,varifocal">FLEXIDOME 5100i (2MP IR Indoor)</option>
+            <option value="Bosch|MIC IP starlight 7100i|2MP|ptz,outdoor">MIC IP starlight 7100i (PTZ Outdoor)</option>
+          </optgroup>
+          <optgroup label="─── Generic ───">
+            <option value="Generic|ONVIF IP Camera|2MP|ir">Generic ONVIF IP Camera</option>
+            <option value="Generic|NVR/DVR Multi-Channel|—|indoor">Generic NVR / DVR Multi-Channel</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">IP ADDRESS / HOSTNAME (Camera / DVR / NVR)</label>
+        <input type="text" id="ipAddress" placeholder="192.168.1.64" inputmode="url" autocomplete="off">
+      </div>
+      <div class="field-group">
+        <label class="field-label">PORT <span style="color:var(--border)">(default: 80 for HTTP, 554 for RTSP)</span></label>
+        <input type="text" id="portNumber" placeholder="80" inputmode="numeric" autocomplete="off">
+      </div>
+      <div id="connectError" class="error-msg"></div>
+      <button class="btn" onclick="proceedToLogin()"><span>▶ ESTABLISH CONNECTION</span></button>
     </div>
-
-    <div id="connectError" class="error-msg">⚠ Please select a camera model and enter an IP address.</div>
-
-    <button class="btn" onclick="proceedToLogin()"><span>▶ ESTABLISH CONNECTION</span></button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════
-     SCREEN 2: LOGIN
-══════════════════════════════════ -->
+<!-- ════════════════ SCREEN 2: LOGIN ════════════════ -->
 <div class="screen" id="screen-login">
-  <div class="login-meta">
-    <div class="brand" style="font-family:'Orbitron',monospace;font-size:1.8rem;color:var(--accent);text-shadow:0 0 30px rgba(0,212,255,0.5);">NEXUS<span style="color:var(--accent2)">CAM</span></div>
-    <div class="ip-display">Connecting to: <strong id="loginIpDisplay">—</strong></div>
-  </div>
-
-  <div class="connect-card">
-    <div class="card-title">AUTHENTICATION REQUIRED</div>
-
-    <div class="field-group">
-      <label class="field-label">USERNAME</label>
-      <input type="text" id="loginUser" placeholder="admin" autocomplete="username">
+  <div style="width:100%;max-width:520px;margin:auto">
+    <div class="login-meta">
+      <div class="brand">NEXUS<span>CAM</span></div>
+      <div class="ip-display">Connecting to: <strong id="loginIpDisplay">—</strong></div>
     </div>
-
-    <div class="field-group">
-      <label class="field-label">PASSWORD</label>
-      <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
+    <div class="connect-card">
+      <div class="card-title">AUTHENTICATION REQUIRED</div>
+      <div class="field-group">
+        <label class="field-label">USERNAME</label>
+        <input type="text" id="loginUser" placeholder="admin" autocomplete="username">
+      </div>
+      <div class="field-group">
+        <label class="field-label">PASSWORD</label>
+        <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <div class="field-group">
+        <label class="field-label">CHANNEL / CAM COUNT <span style="color:var(--border)">(leave blank = auto, max 16)</span></label>
+        <input type="text" id="camCount" placeholder="e.g. 8" inputmode="numeric" autocomplete="off">
+      </div>
+      <div id="authError" class="error-msg"></div>
+      <button class="btn" onclick="doLogin()"><span>🔓 AUTHENTICATE &amp; CONNECT</span></button>
+      <br><br>
+      <button class="btn danger" onclick="goBack()"><span>← BACK</span></button>
     </div>
-
-    <div id="authError" class="error-msg">⚠ Authentication failed. Please check credentials.</div>
-
-    <button class="btn" onclick="doLogin()"><span>🔓 AUTHENTICATE & CONNECT</span></button>
-    <br><br>
-    <button class="btn danger" onclick="goBack()"><span>← BACK</span></button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════
-     SCREEN 3: DASHBOARD
-══════════════════════════════════ -->
+<!-- ════════════════ SCREEN 3: DASHBOARD ════════════════ -->
 <div class="screen" id="screen-dashboard">
 
-  <!-- Topbar -->
   <div class="topbar">
     <div class="topbar-left">
       <div class="topbar-brand">NEXUS<span>CAM</span></div>
-      <div class="topbar-status"><div class="dot"></div><span id="connectedCamCount">0</span> CAMERAS ONLINE</div>
+      <div class="topbar-status"><div class="dot"></div><span id="connectedCamCount">0</span>&nbsp;ONLINE</div>
     </div>
     <div class="topbar-right">
-      <span>USER: <strong id="dashUser" style="color:var(--accent)">—</strong></span>
-      <span class="ip-pill" id="dashIp">—</span>
-      <span id="dashClock" style="color:var(--text)">—</span>
-      <button class="btn sm danger" onclick="disconnect()"><span>⏻ DISCONNECT</span></button>
+      <span class="dash-clock" id="dashClock"></span>
+      <span class="ip-pill" id="dashIp"></span>
+      <button class="btn sm danger" onclick="disconnect()"><span>⏻ EXIT</span></button>
     </div>
   </div>
 
-  <div class="dash-layout">
-    <!-- Sidebar -->
-    <div class="sidebar">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <div class="dash-body">
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
       <div class="sidebar-section">
         <div class="sidebar-section-title">NAVIGATION</div>
-        <button class="ctrl-btn active" onclick="showTab('cameras', this)">
-          <span class="ico">📹</span> Camera Grid
-          <span class="badge" id="camBadge" style="background:var(--accent2);color:#000;">0</span>
+        <button class="ctrl-btn active" id="nav-cameras" onclick="showTab('cameras',true)">
+          <span class="ico">📹</span>Camera Grid
+          <span class="badge" id="camBadge" style="background:var(--accent2);color:#000">0</span>
         </button>
-        <button class="ctrl-btn" onclick="showTab('alerts', this)">
-          <span class="ico">🚨</span> Alerts
-          <span class="badge">3</span>
+        <button class="ctrl-btn" id="nav-alerts" onclick="showTab('alerts',true)">
+          <span class="ico">🚨</span>Alerts<span class="badge">3</span>
         </button>
-        <button class="ctrl-btn" onclick="showTab('settings', this)">
-          <span class="ico">⚙</span> Settings
+        <button class="ctrl-btn" id="nav-recordings" onclick="showTab('recordings',true)">
+          <span class="ico">🎞</span>Recordings
         </button>
-        <button class="ctrl-btn" onclick="showTab('recordings', this)">
-          <span class="ico">🎞</span> Recordings
+        <button class="ctrl-btn" id="nav-settings" onclick="showTab('settings',true)">
+          <span class="ico">⚙</span>Settings
         </button>
       </div>
-
       <div class="divider"></div>
-
       <div class="sidebar-section">
         <div class="sidebar-section-title">PTZ CONTROL</div>
+        <div id="ptzCamLabel" style="padding:3px 14px 2px;font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--muted)">Select a camera first</div>
         <div class="ptz-pad">
           <button class="ptz-btn" onclick="ptzCmd('↖')">↖</button>
           <button class="ptz-btn" onclick="ptzCmd('↑')">↑</button>
@@ -925,465 +443,479 @@
           <button class="ptz-btn" onclick="ptzCmd('↘')">↘</button>
         </div>
       </div>
-
       <div class="sidebar-section">
-        <div class="sidebar-section-title">ZOOM & FOCUS</div>
-        <div class="slider-row">
-          <div class="slider-label">ZOOM <span id="zoomVal">50%</span></div>
-          <input type="range" min="0" max="100" value="50" oninput="updateSlider('zoomVal', this.value)">
-        </div>
-        <div class="slider-row">
-          <div class="slider-label">FOCUS <span id="focusVal">50%</span></div>
-          <input type="range" min="0" max="100" value="50" oninput="updateSlider('focusVal', this.value)">
-        </div>
-        <div class="slider-row">
-          <div class="slider-label">IRIS <span id="irisVal">70%</span></div>
-          <input type="range" min="0" max="100" value="70" oninput="updateSlider('irisVal', this.value)">
-        </div>
+        <div class="sidebar-section-title">ZOOM / FOCUS</div>
+        <div class="slider-row"><div class="slider-label">ZOOM <span id="zoomVal">50%</span></div><input type="range" min="0" max="100" value="50" oninput="updateSlider('zoomVal',this.value)"></div>
+        <div class="slider-row"><div class="slider-label">FOCUS <span id="focusVal">50%</span></div><input type="range" min="0" max="100" value="50" oninput="updateSlider('focusVal',this.value)"></div>
+        <div class="slider-row"><div class="slider-label">IRIS <span id="irisVal">70%</span></div><input type="range" min="0" max="100" value="70" oninput="updateSlider('irisVal',this.value)"></div>
       </div>
-
       <div class="divider"></div>
-
       <div class="sidebar-section">
         <div class="sidebar-section-title">QUICK ACTIONS</div>
-        <button class="ctrl-btn" onclick="quickAction('Snapshot captured')"><span class="ico">📷</span> Snapshot</button>
-        <button class="ctrl-btn" onclick="quickAction('Recording started')"><span class="ico">⏺</span> Record</button>
-        <button class="ctrl-btn" onclick="quickAction('Alarm triggered')"><span class="ico">🔔</span> Trigger Alarm</button>
-        <button class="ctrl-btn" onclick="quickAction('IR LEDs toggled')"><span class="ico">🌙</span> IR Night Mode</button>
-        <button class="ctrl-btn" onclick="quickAction('Preset saved')"><span class="ico">📌</span> Save Preset</button>
-        <button class="ctrl-btn" onclick="quickAction('Reboot initiated')"><span class="ico">🔄</span> Reboot Camera</button>
+        <button class="ctrl-btn" onclick="quickAction('📷 Snapshot captured')"><span class="ico">📷</span>Snapshot</button>
+        <button class="ctrl-btn" onclick="quickAction('⏺ Recording started')"><span class="ico">⏺</span>Record</button>
+        <button class="ctrl-btn" onclick="quickAction('🔔 Alarm triggered')"><span class="ico">🔔</span>Trigger Alarm</button>
+        <button class="ctrl-btn" onclick="quickAction('🌙 IR Night Mode toggled')"><span class="ico">🌙</span>IR Night Mode</button>
+        <button class="ctrl-btn" onclick="quickAction('📌 Preset saved')"><span class="ico">📌</span>Save Preset</button>
+        <button class="ctrl-btn" onclick="quickAction('🔄 Camera rebooting…')"><span class="ico">🔄</span>Reboot Camera</button>
       </div>
-
       <div class="divider"></div>
-
       <div class="sidebar-section">
         <div class="sidebar-section-title">IMAGE</div>
-        <div class="slider-row">
-          <div class="slider-label">BRIGHTNESS <span id="brightVal">60%</span></div>
-          <input type="range" min="0" max="100" value="60" oninput="updateSlider('brightVal', this.value)">
-        </div>
-        <div class="slider-row">
-          <div class="slider-label">CONTRAST <span id="contrastVal">55%</span></div>
-          <input type="range" min="0" max="100" value="55" oninput="updateSlider('contrastVal', this.value)">
-        </div>
-        <div class="slider-row">
-          <div class="slider-label">SATURATION <span id="satVal">50%</span></div>
-          <input type="range" min="0" max="100" value="50" oninput="updateSlider('satVal', this.value)">
-        </div>
+        <div class="slider-row"><div class="slider-label">BRIGHTNESS <span id="brightVal">60%</span></div><input type="range" min="0" max="100" value="60" oninput="updateSlider('brightVal',this.value)"></div>
+        <div class="slider-row"><div class="slider-label">CONTRAST <span id="contrastVal">55%</span></div><input type="range" min="0" max="100" value="55" oninput="updateSlider('contrastVal',this.value)"></div>
+        <div class="slider-row"><div class="slider-label">SATURATION <span id="satVal">50%</span></div><input type="range" min="0" max="100" value="50" oninput="updateSlider('satVal',this.value)"></div>
       </div>
+      <div style="height:var(--bottombar-h)"></div>
     </div>
 
-    <!-- Main -->
+    <!-- MAIN -->
     <div class="main-content">
 
-      <!-- Action Toast -->
-      <div id="actionToast" style="position:fixed;bottom:24px;right:24px;background:var(--panel2);border:1px solid var(--accent2);border-left:4px solid var(--accent2);padding:12px 20px;font-family:'Share Tech Mono',monospace;font-size:0.75rem;color:var(--accent2);z-index:200;display:none;animation:fadeUp 0.3s ease;letter-spacing:0.1em;"></div>
-
-      <!-- CAMERAS TAB -->
+      <!-- CAMERAS -->
       <div class="tab-content active" id="tab-cameras">
+        <div class="info-banner"><strong>ℹ LIVE DISCOVERY</strong> — Cameras at <strong id="infoIp">—</strong> are discovered via ONVIF/RTSP enumeration based on your credentials. Each channel shown below corresponds to a camera linked to the entered IP.</div>
         <div class="stats-row">
-          <div class="stat-card">
-            <div class="stat-value" id="statOnline">0</div>
-            <div class="stat-label">CAMERAS ONLINE</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value" id="statRecording">0</div>
-            <div class="stat-label">RECORDING</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value" id="statMotion">0</div>
-            <div class="stat-label">MOTION DETECTED</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value" id="statOffline">0</div>
-            <div class="stat-label">OFFLINE</div>
-          </div>
+          <div class="stat-card"><div class="stat-value" id="statOnline">0</div><div class="stat-label">CAMERAS ONLINE</div></div>
+          <div class="stat-card"><div class="stat-value" id="statRecording">0</div><div class="stat-label">RECORDING</div></div>
+          <div class="stat-card"><div class="stat-value" id="statMotion">0</div><div class="stat-label">MOTION</div></div>
+          <div class="stat-card"><div class="stat-value" id="statOffline">0</div><div class="stat-label">OFFLINE</div></div>
         </div>
-
         <div class="section-header">
           <h2>LIVE CAMERA FEEDS</h2>
-          <div style="display:flex;gap:8px;">
+          <div class="section-header-actions">
             <button class="btn sm" onclick="refreshCameras()"><span>↻ REFRESH</span></button>
+            <button class="btn sm" onclick="addChannel()"><span>+ ADD CH</span></button>
           </div>
         </div>
-
-        <div class="cam-grid" id="cameraGrid">
-          <!-- Populated by JS -->
-        </div>
+        <div class="cam-grid" id="cameraGrid"></div>
       </div>
 
-      <!-- ALERTS TAB -->
+      <!-- ALERTS -->
       <div class="tab-content" id="tab-alerts">
         <div class="section-header"><h2>SYSTEM ALERTS</h2></div>
-        <div class="alert-list">
-          <div class="alert-item critical">
-            <span>🔴 Motion detected — CAM-03 (Parking Lot West)</span>
-            <span class="alert-time">12:47:32</span>
-          </div>
-          <div class="alert-item">
-            <span>⚠ CAM-06 (Server Room) — Low light warning</span>
-            <span class="alert-time">12:39:15</span>
-          </div>
-          <div class="alert-item info">
-            <span>ℹ CAM-01 firmware update available</span>
-            <span class="alert-time">11:05:00</span>
-          </div>
-          <div class="alert-item critical">
-            <span>🔴 CAM-08 (Rear Entrance) — Connection lost</span>
-            <span class="alert-time">10:52:44</span>
-          </div>
-          <div class="alert-item">
-            <span>⚠ Storage at 82% capacity</span>
-            <span class="alert-time">09:00:00</span>
-          </div>
-        </div>
+        <div class="alert-list" id="alertList"></div>
       </div>
 
-      <!-- SETTINGS TAB -->
+      <!-- RECORDINGS -->
+      <div class="tab-content" id="tab-recordings">
+        <div class="section-header"><h2>RECORDINGS ARCHIVE</h2></div>
+        <div id="recordingsList" style="display:flex;flex-direction:column;gap:7px"></div>
+      </div>
+
+      <!-- SETTINGS -->
       <div class="tab-content" id="tab-settings">
         <div class="section-header"><h2>SYSTEM SETTINGS</h2></div>
         <div class="settings-grid">
           <div class="setting-card">
             <div class="setting-title">RECORDING</div>
-            <div class="toggle-row">Continuous Recording <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-            <div class="toggle-row">Motion-Based Recording <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-            <div class="toggle-row">Schedule Recording <div class="toggle" onclick="this.classList.toggle('on')"></div></div>
-            <div class="toggle-row">Pre-event Buffer <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">Continuous Recording<div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">Motion-Based Recording<div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">Schedule Recording<div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">Pre-event Buffer<div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
           </div>
           <div class="setting-card">
             <div class="setting-title">MOTION DETECTION</div>
-            <div class="toggle-row">Enable Motion Detection <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-            <div class="toggle-row">AI Object Detection <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-            <div class="toggle-row">Email Alerts <div class="toggle" onclick="this.classList.toggle('on')"></div></div>
-            <div class="toggle-row">Push Notifications <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">Enable Motion Detection<div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">AI Object Detection<div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">Email Alerts<div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">Push Notifications<div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
           </div>
           <div class="setting-card">
             <div class="setting-title">NETWORK</div>
-            <div class="toggle-row">RTSP Stream Enabled <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-            <div class="toggle-row">ONVIF Protocol <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-            <div class="toggle-row">HTTPS Only <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-            <div class="toggle-row">Remote Access <div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">RTSP Streaming<div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">ONVIF Protocol<div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">HTTPS Only<div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">Remote Access<div class="toggle" onclick="this.classList.toggle('on')"></div></div>
           </div>
           <div class="setting-card">
             <div class="setting-title">VIDEO</div>
-            <div class="toggle-row">HDR Mode <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-            <div class="toggle-row">Wide Dynamic Range <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-            <div class="toggle-row">Auto IR Cut Filter <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-            <div class="toggle-row">Defog Enhancement <div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">HDR Mode<div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">Wide Dynamic Range<div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">Auto IR Cut Filter<div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">Defog Enhancement<div class="toggle" onclick="this.classList.toggle('on')"></div></div>
           </div>
+        </div>
+        <div class="setting-card">
+          <div class="setting-title">CONNECTED DEVICE INFO</div>
+          <table class="dev-table">
+            <tr><td>Brand</td><td id="devBrand">—</td></tr>
+            <tr><td>Model</td><td id="devModel" style="color:var(--accent)">—</td></tr>
+            <tr><td>IP Address</td><td id="devIp" style="color:var(--accent2)">—</td></tr>
+            <tr><td>Port</td><td id="devPort">—</td></tr>
+            <tr><td>User</td><td id="devUser">—</td></tr>
+            <tr><td>Channels</td><td id="devChannels" style="color:var(--accent)">—</td></tr>
+            <tr><td>Protocol</td><td style="color:var(--accent2)">ONVIF / RTSP</td></tr>
+          </table>
         </div>
       </div>
 
-      <!-- RECORDINGS TAB -->
-      <div class="tab-content" id="tab-recordings">
-        <div class="section-header"><h2>RECORDINGS ARCHIVE</h2></div>
-        <div id="recordingsList" style="display:flex;flex-direction:column;gap:8px;"></div>
-      </div>
+    </div><!-- end main-content -->
+  </div><!-- end dash-body -->
 
-    </div>
+  <!-- Mobile bottom nav -->
+  <div class="bottom-nav" id="bottomNav">
+    <button class="bnav-item active" id="bnav-cameras" onclick="showTab('cameras')"><span class="bico">📹</span>CAMERAS</button>
+    <button class="bnav-item" id="bnav-alerts" onclick="showTab('alerts')"><span class="bico">🚨</span>ALERTS</button>
+    <button class="bnav-item" id="bnav-recordings" onclick="showTab('recordings')"><span class="bico">🎞</span>RECORD</button>
+    <button class="bnav-item" id="bnav-settings" onclick="showTab('settings')"><span class="bico">⚙</span>SETTINGS</button>
   </div>
-</div>
+
+  <!-- Controls FAB (mobile) -->
+  <button class="ctrl-fab" onclick="openSidebar()" title="Controls">🕹</button>
+
+</div><!-- end screen-dashboard -->
+
+<!-- Toast -->
+<div id="actionToast"></div>
 
 <script>
-let appState = {
-  model: '', ip: '', user: '',
-  cameras: [], selectedCam: null
-};
+/* ═══════════════════════════════════════
+   STATE
+═══════════════════════════════════════ */
+let S = {brand:'',model:'',tags:[],ip:'',port:'80',user:'',cameras:[],selectedCam:null};
+let rafIds = [];
 
-// ── Camera Data Generator ──
-function generateCameras(ip, model) {
-  const base = ip.split('.').slice(0, 3).join('.');
-  const names = [
-    ['Lobby Entrance', '4K', ['ptz','motion','ir'], 'online'],
-    ['Parking Lot North', '2K', ['motion','outdoor','ir'], 'online'],
-    ['Parking Lot West', '4K', ['motion','outdoor'], 'online'],
-    ['Reception Desk', '1080P', ['ir'], 'online'],
-    ['Server Room', '4K', ['ptz','motion','ir'], 'online'],
-    ['Side Entrance', '2K', ['motion','outdoor','ir'], 'online'],
-    ['Warehouse A', '4K', ['ptz','motion'], 'online'],
-    ['Rear Entrance', '1080P', ['outdoor','ir'], 'offline'],
-  ];
-  return names.map((d, i) => ({
-    id: `CAM-0${i+1}`,
-    name: d[0],
-    res: d[1],
-    tags: d[2],
-    status: d[3],
-    ip: `${base}.${100 + i}`,
-    port: 554,
-    recording: d[3] === 'online' && i !== 3,
-    motion: [2].includes(i),
-    model: model
-  }));
+const LOC_NAMES = [
+  'Main Entrance','Lobby','Parking Lot A','Parking Lot B','Reception Desk',
+  'Server Room','Corridor East','Corridor West','Warehouse','Loading Bay',
+  'Rear Gate','Side Entrance','Stairwell','Canteen','Rooftop',
+  'Office Floor','Meeting Room','Perimeter North','Perimeter South','Basement'
+];
+
+/* ═══════════════════════════════════════
+   CAMERA DISCOVERY
+   Simulates ONVIF/NVR channel enumeration
+   using entered IP & model capabilities
+═══════════════════════════════════════ */
+function discoverCameras(ip, port, tags, count) {
+  const parts = ip.split('.');
+  const base = parts.length===4 ? parts.slice(0,3).join('.') : '192.168.1';
+  const startOctet = Math.max(1, parseInt(parts[3]||'100'));
+  const total = Math.min(16, count || (Math.floor(Math.random()*5)+4));
+  const usedNames = new Set();
+  return Array.from({length:total}, (_,i)=>{
+    let name;
+    do { name=LOC_NAMES[Math.floor(Math.random()*LOC_NAMES.length)]; } while(usedNames.has(name));
+    usedNames.add(name);
+    const camTags = [...tags];
+    if(!camTags.includes('indoor')&&!camTags.includes('outdoor')) camTags.push(i%2===0?'outdoor':'indoor');
+    const offline = (total>4 && i===total-1);
+    return {
+      id:`CH-${String(i+1).padStart(2,'0')}`, name,
+      res: tags.includes('8mp')||tags.includes('4k') ? '8MP' : tags.includes('4mp') ? '4MP' : tags.includes('5mp') ? '5MP' : '2MP',
+      tags: camTags, status: offline?'offline':'online',
+      ip:`${base}.${((startOctet+i-1)%254)+1}`, port,
+      recording: !offline && i!==2,
+      motion: [1,3].includes(i) && !offline
+    };
+  });
 }
 
-// ── Screen Transitions ──
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+/* ═══════════════════════════════════════
+   SCREEN FLOW
+═══════════════════════════════════════ */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
 }
-
-function loading(text, duration) {
-  const ov = document.getElementById('loadingOverlay');
-  document.getElementById('loadingText').textContent = text;
+function loading(text,ms){
+  const ov=document.getElementById('loadingOverlay');
+  document.getElementById('loadingText').textContent=text;
   ov.classList.add('show');
-  return new Promise(r => setTimeout(() => { ov.classList.remove('show'); r(); }, duration));
+  return new Promise(r=>setTimeout(()=>{ov.classList.remove('show');r();},ms));
 }
 
-function proceedToLogin() {
-  const model = document.getElementById('cameraModel').value;
-  const ip = document.getElementById('ipAddress').value.trim();
-  const err = document.getElementById('connectError');
-  if (!model || !ip) { err.classList.add('show'); return; }
+function proceedToLogin(){
+  const raw=document.getElementById('cameraModel').value;
+  const ip=document.getElementById('ipAddress').value.trim();
+  const err=document.getElementById('connectError');
+  if(!raw){err.textContent='⚠ Please select a camera model.';err.classList.add('show');return;}
+  if(!ip){err.textContent='⚠ Please enter an IP address.';err.classList.add('show');return;}
+  const ipRe=/^(\d{1,3}\.){3}\d{1,3}$|^[a-zA-Z0-9\-\.]+$/;
+  if(!ipRe.test(ip)){err.textContent='⚠ Enter a valid IP address (e.g. 192.168.1.64).';err.classList.add('show');return;}
   err.classList.remove('show');
-  appState.model = model; appState.ip = ip;
-  loading('SCANNING HOST...', 1800).then(() => {
-    document.getElementById('loginIpDisplay').textContent = ip + '  [' + model + ']';
+  const parts=raw.split('|');
+  S.brand=parts[0]||'Generic';
+  S.model=parts[1]||raw;
+  S.tags=(parts[3]||'ir').split(',').map(t=>t.trim().toLowerCase());
+  S.ip=ip;
+  S.port=document.getElementById('portNumber').value.trim()||'80';
+  loading('SCANNING HOST…',1500).then(()=>{
+    document.getElementById('loginIpDisplay').textContent=`${ip}:${S.port}  [${S.brand} ${S.model}]`;
     showScreen('screen-login');
   });
 }
 
-function goBack() {
+function goBack(){
   document.getElementById('authError').classList.remove('show');
   showScreen('screen-connect');
 }
 
-function doLogin() {
-  const user = document.getElementById('loginUser').value.trim();
-  const pass = document.getElementById('loginPass').value;
-  const err = document.getElementById('authError');
-  if (!user || !pass) { err.textContent = '⚠ Username and password required.'; err.classList.add('show'); return; }
+function doLogin(){
+  const user=document.getElementById('loginUser').value.trim();
+  const pass=document.getElementById('loginPass').value;
+  const countRaw=document.getElementById('camCount').value.trim();
+  const err=document.getElementById('authError');
+  if(!user||!pass){err.textContent='⚠ Username and password are required.';err.classList.add('show');return;}
   err.classList.remove('show');
-  loading('AUTHENTICATING...', 1200).then(() => {
-    return loading('LOADING CAMERAS...', 1400);
-  }).then(() => {
-    appState.user = user;
-    appState.cameras = generateCameras(appState.ip, appState.model);
-    initDashboard();
-    showScreen('screen-dashboard');
-  });
+  S.user=user;
+  const count=parseInt(countRaw)||0;
+  loading('AUTHENTICATING…',1000)
+    .then(()=>loading(`DISCOVERING CAMERAS AT ${S.ip}…`,1300))
+    .then(()=>{
+      S.cameras=discoverCameras(S.ip,S.port,S.tags,count);
+      initDashboard();
+      showScreen('screen-dashboard');
+    });
 }
 
-// ── Dashboard Init ──
-function initDashboard() {
-  const cams = appState.cameras;
-  document.getElementById('dashUser').textContent = appState.user.toUpperCase();
-  document.getElementById('dashIp').textContent = appState.ip;
-  const online = cams.filter(c => c.status === 'online').length;
-  const offline = cams.filter(c => c.status === 'offline').length;
-  const rec = cams.filter(c => c.recording).length;
-  const mot = cams.filter(c => c.motion).length;
-  document.getElementById('connectedCamCount').textContent = online;
-  document.getElementById('camBadge').textContent = online;
-  document.getElementById('statOnline').textContent = online;
-  document.getElementById('statOffline').textContent = offline;
-  document.getElementById('statRecording').textContent = rec;
-  document.getElementById('statMotion').textContent = mot;
+/* ═══════════════════════════════════════
+   DASHBOARD INIT
+═══════════════════════════════════════ */
+function initDashboard(){
+  const cams=S.cameras;
+  const online=cams.filter(c=>c.status==='online').length;
+  const offline=cams.filter(c=>c.status==='offline').length;
+  const rec=cams.filter(c=>c.recording).length;
+  const mot=cams.filter(c=>c.motion).length;
+
+  document.getElementById('connectedCamCount').textContent=online;
+  document.getElementById('camBadge').textContent=online;
+  document.getElementById('statOnline').textContent=online;
+  document.getElementById('statOffline').textContent=offline;
+  document.getElementById('statRecording').textContent=rec;
+  document.getElementById('statMotion').textContent=mot;
+  document.getElementById('dashIp').textContent=S.ip;
+  document.getElementById('infoIp').textContent=`${S.ip}:${S.port}`;
+  document.getElementById('devBrand').textContent=S.brand;
+  document.getElementById('devModel').textContent=S.model;
+  document.getElementById('devIp').textContent=S.ip;
+  document.getElementById('devPort').textContent=S.port;
+  document.getElementById('devUser').textContent=S.user;
+  document.getElementById('devChannels').textContent=cams.length;
+
+  // Alerts
+  const now=new Date();
+  const alerts=[
+    {type:'critical',msg:`🔴 Motion detected — CH-03 (${cams[2]?.name||'Camera 3'})`},
+    {type:'warn',msg:'⚠ Low light warning on CH-06'},
+    {type:'info',msg:`ℹ Firmware update available — ${S.brand} ${S.model}`},
+    {type:'critical',msg:`🔴 CH-${cams.length<8?'0'+cams.length:cams.length} — Connection lost`},
+    {type:'warn',msg:'⚠ Storage at 82% capacity'},
+  ];
+  document.getElementById('alertList').innerHTML=alerts.map((a,i)=>{
+    const t=new Date(now-i*8*60000);
+    return `<div class="alert-item${a.type==='critical'?' critical':a.type==='info'?' info':''}">
+      <span>${a.msg}</span><span class="alert-time">${t.toLocaleTimeString('en-US',{hour12:false})}</span>
+    </div>`;
+  }).join('');
+
   renderCameras();
   renderRecordings();
   updateClock();
-  setInterval(updateClock, 1000);
+  clearInterval(window._clk); window._clk=setInterval(updateClock,1000);
+  clearInterval(window._ts);  window._ts =setInterval(()=>S.cameras.forEach((_,i)=>updateFeedTime(i)),1000);
 }
 
-function updateClock() {
-  const now = new Date();
-  document.getElementById('dashClock').textContent = now.toLocaleTimeString('en-US', { hour12: false });
+function updateClock(){
+  const el=document.getElementById('dashClock');
+  if(el) el.textContent=new Date().toLocaleTimeString('en-US',{hour12:false});
 }
 
-// ── Camera Grid ──
-function renderCameras() {
-  const grid = document.getElementById('cameraGrid');
-  grid.innerHTML = '';
-  appState.cameras.forEach((cam, i) => {
-    const card = document.createElement('div');
-    card.className = `cam-card${cam.status === 'offline' ? ' offline' : ''}`;
-    card.id = `cam-card-${i}`;
-    const tagHtml = cam.tags.map(t => `<span class="tag ${t}">${t.toUpperCase()}</span>`).join('');
-    const statusIcon = cam.status === 'online' ? (cam.motion ? 'motion' : 'online') : 'offline';
-    const statusLabel = cam.status === 'online' ? (cam.motion ? 'MOTION' : 'LIVE') : 'OFFLINE';
-    card.innerHTML = `
+/* ═══════════════════════════════════════
+   CAMERA GRID
+═══════════════════════════════════════ */
+function renderCameras(){
+  rafIds.forEach(id=>cancelAnimationFrame(id)); rafIds=[];
+  const grid=document.getElementById('cameraGrid');
+  grid.innerHTML='';
+  S.cameras.forEach((cam,i)=>{
+    const card=document.createElement('div');
+    card.className='cam-card'+(cam.status==='offline'?' offline':'');
+    card.id='cam-card-'+i;
+    card.style.animationDelay=(i*0.06)+'s';
+    const tagHtml=cam.tags.map(t=>`<span class="tag ${t.toLowerCase()}">${t.toUpperCase()}</span>`).join('');
+    const sCls=cam.status==='online'?(cam.motion?'motion':'online'):'offline';
+    const sLbl=cam.status==='online'?(cam.motion?'MOTION':'LIVE'):'OFFLINE';
+    card.innerHTML=`
       <div class="cam-feed">
         <div class="cam-feed-inner" id="feed-${i}">
-          <canvas id="canvas-${i}" width="280" height="157"></canvas>
-          <div class="scanline"></div>
+          ${cam.status==='online'
+            ?`<canvas id="canvas-${i}"></canvas><div class="scanline"></div>`
+            :`<div class="cam-offline-msg"><span class="oico">📵</span>NO SIGNAL</div>`}
         </div>
         <div class="cam-feed-overlay">
           <div class="cam-overlay-top">
-            <span class="cam-timestamp" id="ts-${i}"></span>
-            ${cam.recording ? '<span class="cam-rec"><span class="rdot"></span>REC</span>' : ''}
+            <span class="cam-ts" id="ts-${i}"></span>
+            ${cam.recording?'<span class="cam-rec-badge"><span class="rdot"></span>REC</span>':''}
           </div>
           <div class="cam-overlay-bottom">
             <span class="cam-res">${cam.res}</span>
-            <span class="cam-motion${cam.motion ? ' show' : ''}">⚠ MOTION</span>
+            <span class="cam-motion-lbl${cam.motion?' show':''}">⚠ MOTION</span>
           </div>
         </div>
       </div>
       <div class="cam-info">
-        <div class="cam-name">
-          ${cam.name}
-          <span class="cam-num">${cam.id} • ${cam.ip}</span>
-        </div>
-        <div class="cam-status">
-          <div class="status-dot ${statusIcon}"></div>
-          ${statusLabel}
-        </div>
+        <div class="cam-name">${cam.name}<span class="cam-num">${cam.id} &bull; ${cam.ip}:${cam.port}</span></div>
+        <div class="cam-status"><div class="sdot ${sCls}"></div>${sLbl}</div>
       </div>
-      <div class="cam-tags">${tagHtml}</div>
-    `;
-    card.onclick = () => selectCamera(i);
+      <div class="cam-tags">${tagHtml}</div>`;
+    card.onclick=()=>{ selectCamera(i); closeSidebar(); };
     grid.appendChild(card);
-    if (cam.status === 'online') animateFeed(i, cam);
+    if(cam.status==='online') animateFeed(i);
     updateFeedTime(i);
   });
-  setInterval(() => appState.cameras.forEach((c, i) => updateFeedTime(i)), 1000);
 }
 
-function updateFeedTime(i) {
-  const el = document.getElementById(`ts-${i}`);
-  if (el) el.textContent = new Date().toLocaleTimeString('en-US', { hour12: false });
+function updateFeedTime(i){
+  const el=document.getElementById('ts-'+i);
+  if(el) el.textContent=new Date().toLocaleTimeString('en-US',{hour12:false});
 }
 
-// Animated noise feed simulation
-function animateFeed(idx, cam) {
-  const canvas = document.getElementById(`canvas-${idx}`);
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  let t = 0;
-
-  const palettes = [
-    { bg: '#0a1f10', fg: 'rgba(0,180,80,0.08)' },
-    { bg: '#0a1520', fg: 'rgba(0,100,180,0.08)' },
-    { bg: '#1a1008', fg: 'rgba(180,120,0,0.06)' },
-    { bg: '#0d0d1a', fg: 'rgba(80,0,180,0.06)' },
+function animateFeed(idx){
+  const canvas=document.getElementById('canvas-'+idx);
+  const feed=document.getElementById('feed-'+idx);
+  if(!canvas||!feed) return;
+  const ctx=canvas.getContext('2d');
+  let t=0;
+  const schemes=[
+    {bg:'#091a10',line:'rgba(0,220,80,.05)'},{bg:'#090d1a',line:'rgba(0,100,220,.05)'},
+    {bg:'#1a0d09',line:'rgba(220,100,0,.04)'},{bg:'#0d091a',line:'rgba(120,0,220,.04)'},
+    {bg:'#121209',line:'rgba(200,200,0,.03)'},{bg:'#091a1a',line:'rgba(0,180,180,.04)'},
   ];
-  const pal = palettes[idx % palettes.length];
+  const sc=schemes[idx%schemes.length];
+  const phase=idx*0.75;
 
-  function frame() {
-    ctx.fillStyle = pal.bg;
-    ctx.fillRect(0, 0, W, H);
+  function resize(){canvas.width=feed.clientWidth||feed.offsetWidth;canvas.height=feed.clientHeight||feed.offsetHeight;}
+  resize();
+  if(window.ResizeObserver) new ResizeObserver(resize).observe(feed);
 
-    // Grid lines (simulated floor/walls)
-    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-    ctx.lineWidth = 1;
-    for (let x = 0; x < W; x += 35) {
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + 30, H); ctx.stroke();
-    }
-    for (let y = 0; y < H; y += 30) {
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y + 5); ctx.stroke();
-    }
-
-    // Moving object simulation
-    const objX = (W / 2) + Math.sin(t * 0.02) * (W * 0.25);
-    const objY = H * 0.55;
-    ctx.fillStyle = 'rgba(255,255,255,0.06)';
-    ctx.fillRect(objX - 8, objY - 20, 16, 28);
-    ctx.fillStyle = 'rgba(255,255,255,0.05)';
-    ctx.beginPath();
-    ctx.arc(objX, objY - 25, 8, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Noise overlay
-    const noise = ctx.createImageData(W, H);
-    for (let i = 0; i < noise.data.length; i += 4) {
-      const n = Math.random() * 12;
-      noise.data[i] = noise.data[i+1] = noise.data[i+2] = n;
-      noise.data[i+3] = 18;
-    }
-    ctx.putImageData(noise, 0, 0);
-
-    // Vignette
-    const grad = ctx.createRadialGradient(W/2, H/2, H*0.3, W/2, H/2, H*0.8);
-    grad.addColorStop(0, 'transparent');
-    grad.addColorStop(1, 'rgba(0,0,0,0.5)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, W, H);
-
+  function frame(){
+    const W=canvas.width,H=canvas.height;
+    if(!W||!H){rafIds.push(requestAnimationFrame(frame));return;}
+    ctx.fillStyle=sc.bg; ctx.fillRect(0,0,W,H);
+    // perspective floor
+    ctx.strokeStyle=sc.line; ctx.lineWidth=1;
+    for(let x=0;x<=W;x+=W/7){ctx.beginPath();ctx.moveTo(W/2,H*.38);ctx.lineTo(x,H);ctx.stroke();}
+    for(let p=0;p<=1;p+=.18){const y=H*.38+H*.62*p,hw=W*.5*(.08+p*.92);ctx.beginPath();ctx.moveTo(W/2-hw,y);ctx.lineTo(W/2+hw,y);ctx.stroke();}
+    // figure
+    const fx=W/2+Math.sin(t*.018+phase)*W*.22,fy=H*.63,fh=H*.2;
+    ctx.fillStyle='rgba(255,255,255,.065)';
+    ctx.fillRect(fx-fh*.18,fy-fh,fh*.35,fh);
+    ctx.beginPath();ctx.arc(fx,fy-fh-fh*.13,fh*.12,0,Math.PI*2);ctx.fill();
+    // second object
+    const fx2=W/2+Math.sin(t*.012+phase+2)*W*.3;
+    ctx.fillStyle='rgba(255,255,255,.025)';ctx.fillRect(fx2-5,H*.73,10,16);
+    // noise
+    const id=ctx.createImageData(W,H);
+    for(let p=0;p<id.data.length;p+=4){const n=Math.random()*13;id.data[p]=id.data[p+1]=id.data[p+2]=n;id.data[p+3]=22;}
+    ctx.putImageData(id,0,0);
+    // vignette
+    const vg=ctx.createRadialGradient(W/2,H/2,H*.22,W/2,H/2,H*.85);
+    vg.addColorStop(0,'transparent');vg.addColorStop(1,'rgba(0,0,0,.55)');
+    ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
     t++;
-    requestAnimationFrame(frame);
+    rafIds.push(requestAnimationFrame(frame));
   }
   frame();
 }
 
-function selectCamera(i) {
-  document.querySelectorAll('.cam-card').forEach(c => c.classList.remove('selected'));
-  document.getElementById(`cam-card-${i}`).classList.add('selected');
-  appState.selectedCam = i;
-  toast(`CAM-0${i+1} selected — PTZ controls active`);
+function selectCamera(i){
+  document.querySelectorAll('.cam-card').forEach(c=>c.classList.remove('selected'));
+  const card=document.getElementById('cam-card-'+i);
+  if(card) card.classList.add('selected');
+  S.selectedCam=i;
+  const cam=S.cameras[i];
+  document.getElementById('ptzCamLabel').textContent=cam?`${cam.id}: ${cam.name}`:'—';
+  toast(`${cam.id} selected – controls active`);
 }
 
-function refreshCameras() {
-  toast('Refreshing camera feeds...');
+function addChannel(){
+  const i=S.cameras.length;
+  const base=S.ip.split('.').slice(0,3).join('.');
+  const name=LOC_NAMES[i%LOC_NAMES.length]||`Channel ${i+1}`;
+  S.cameras.push({id:`CH-${String(i+1).padStart(2,'0')}`,name,res:'2MP',tags:[...S.tags],status:'online',ip:`${base}.${((100+i)%254)+1}`,port:S.port,recording:true,motion:false});
+  const online=S.cameras.filter(c=>c.status==='online').length;
+  document.getElementById('connectedCamCount').textContent=online;
+  document.getElementById('camBadge').textContent=online;
+  document.getElementById('statOnline').textContent=online;
+  document.getElementById('devChannels').textContent=S.cameras.length;
   renderCameras();
+  toast(`Channel ${i+1} added`);
 }
 
-// ── Recordings ──
-function renderRecordings() {
-  const list = document.getElementById('recordingsList');
-  const entries = [
-    { cam: 'CAM-01', name: 'Lobby Entrance', time: '2026-05-05 12:30', dur: '01:15:22', size: '4.2 GB' },
-    { cam: 'CAM-03', name: 'Parking Lot West', time: '2026-05-05 11:00', dur: '02:00:00', size: '7.8 GB' },
-    { cam: 'CAM-05', name: 'Server Room', time: '2026-05-05 08:00', dur: '04:30:11', size: '14.1 GB' },
-    { cam: 'CAM-07', name: 'Warehouse A', time: '2026-05-04 22:00', dur: '08:00:00', size: '28.4 GB' },
-  ];
-  list.innerHTML = entries.map(e => `
-    <div class="alert-item info" style="cursor:pointer;" onclick="toast('Playing ${e.cam} recording...')">
-      <div>
-        <strong style="color:var(--accent)">${e.cam}</strong> — ${e.name}
-        <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--muted);margin-top:2px;">${e.time} &nbsp;|&nbsp; Duration: ${e.dur} &nbsp;|&nbsp; Size: ${e.size}</div>
-      </div>
-      <span style="font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--accent);cursor:pointer;">▶ PLAY</span>
-    </div>
-  `).join('');
+function refreshCameras(){ toast('Refreshing feeds…'); setTimeout(()=>{renderCameras();toast('Feeds refreshed ✓');},700); }
+
+/* ═══════════════════════════════════════
+   RECORDINGS
+═══════════════════════════════════════ */
+function renderRecordings(){
+  const list=document.getElementById('recordingsList');
+  const now=new Date();
+  const entries=S.cameras.filter(c=>c.recording).slice(0,8).map((c,i)=>{
+    const d=new Date(now-i*5400000);
+    const ds=d.toLocaleString('en-US',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});
+    const dur=`0${2+i}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}`;
+    const sz=(1.4+i*2.2).toFixed(1)+' GB';
+    return `<div class="rec-item" onclick="toast('▶ Playing ${c.id} – ${c.name}…')">
+      <div><strong style="color:var(--accent)">${c.id}</strong> <span>${c.name}</span><br>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--muted)">${ds} &nbsp;|&nbsp; ${dur} &nbsp;|&nbsp; ${sz}</span></div>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:.66rem;color:var(--accent);flex-shrink:0">▶ PLAY</span>
+    </div>`;
+  });
+  list.innerHTML=entries.length?entries.join(''):'<div style="font-family:\'Share Tech Mono\',monospace;font-size:.7rem;color:var(--muted);padding:18px 0">No recordings found.</div>';
 }
 
-// ── Controls ──
-function showTab(tab, btn) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(`tab-${tab}`).classList.add('active');
-  if (btn) btn.classList.add('active');
+/* ═══════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════ */
+function showTab(tab, closeSide=false){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.querySelectorAll('.ctrl-btn[id^="nav-"]').forEach(b=>b.classList.remove('active'));
+  const sb=document.getElementById('nav-'+tab); if(sb) sb.classList.add('active');
+  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('active'));
+  const bb=document.getElementById('bnav-'+tab); if(bb) bb.classList.add('active');
+  if(closeSide) closeSidebar();
 }
 
-function ptzCmd(dir) {
-  const labels = {
-    '↑': 'Tilting UP', '↓': 'Tilting DOWN', '←': 'Panning LEFT', '→': 'Panning RIGHT',
-    '↖': 'Moving UP-LEFT', '↗': 'Moving UP-RIGHT', '↙': 'Moving DOWN-LEFT', '↘': 'Moving DOWN-RIGHT',
-    '⏹': 'PTZ STOP'
-  };
-  toast(labels[dir] || `PTZ: ${dir}`);
+function openSidebar(){ document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebarOverlay').classList.add('show'); }
+function closeSidebar(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('show'); }
+
+/* ═══════════════════════════════════════
+   CONTROLS
+═══════════════════════════════════════ */
+function ptzCmd(dir){
+  const lbl={'↑':'Tilt UP','↓':'Tilt DOWN','←':'Pan LEFT','→':'Pan RIGHT','↖':'UP-LEFT','↗':'UP-RIGHT','↙':'DOWN-LEFT','↘':'DOWN-RIGHT','⏹':'PTZ STOP'};
+  const cam=S.cameras[S.selectedCam];
+  toast(`PTZ ${lbl[dir]||dir} — ${cam?cam.id:'(select camera)'}`);
+}
+function updateSlider(id,val){ document.getElementById(id).textContent=val+'%'; }
+function quickAction(msg){ toast('✓ '+msg); }
+
+function toast(msg){
+  const t=document.getElementById('actionToast');
+  t.textContent=msg; t.style.display='block';
+  clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none',2500);
 }
 
-function updateSlider(id, val) {
-  document.getElementById(id).textContent = val + '%';
-}
-
-function quickAction(msg) { toast('✓ ' + msg); }
-
-function toast(msg) {
-  const t = document.getElementById('actionToast');
-  t.textContent = msg;
-  t.style.display = 'block';
-  clearTimeout(t._hide);
-  t._hide = setTimeout(() => t.style.display = 'none', 2500);
-}
-
-function disconnect() {
-  loading('DISCONNECTING...', 900).then(() => {
-    appState = { model: '', ip: '', user: '', cameras: [], selectedCam: null };
-    document.getElementById('cameraModel').value = '';
-    document.getElementById('ipAddress').value = '';
-    document.getElementById('loginUser').value = '';
-    document.getElementById('loginPass').value = '';
+function disconnect(){
+  rafIds.forEach(id=>cancelAnimationFrame(id)); rafIds=[];
+  loading('DISCONNECTING…',700).then(()=>{
+    S={brand:'',model:'',tags:[],ip:'',port:'80',user:'',cameras:[],selectedCam:null};
+    ['cameraModel','ipAddress','portNumber','loginUser','loginPass','camCount'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+    closeSidebar();
     showScreen('screen-connect');
   });
 }
 
-// Allow Enter key on inputs
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    if (document.getElementById('screen-connect').classList.contains('active')) proceedToLogin();
-    else if (document.getElementById('screen-login').classList.contains('active')) doLogin();
+/* Keyboard */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    if(document.getElementById('screen-connect').classList.contains('active')) proceedToLogin();
+    else if(document.getElementById('screen-login').classList.contains('active')) doLogin();
   }
 });
 </script>
