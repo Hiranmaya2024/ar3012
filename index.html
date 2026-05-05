@@ -1,570 +1,1391 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark-clinical">
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Aaradhya Pharmaceuticals · Order Dashboard</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexusCAM — Surveillance Control System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════════════
-   THEME VARIABLES — mirrors main app exactly
-═══════════════════════════════════════════════ */
-:root {
-  --bg:            #080c16;
-  --s1:            #0d1528;
-  --s2:            #121d35;
-  --s3:            #172240;
-  --b1:            #1a2a50;
-  --b2:            #223368;
-  --acc:           #00e5ff;
-  --acc2:          #00b8cc;
-  --acc-bg:        rgba(0,229,255,.07);
-  --acc2-bg:       rgba(0,229,255,.12);
-  --red:           #ff3355;
-  --amber:         #ffbb00;
-  --green:         #00e070;
-  --text:          #c0d4f0;
-  --text2:         #5a80b0;
-  --muted:         #1e3060;
-  --rule:          #1a2a50;
-  --rule2:         #223368;
-  --font-disp:     'Orbitron', monospace;
-  --font-head:     'Rajdhani', sans-serif;
-  --font-body:     'Roboto Condensed', sans-serif;
-  --font-mono:     'Roboto Condensed', monospace;
-  --header-bg:     rgba(8,12,22,.97);
-  --header-border: #1a2a50;
-  --header-text:   #00e5ff;
-  --header-sub:    #5a80b0;
-  --card-bg:       #0d1528;
-  --card-border:   #1a2a50;
-  --card-head-bg:  #121d35;
-  --input-bg:      #121d35;
-  --panel-bg:      #0d1528;
-  --badge-good-bg: rgba(0,224,112,.1);
-  --badge-good-fg: #00e070;
-  --badge-good-bdr:rgba(0,224,112,.2);
-  --badge-warn-bg: rgba(255,187,0,.1);
-  --badge-warn-fg: #ffbb00;
-  --badge-warn-bdr:rgba(255,187,0,.2);
-  --badge-bad-bg:  rgba(255,51,85,.1);
-  --badge-bad-fg:  #ff3355;
-  --badge-bad-bdr: rgba(255,51,85,.2);
-  --border-radius: 6px;
-  --card-radius:   6px;
-  --btn-radius:    4px;
-  --shadow:        0 8px 32px rgba(0,0,0,.5);
-  --sweep-color:   linear-gradient(90deg, transparent, #00e5ff, #00b8cc, transparent);
-}
+  :root {
+    --bg: #030a0f;
+    --panel: #050e17;
+    --panel2: #071422;
+    --border: #0d2a3a;
+    --accent: #00d4ff;
+    --accent2: #00ff88;
+    --accent3: #ff4444;
+    --warn: #ffaa00;
+    --text: #c8e8f0;
+    --muted: #4a7a8a;
+    --glow: 0 0 20px rgba(0,212,255,0.3);
+    --glow2: 0 0 20px rgba(0,255,136,0.3);
+  }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-body {
-  font-family: var(--font-body);
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-/* dot grid */
-body::before {
-  content: '';
-  position: fixed; inset: 0;
-  background-image: radial-gradient(circle, rgba(128,128,128,.07) 1px, transparent 1px);
-  background-size: 24px 24px;
-  pointer-events: none; z-index: 0;
-}
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,80,120,0.25) 0%, transparent 70%),
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(0,212,255,0.03) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(0,212,255,0.03) 40px);
+    pointer-events: none;
+    z-index: 0;
+  }
 
-/* ─── LOADER ─── */
-.loader {
-  position: fixed; inset: 0;
-  background: var(--bg);
-  z-index: 9999;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 16px;
-  transition: opacity .7s;
-}
-.loader.out { opacity: 0; pointer-events: none; }
-.loader-icon { font-size: 44px; animation: loaderFloat 1.8s ease-in-out infinite; }
-@keyframes loaderFloat { 0%,100%{transform:translateY(0) rotate(-5deg)} 50%{transform:translateY(-12px) rotate(5deg)} }
-.loader-title { font-family: var(--font-disp); font-size: 18px; color: var(--acc); letter-spacing: .08em; }
-.loader-bar { width: 160px; height: 3px; background: var(--b1); overflow: hidden; border-radius: 2px; }
-.loader-fill { height: 100%; width: 0; background: var(--acc); animation: barFill 1.8s ease forwards; border-radius: 2px; }
-@keyframes barFill { to { width: 100%; } }
-.loader-sub { font-family: var(--font-mono); font-size: 10px; color: var(--text2); letter-spacing: .18em; text-transform: uppercase; }
+  /* ─── SCREENS ─── */
+  .screen { display: none; position: relative; z-index: 1; }
+  .screen.active { display: flex; }
 
-/* ─── HEADER ─── */
-header {
-  position: sticky; top: 0; z-index: 200;
-  background: var(--header-bg);
-  border-bottom: 1px solid var(--header-border);
-  backdrop-filter: blur(20px);
-}
-header::after {
-  content: '';
-  position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
-  background: var(--sweep-color);
-  background-size: 200%;
-  animation: sweep 3s linear infinite;
-}
-@keyframes sweep { 0%{background-position:0%} 100%{background-position:200%} }
+  /* ─── STEP 1: MODEL + IP ─── */
+  #screen-connect {
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0;
+    padding: 40px 20px;
+  }
 
-.h-inner {
-  max-width: 1400px; margin: auto;
-  padding: 0 20px; height: 60px;
-  display: flex; align-items: center; justify-content: space-between; gap: 14px;
-}
-.logo { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-.logo-icon {
-  width: 38px; height: 38px;
-  background: var(--acc-bg);
-  border: 1.5px solid var(--acc);
-  border-radius: var(--card-radius);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px; flex-shrink: 0;
-}
-.brand-name {
-  font-family: var(--font-disp);
-  font-size: 15px; color: var(--header-text);
-  letter-spacing: .04em; line-height: 1;
-  white-space: nowrap;
-}
-.brand-sub {
-  font-family: var(--font-mono);
-  font-size: 9px; color: var(--header-sub);
-  letter-spacing: .16em; text-transform: uppercase; margin-top: 3px;
-}
-.v-badge {
-  font-family: var(--font-mono); font-size: 9px; font-weight: 700;
-  color: var(--bg); background: var(--acc);
-  border-radius: 3px; padding: 2px 6px;
-  letter-spacing: .06em; opacity: .85;
-}
-.h-mid { flex: 1; display: flex; justify-content: center; }
-.live-chip {
-  display: flex; align-items: center; gap: 7px;
-  background: var(--acc-bg); border: 1px solid var(--b2);
-  border-radius: 20px; padding: 4px 14px;
-  font-family: var(--font-mono); font-size: 10px; color: var(--text2); letter-spacing: .08em;
-}
-.live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--acc); animation: ldot 1.8s ease-in-out infinite; }
-@keyframes ldot { 0%,100%{opacity:.3;transform:scale(.8)} 50%{opacity:1;transform:scale(1.2)} }
-.h-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-.stat-chip {
-  background: var(--acc-bg); border: 1px solid var(--b1);
-  border-radius: var(--btn-radius); padding: 5px 14px;
-  font-family: var(--font-mono); font-size: 11px; color: var(--text2);
-  white-space: nowrap;
-}
-.stat-chip strong { color: var(--acc); }
+  .logo-wrap {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeDown 0.8s ease both;
+  }
+  .logo-wrap .brand {
+    font-family: 'Orbitron', monospace;
+    font-size: 2.8rem;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-shadow: 0 0 40px rgba(0,212,255,0.6), 0 0 80px rgba(0,212,255,0.2);
+  }
+  .logo-wrap .brand span { color: var(--accent2); }
+  .logo-wrap .tagline {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.3em;
+    margin-top: 6px;
+  }
 
-/* ─── WRAP ─── */
-.wrap { max-width: 1400px; margin: auto; padding: 20px; position: relative; z-index: 1; }
+  .connect-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--accent);
+    width: 100%;
+    max-width: 520px;
+    padding: 40px;
+    position: relative;
+    animation: fadeUp 0.8s 0.2s ease both;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(0,212,255,0.1);
+  }
+  .connect-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 60px; height: 2px;
+    background: var(--accent2);
+  }
+  .connect-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 60px; height: 2px;
+    background: var(--accent2);
+  }
 
-/* ─── SECTION LABEL ─── */
-.s-lbl {
-  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
-  font-family: var(--font-mono); font-size: 10px; color: var(--acc);
-  letter-spacing: .18em; text-transform: uppercase;
-}
-.s-lbl::after { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, var(--b2), transparent); }
+  .card-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-title::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent2);
+    border-radius: 50%;
+    animation: blink 1.2s infinite;
+  }
 
-/* ─── TOOLBAR ─── */
-.toolbar {
-  background: var(--panel-bg); border: 1px solid var(--card-border);
-  border-radius: var(--card-radius); padding: 12px 14px; margin-bottom: 16px;
-  display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;
-}
-.field { flex: 1; min-width: 200px; }
-.f-lbl { font-family: var(--font-mono); font-size: 9px; color: var(--text2); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 5px; }
-.sw { position: relative; }
-.si { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text2); pointer-events: none; font-size: 13px; }
-input, select {
-  background: var(--input-bg); border: 1px solid var(--b1);
-  color: var(--text); padding: 9px 10px 9px 33px;
-  border-radius: var(--btn-radius);
-  font-family: var(--font-body); font-size: 13px; font-weight: 500;
-  width: 100%; outline: none; transition: all .2s; -webkit-appearance: none;
-}
-select { padding-left: 10px; }
-input:focus, select:focus { border-color: var(--acc); box-shadow: 0 0 0 2px var(--acc-bg); }
-input::placeholder { color: var(--muted); font-weight: 400; }
+  .field-group { margin-bottom: 22px; }
+  .field-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    margin-bottom: 8px;
+    display: block;
+  }
 
-/* ─── SORT TABS ─── */
-.tabs { display: flex; gap: 5px; margin-bottom: 16px; flex-wrap: wrap; }
-.tab {
-  padding: 7px 18px; border: 1px solid var(--b1);
-  background: var(--panel-bg); cursor: pointer;
-  font-family: var(--font-head); font-size: 12px; font-weight: 600; color: var(--text2);
-  border-radius: var(--btn-radius); transition: all .2s; letter-spacing: .02em;
-}
-.tab:hover:not(.on) { border-color: var(--b2); color: var(--text); background: var(--s2); }
-.tab.on { background: var(--acc); color: var(--bg); border-color: var(--acc2); font-weight: 700; }
+  select, input[type="text"], input[type="password"] {
+    width: 100%;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.9rem;
+    padding: 13px 16px;
+    outline: none;
+    transition: all 0.3s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  select:focus, input:focus {
+    border-color: var(--accent);
+    background: rgba(0,212,255,0.04);
+    box-shadow: var(--glow), inset 0 0 20px rgba(0,212,255,0.03);
+  }
+  select { cursor: pointer; }
+  select option { background: #071422; }
 
-/* ─── SUMMARY CARDS ─── */
-.summary-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 12px; margin-bottom: 20px;
-}
-.sum-card {
-  background: var(--card-bg); border: 1px solid var(--card-border);
-  border-radius: var(--card-radius); padding: 16px;
-  display: flex; flex-direction: column; gap: 4px;
-  box-shadow: var(--shadow); animation: cardIn .4s ease both;
-  position: relative; overflow: hidden;
-}
-.sum-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: var(--acc);
-}
-.sum-lbl { font-family: var(--font-mono); font-size: 9px; color: var(--text2); letter-spacing: .16em; text-transform: uppercase; }
-.sum-val { font-family: var(--font-disp); font-size: 22px; color: var(--acc); letter-spacing: .04em; line-height: 1.2; }
-.sum-sub { font-family: var(--font-mono); font-size: 9px; color: var(--muted); }
+  .btn {
+    width: 100%;
+    padding: 15px;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'Orbitron', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    margin-top: 8px;
+  }
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .btn:hover { color: var(--bg); box-shadow: var(--glow); }
+  .btn:hover::before { opacity: 1; }
+  .btn span { position: relative; z-index: 1; }
+  .btn.danger { border-color: var(--accent3); color: var(--accent3); }
+  .btn.danger:hover { box-shadow: 0 0 20px rgba(255,68,68,0.4); }
+  .btn.danger::before { background: linear-gradient(135deg, var(--accent3), #ff8888); }
+  .btn.sm { width: auto; padding: 8px 20px; font-size: 0.72rem; margin-top: 0; }
 
-/* ─── ORDER CARDS ─── */
-.orders-list { display: flex; flex-direction: column; gap: 12px; }
-.order-card {
-  background: var(--card-bg); border: 1px solid var(--card-border);
-  border-radius: var(--card-radius); overflow: hidden;
-  box-shadow: var(--shadow); transition: all .25s;
-  animation: cardIn .4s ease both;
-}
-@keyframes cardIn { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
-.order-card:hover { border-color: var(--b2); transform: translateY(-2px); }
+  .error-msg {
+    color: var(--accent3);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    margin-top: 10px;
+    display: none;
+    animation: shake 0.4s ease;
+  }
+  .error-msg.show { display: block; }
 
-.order-top-bar { height: 3px; background: var(--acc); }
+  /* ─── STEP 2: LOGIN ─── */
+  #screen-login {
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 40px 20px;
+  }
 
-.order-head {
-  padding: 12px 16px; background: var(--card-head-bg);
-  border-bottom: 1px solid var(--b1);
-  display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
-  flex-wrap: wrap;
-}
-.order-id {
-  font-family: var(--font-disp); font-size: 13px; color: var(--acc);
-  letter-spacing: .04em;
-}
-.order-meta {
-  display: flex; gap: 16px; flex-wrap: wrap; margin-top: 4px;
-}
-.meta-item {
-  display: flex; align-items: center; gap: 5px;
-  font-family: var(--font-mono); font-size: 10px; color: var(--text2);
-}
-.meta-item span { color: var(--text); font-weight: 600; }
-.order-date {
-  font-family: var(--font-mono); font-size: 10px; color: var(--text2);
-  letter-spacing: .06em; text-align: right; flex-shrink: 0;
-}
-.order-total-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  background: var(--acc-bg); border: 1px solid var(--acc2);
-  border-radius: var(--btn-radius); padding: 4px 10px;
-  font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--acc);
-  white-space: nowrap;
-}
+  .login-meta {
+    text-align: center;
+    margin-bottom: 32px;
+    animation: fadeDown 0.6s ease both;
+  }
+  .login-meta .ip-display {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-top: 6px;
+  }
+  .login-meta .ip-display strong { color: var(--accent2); }
 
-/* ─── ITEM TABLE ─── */
-.items-table { width: 100%; border-collapse: collapse; }
-.items-table thead tr {
-  background: var(--s2);
-  border-bottom: 1px solid var(--b1);
-}
-.items-table th {
-  font-family: var(--font-mono); font-size: 9px; color: var(--text2);
-  letter-spacing: .14em; text-transform: uppercase;
-  padding: 7px 16px; text-align: left; font-weight: 600;
-}
-.items-table th:last-child, .items-table td:last-child { text-align: right; }
-.items-table tbody tr {
-  border-bottom: 1px solid var(--b1);
-  transition: background .15s;
-}
-.items-table tbody tr:last-child { border-bottom: none; }
-.items-table tbody tr:hover { background: var(--acc-bg); }
-.items-table td {
-  padding: 9px 16px;
-  font-family: var(--font-body); font-size: 12px; color: var(--text);
-}
-.item-name { font-weight: 600; color: var(--text); }
-.td-mono { font-family: var(--font-mono); font-size: 11px; }
-.td-green { color: var(--green); font-weight: 700; }
-.item-count-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  background: var(--badge-warn-bg); border: 1px solid var(--badge-warn-bdr);
-  border-radius: var(--btn-radius); padding: 2px 7px;
-  font-family: var(--font-mono); font-size: 9px; color: var(--badge-warn-fg);
-}
+  /* ─── STEP 3: DASHBOARD ─── */
+  #screen-dashboard {
+    flex-direction: column;
+    min-height: 100vh;
+  }
 
-/* ─── ORDER FOOTER ─── */
-.order-foot {
-  padding: 10px 16px;
-  background: var(--s2); border-top: 1px solid var(--b1);
-  display: flex; justify-content: space-between; align-items: center; gap: 8px;
-  flex-wrap: wrap;
-}
-.foot-items { font-family: var(--font-mono); font-size: 10px; color: var(--text2); }
-.foot-total {
-  font-family: var(--font-disp); font-size: 14px; color: var(--acc);
-  letter-spacing: .04em;
-}
-.foot-total small { font-family: var(--font-mono); font-size: 9px; color: var(--text2); margin-right: 6px; letter-spacing: .1em; }
+  .topbar {
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-shrink: 0;
+  }
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .topbar-brand {
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    font-weight: 900;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+  }
+  .topbar-brand span { color: var(--accent2); }
+  .topbar-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent2);
+  }
+  .topbar-status .dot {
+    width: 7px; height: 7px;
+    background: var(--accent2);
+    border-radius: 50%;
+    animation: blink 1.2s infinite;
+  }
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+  .topbar-right .ip-pill {
+    background: rgba(0,212,255,0.06);
+    border: 1px solid var(--border);
+    padding: 4px 12px;
+    color: var(--accent);
+  }
 
-/* ─── EMPTY STATE ─── */
-.empty-s { padding: 64px 20px; text-align: center; }
-.empty-icon { font-size: 40px; opacity: .1; display: block; margin-bottom: 14px; }
-.empty-title { font-family: var(--font-head); font-size: 16px; color: var(--text2); font-weight: 700; }
-.empty-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .dash-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    flex: 1;
+    min-height: calc(100vh - 60px);
+  }
 
-/* ─── SCROLLBAR ─── */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: var(--s1); }
-::-webkit-scrollbar-thumb { background: var(--b2); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: var(--acc); }
+  /* Sidebar */
+  .sidebar {
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    overflow-y: auto;
+  }
 
-/* ─── RESPONSIVE ─── */
-@media(max-width:768px) {
-  .h-mid { display: none; }
-  .h-inner { height: 54px; padding: 0 14px; }
-  .brand-sub { display: none; }
-  .summary-grid { grid-template-columns: 1fr 1fr; }
-  .items-table th:nth-child(3), .items-table td:nth-child(3) { display: none; }
-}
-@media(max-width:480px) {
-  .wrap { padding: 10px; }
-  .summary-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-  .order-head { flex-direction: column; }
-  .items-table th:nth-child(4), .items-table td:nth-child(4) { display: none; }
-}
+  .sidebar-section {
+    margin-bottom: 4px;
+  }
+  .sidebar-section-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.3em;
+    padding: 10px 20px 6px;
+    text-transform: uppercase;
+  }
+
+  .ctrl-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 20px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+  .ctrl-btn:hover {
+    background: rgba(0,212,255,0.05);
+    border-left-color: var(--accent);
+    color: var(--accent);
+  }
+  .ctrl-btn.active {
+    background: rgba(0,212,255,0.08);
+    border-left-color: var(--accent2);
+    color: var(--accent2);
+  }
+  .ctrl-btn .ico {
+    font-size: 1.1rem;
+    width: 22px;
+    text-align: center;
+    opacity: 0.8;
+  }
+  .ctrl-btn .badge {
+    margin-left: auto;
+    background: var(--accent3);
+    color: white;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    padding: 2px 6px;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  /* ─── PTZ Controls ─── */
+  .ptz-pad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    padding: 12px 20px;
+    margin: 4px 0;
+  }
+  .ptz-btn {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 0;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .ptz-btn:hover { background: rgba(0,212,255,0.1); border-color: var(--accent); color: var(--accent); }
+  .ptz-btn.center { background: rgba(255,170,0,0.08); border-color: rgba(255,170,0,0.3); color: var(--warn); }
+
+  .slider-row {
+    padding: 6px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+  }
+  .slider-label span { color: var(--accent); }
+  input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent);
+    height: 4px;
+    background: var(--border);
+    outline: none;
+    cursor: pointer;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 10px 20px;
+  }
+
+  /* Main content */
+  .main-content { padding: 24px; overflow-y: auto; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .section-header h2 {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-header h2::before {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 18px;
+    background: var(--accent2);
+  }
+
+  .cam-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .cam-card {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-top: 2px solid transparent;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s;
+    animation: fadeUp 0.5s ease both;
+  }
+  .cam-card:nth-child(2) { animation-delay: 0.1s; }
+  .cam-card:nth-child(3) { animation-delay: 0.2s; }
+  .cam-card:nth-child(4) { animation-delay: 0.3s; }
+  .cam-card:nth-child(5) { animation-delay: 0.4s; }
+  .cam-card:nth-child(6) { animation-delay: 0.5s; }
+
+  .cam-card:hover { border-top-color: var(--accent); box-shadow: var(--glow); transform: translateY(-2px); }
+  .cam-card.selected { border-top-color: var(--accent2); border-color: rgba(0,255,136,0.3); box-shadow: var(--glow2); }
+  .cam-card.offline { opacity: 0.5; }
+  .cam-card.offline .cam-feed { filter: grayscale(1); }
+
+  .cam-feed {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #000;
+    position: relative;
+    overflow: hidden;
+  }
+  .cam-feed-inner {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0a1a20, #050e17);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .cam-feed-inner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+      repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,200,255,0.015) 4px),
+      repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(0,200,255,0.015) 4px);
+  }
+
+  /* Simulated camera feeds */
+  .cam-feed-inner canvas { position: absolute; inset: 0; }
+
+  .cam-feed-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 8px;
+    pointer-events: none;
+  }
+  .cam-overlay-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .cam-overlay-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+  .cam-timestamp {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--accent2);
+    background: rgba(0,0,0,0.6);
+    padding: 2px 6px;
+  }
+  .cam-rec {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--accent3);
+    background: rgba(0,0,0,0.6);
+    padding: 2px 6px;
+  }
+  .cam-rec .rdot { width: 5px; height: 5px; background: var(--accent3); border-radius: 50%; animation: blink 1s infinite; }
+  .cam-res {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    background: rgba(0,0,0,0.5);
+    padding: 2px 6px;
+  }
+  .cam-motion {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--warn);
+    background: rgba(0,0,0,0.6);
+    padding: 2px 6px;
+    display: none;
+  }
+  .cam-motion.show { display: block; }
+
+  .cam-info {
+    padding: 12px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .cam-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+  }
+  .cam-name .cam-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    display: block;
+  }
+  .cam-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+  }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .status-dot.online { background: var(--accent2); box-shadow: 0 0 6px var(--accent2); animation: blink 2s infinite; }
+  .status-dot.offline { background: var(--muted); }
+  .status-dot.motion { background: var(--warn); box-shadow: 0 0 6px var(--warn); }
+
+  .cam-tags {
+    padding: 0 14px 12px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    letter-spacing: 0.05em;
+  }
+  .tag.ptz { color: var(--accent); border-color: rgba(0,212,255,0.3); }
+  .tag.motion { color: var(--warn); border-color: rgba(255,170,0,0.3); }
+  .tag.ir { color: #aa88ff; border-color: rgba(170,136,255,0.3); }
+  .tag.outdoor { color: var(--accent2); border-color: rgba(0,255,136,0.3); }
+
+  /* Stats row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.5s ease both;
+  }
+  .stat-card:nth-child(2) { animation-delay: 0.1s; }
+  .stat-card:nth-child(3) { animation-delay: 0.2s; }
+  .stat-card:nth-child(4) { animation-delay: 0.3s; }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .stat-card:nth-child(1)::before { background: var(--accent2); }
+  .stat-card:nth-child(2)::before { background: var(--accent); }
+  .stat-card:nth-child(3)::before { background: var(--warn); }
+  .stat-card:nth-child(4)::before { background: var(--accent3); }
+  .stat-value {
+    font-family: 'Orbitron', monospace;
+    font-size: 2rem;
+    font-weight: 900;
+    line-height: 1;
+  }
+  .stat-card:nth-child(1) .stat-value { color: var(--accent2); }
+  .stat-card:nth-child(2) .stat-value { color: var(--accent); }
+  .stat-card:nth-child(3) .stat-value { color: var(--warn); }
+  .stat-card:nth-child(4) .stat-value { color: var(--accent3); }
+  .stat-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    margin-top: 6px;
+  }
+
+  /* Settings panel */
+  .settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .setting-card {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    padding: 18px;
+    animation: fadeUp 0.5s ease both;
+  }
+  .setting-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    margin-bottom: 14px;
+  }
+  .toggle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(13,42,58,0.5);
+    font-size: 0.88rem;
+    font-weight: 500;
+  }
+  .toggle-row:last-child { border-bottom: none; }
+  .toggle {
+    width: 36px; height: 20px;
+    background: var(--border);
+    border-radius: 10px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.3s;
+    flex-shrink: 0;
+  }
+  .toggle.on { background: var(--accent2); }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 14px; height: 14px;
+    background: white;
+    border-radius: 50%;
+    transition: left 0.3s;
+  }
+  .toggle.on::after { left: 19px; }
+
+  /* Alerts */
+  .alert-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+  .alert-item {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--warn);
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.88rem;
+    animation: fadeUp 0.4s ease both;
+  }
+  .alert-item.critical { border-left-color: var(--accent3); }
+  .alert-item.info { border-left-color: var(--accent); }
+  .alert-time {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
+
+  /* View tabs */
+  .view-tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .view-tab {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .view-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .view-tab:hover { color: var(--text); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ─── Animations ─── */
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeUp   { from { opacity: 0; transform: translateY(20px);  } to { opacity: 1; transform: translateY(0); } }
+  @keyframes blink    { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+  @keyframes shake    { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+  @keyframes scanline { 0% { top: -5%; } 100% { top: 105%; } }
+
+  .scanline {
+    position: absolute;
+    left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(transparent, rgba(0,212,255,0.15), transparent);
+    animation: scanline 4s linear infinite;
+    pointer-events: none;
+  }
+
+  /* Loading */
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(3,10,15,0.9);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .loading-overlay.show { display: flex; }
+  .loader-ring {
+    width: 50px; height: 50px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loader-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    animation: blink 1s infinite;
+  }
+
+  @media (max-width: 900px) {
+    .dash-layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .settings-grid { grid-template-columns: 1fr; }
+    .cam-grid { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
 
-<!-- ─── LOADER ─── -->
-<div class="loader" id="loader">
-  <div class="loader-icon">📦</div>
-  <div class="loader-title">Aaradhya Pharmaceuticals</div>
-  <div class="loader-bar"><div class="loader-fill"></div></div>
-  <div class="loader-sub">Loading Order History</div>
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loader-ring"></div>
+  <div class="loader-text" id="loadingText">CONNECTING...</div>
 </div>
 
-<!-- ─── HEADER ─── -->
-<header>
-  <div class="h-inner">
-    <div class="logo">
-      <div class="logo-icon">📦</div>
-      <div>
-        <div class="brand-name">Aaradhya Pharmaceuticals</div>
-        <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
-          <div class="brand-sub">Order Dashboard</div>
-          <span class="v-badge">v1.1</span>
+<!-- ══════════════════════════════════
+     SCREEN 1: CONNECT
+══════════════════════════════════ -->
+<div class="screen active" id="screen-connect">
+  <div class="logo-wrap">
+    <div class="brand">NEXUS<span>CAM</span></div>
+    <div class="tagline">SURVEILLANCE CONTROL SYSTEM v4.2.1</div>
+  </div>
+
+  <div class="connect-card">
+    <div class="card-title">DEVICE CONNECTION</div>
+
+    <div class="field-group">
+      <label class="field-label">CAMERA MODEL</label>
+      <select id="cameraModel">
+        <option value="">— SELECT MODEL —</option>
+        <optgroup label="Hikvision">
+          <option>Hikvision DS-2CD2143G2-I</option>
+          <option>Hikvision DS-2DE4A425IWG</option>
+          <option>Hikvision DS-2CD2T86G2-4I</option>
+        </optgroup>
+        <optgroup label="Dahua">
+          <option>Dahua IPC-HDW3849H-AS-PV</option>
+          <option>Dahua SD49425XB-HNR</option>
+          <option>Dahua IPC-HFW2849S-S-IL</option>
+        </optgroup>
+        <optgroup label="Axis">
+          <option>Axis P3245-V</option>
+          <option>Axis Q6135-LE PTZ</option>
+          <option>Axis M3106-L Mk II</option>
+        </optgroup>
+        <optgroup label="Reolink">
+          <option>Reolink RLC-810A</option>
+          <option>Reolink RLC-823A</option>
+          <option>Reolink TrackMix PoE</option>
+        </optgroup>
+        <optgroup label="Bosch">
+          <option>Bosch FLEXIDOME 5100i</option>
+          <option>Bosch MIC IP starlight 7100i</option>
+        </optgroup>
+        <optgroup label="Other">
+          <option>Generic ONVIF Camera</option>
+          <option>Custom / Other</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">IP ADDRESS / HOST</label>
+      <input type="text" id="ipAddress" placeholder="192.168.1.100" autocomplete="off">
+    </div>
+
+    <div id="connectError" class="error-msg">⚠ Please select a camera model and enter an IP address.</div>
+
+    <button class="btn" onclick="proceedToLogin()"><span>▶ ESTABLISH CONNECTION</span></button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCREEN 2: LOGIN
+══════════════════════════════════ -->
+<div class="screen" id="screen-login">
+  <div class="login-meta">
+    <div class="brand" style="font-family:'Orbitron',monospace;font-size:1.8rem;color:var(--accent);text-shadow:0 0 30px rgba(0,212,255,0.5);">NEXUS<span style="color:var(--accent2)">CAM</span></div>
+    <div class="ip-display">Connecting to: <strong id="loginIpDisplay">—</strong></div>
+  </div>
+
+  <div class="connect-card">
+    <div class="card-title">AUTHENTICATION REQUIRED</div>
+
+    <div class="field-group">
+      <label class="field-label">USERNAME</label>
+      <input type="text" id="loginUser" placeholder="admin" autocomplete="username">
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">PASSWORD</label>
+      <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+
+    <div id="authError" class="error-msg">⚠ Authentication failed. Please check credentials.</div>
+
+    <button class="btn" onclick="doLogin()"><span>🔓 AUTHENTICATE & CONNECT</span></button>
+    <br><br>
+    <button class="btn danger" onclick="goBack()"><span>← BACK</span></button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCREEN 3: DASHBOARD
+══════════════════════════════════ -->
+<div class="screen" id="screen-dashboard">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-brand">NEXUS<span>CAM</span></div>
+      <div class="topbar-status"><div class="dot"></div><span id="connectedCamCount">0</span> CAMERAS ONLINE</div>
+    </div>
+    <div class="topbar-right">
+      <span>USER: <strong id="dashUser" style="color:var(--accent)">—</strong></span>
+      <span class="ip-pill" id="dashIp">—</span>
+      <span id="dashClock" style="color:var(--text)">—</span>
+      <button class="btn sm danger" onclick="disconnect()"><span>⏻ DISCONNECT</span></button>
+    </div>
+  </div>
+
+  <div class="dash-layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">NAVIGATION</div>
+        <button class="ctrl-btn active" onclick="showTab('cameras', this)">
+          <span class="ico">📹</span> Camera Grid
+          <span class="badge" id="camBadge" style="background:var(--accent2);color:#000;">0</span>
+        </button>
+        <button class="ctrl-btn" onclick="showTab('alerts', this)">
+          <span class="ico">🚨</span> Alerts
+          <span class="badge">3</span>
+        </button>
+        <button class="ctrl-btn" onclick="showTab('settings', this)">
+          <span class="ico">⚙</span> Settings
+        </button>
+        <button class="ctrl-btn" onclick="showTab('recordings', this)">
+          <span class="ico">🎞</span> Recordings
+        </button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">PTZ CONTROL</div>
+        <div class="ptz-pad">
+          <button class="ptz-btn" onclick="ptzCmd('↖')">↖</button>
+          <button class="ptz-btn" onclick="ptzCmd('↑')">↑</button>
+          <button class="ptz-btn" onclick="ptzCmd('↗')">↗</button>
+          <button class="ptz-btn" onclick="ptzCmd('←')">←</button>
+          <button class="ptz-btn center" onclick="ptzCmd('⏹')">⏹</button>
+          <button class="ptz-btn" onclick="ptzCmd('→')">→</button>
+          <button class="ptz-btn" onclick="ptzCmd('↙')">↙</button>
+          <button class="ptz-btn" onclick="ptzCmd('↓')">↓</button>
+          <button class="ptz-btn" onclick="ptzCmd('↘')">↘</button>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">ZOOM & FOCUS</div>
+        <div class="slider-row">
+          <div class="slider-label">ZOOM <span id="zoomVal">50%</span></div>
+          <input type="range" min="0" max="100" value="50" oninput="updateSlider('zoomVal', this.value)">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label">FOCUS <span id="focusVal">50%</span></div>
+          <input type="range" min="0" max="100" value="50" oninput="updateSlider('focusVal', this.value)">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label">IRIS <span id="irisVal">70%</span></div>
+          <input type="range" min="0" max="100" value="70" oninput="updateSlider('irisVal', this.value)">
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">QUICK ACTIONS</div>
+        <button class="ctrl-btn" onclick="quickAction('Snapshot captured')"><span class="ico">📷</span> Snapshot</button>
+        <button class="ctrl-btn" onclick="quickAction('Recording started')"><span class="ico">⏺</span> Record</button>
+        <button class="ctrl-btn" onclick="quickAction('Alarm triggered')"><span class="ico">🔔</span> Trigger Alarm</button>
+        <button class="ctrl-btn" onclick="quickAction('IR LEDs toggled')"><span class="ico">🌙</span> IR Night Mode</button>
+        <button class="ctrl-btn" onclick="quickAction('Preset saved')"><span class="ico">📌</span> Save Preset</button>
+        <button class="ctrl-btn" onclick="quickAction('Reboot initiated')"><span class="ico">🔄</span> Reboot Camera</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">IMAGE</div>
+        <div class="slider-row">
+          <div class="slider-label">BRIGHTNESS <span id="brightVal">60%</span></div>
+          <input type="range" min="0" max="100" value="60" oninput="updateSlider('brightVal', this.value)">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label">CONTRAST <span id="contrastVal">55%</span></div>
+          <input type="range" min="0" max="100" value="55" oninput="updateSlider('contrastVal', this.value)">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label">SATURATION <span id="satVal">50%</span></div>
+          <input type="range" min="0" max="100" value="50" oninput="updateSlider('satVal', this.value)">
         </div>
       </div>
     </div>
-    <div class="h-mid">
-      <div class="live-chip">
-        <div class="live-dot"></div>
-        Order History · <span id="totalOrdersChip" style="color:var(--acc);margin:0 3px">—</span> Orders · <span id="totalRevenueChip" style="color:var(--acc);margin:0 3px">₹—</span> Revenue
+
+    <!-- Main -->
+    <div class="main-content">
+
+      <!-- Action Toast -->
+      <div id="actionToast" style="position:fixed;bottom:24px;right:24px;background:var(--panel2);border:1px solid var(--accent2);border-left:4px solid var(--accent2);padding:12px 20px;font-family:'Share Tech Mono',monospace;font-size:0.75rem;color:var(--accent2);z-index:200;display:none;animation:fadeUp 0.3s ease;letter-spacing:0.1em;"></div>
+
+      <!-- CAMERAS TAB -->
+      <div class="tab-content active" id="tab-cameras">
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-value" id="statOnline">0</div>
+            <div class="stat-label">CAMERAS ONLINE</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statRecording">0</div>
+            <div class="stat-label">RECORDING</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statMotion">0</div>
+            <div class="stat-label">MOTION DETECTED</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statOffline">0</div>
+            <div class="stat-label">OFFLINE</div>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <h2>LIVE CAMERA FEEDS</h2>
+          <div style="display:flex;gap:8px;">
+            <button class="btn sm" onclick="refreshCameras()"><span>↻ REFRESH</span></button>
+          </div>
+        </div>
+
+        <div class="cam-grid" id="cameraGrid">
+          <!-- Populated by JS -->
+        </div>
       </div>
-    </div>
-    <div class="h-right">
-      <div class="stat-chip">Orders Today: <strong id="todayCount">—</strong></div>
-    </div>
-  </div>
-</header>
 
-<!-- ─── MAIN ─── -->
-<div class="wrap">
-
-  <!-- Summary strip -->
-  <div class="s-lbl">📊 Summary</div>
-  <div class="summary-grid" id="summaryGrid">
-    <div class="sum-card"><div class="sum-lbl">Total Orders</div><div class="sum-val" id="sumOrders">—</div><div class="sum-sub">All time</div></div>
-    <div class="sum-card"><div class="sum-lbl">Total Revenue</div><div class="sum-val" id="sumRevenue">—</div><div class="sum-sub">Order totals</div></div>
-    <div class="sum-card"><div class="sum-lbl">Total Items Sold</div><div class="sum-val" id="sumItems">—</div><div class="sum-sub">Units dispatched</div></div>
-    <div class="sum-card"><div class="sum-lbl">Unique Shops</div><div class="sum-val" id="sumShops">—</div><div class="sum-sub">Active customers</div></div>
-  </div>
-
-  <!-- Toolbar -->
-  <div class="s-lbl">🔍 Filter Orders</div>
-  <div class="toolbar">
-    <div class="field">
-      <div class="f-lbl">🔍 Search Shop / Mobile</div>
-      <div class="sw">
-        <span class="si">⌕</span>
-        <input id="searchInput" placeholder="Type shop name or phone number..." oninput="applyFilters()">
+      <!-- ALERTS TAB -->
+      <div class="tab-content" id="tab-alerts">
+        <div class="section-header"><h2>SYSTEM ALERTS</h2></div>
+        <div class="alert-list">
+          <div class="alert-item critical">
+            <span>🔴 Motion detected — CAM-03 (Parking Lot West)</span>
+            <span class="alert-time">12:47:32</span>
+          </div>
+          <div class="alert-item">
+            <span>⚠ CAM-06 (Server Room) — Low light warning</span>
+            <span class="alert-time">12:39:15</span>
+          </div>
+          <div class="alert-item info">
+            <span>ℹ CAM-01 firmware update available</span>
+            <span class="alert-time">11:05:00</span>
+          </div>
+          <div class="alert-item critical">
+            <span>🔴 CAM-08 (Rear Entrance) — Connection lost</span>
+            <span class="alert-time">10:52:44</span>
+          </div>
+          <div class="alert-item">
+            <span>⚠ Storage at 82% capacity</span>
+            <span class="alert-time">09:00:00</span>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="field" style="max-width:200px">
-      <div class="f-lbl">📅 Sort By</div>
-      <select id="sortSelect" onchange="applyFilters()">
-        <option value="newest">Newest First</option>
-        <option value="oldest">Oldest First</option>
-        <option value="total_high">Highest Total</option>
-        <option value="total_low">Lowest Total</option>
-      </select>
+
+      <!-- SETTINGS TAB -->
+      <div class="tab-content" id="tab-settings">
+        <div class="section-header"><h2>SYSTEM SETTINGS</h2></div>
+        <div class="settings-grid">
+          <div class="setting-card">
+            <div class="setting-title">RECORDING</div>
+            <div class="toggle-row">Continuous Recording <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">Motion-Based Recording <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">Schedule Recording <div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">Pre-event Buffer <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          </div>
+          <div class="setting-card">
+            <div class="setting-title">MOTION DETECTION</div>
+            <div class="toggle-row">Enable Motion Detection <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">AI Object Detection <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">Email Alerts <div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">Push Notifications <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          </div>
+          <div class="setting-card">
+            <div class="setting-title">NETWORK</div>
+            <div class="toggle-row">RTSP Stream Enabled <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">ONVIF Protocol <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">HTTPS Only <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">Remote Access <div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+          </div>
+          <div class="setting-card">
+            <div class="setting-title">VIDEO</div>
+            <div class="toggle-row">HDR Mode <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">Wide Dynamic Range <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">Auto IR Cut Filter <div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="toggle-row">Defog Enhancement <div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECORDINGS TAB -->
+      <div class="tab-content" id="tab-recordings">
+        <div class="section-header"><h2>RECORDINGS ARCHIVE</h2></div>
+        <div id="recordingsList" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+
     </div>
   </div>
-
-  <!-- Orders list -->
-  <div class="s-lbl">📦 Order History</div>
-  <div class="orders-list" id="ordersContainer"></div>
-
 </div>
 
 <script>
-const SHEET = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQjkW5XHuvf8ocW1devsrfnMxAhEoYL1p_wkHFjXNleB_GHfLaqO3nrZi6ZqMh3DvzJE6Krrk3L3kk0/pub?gid=0&single=true&output=csv";
+let appState = {
+  model: '', ip: '', user: '',
+  cameras: [], selectedCam: null
+};
 
-let allOrders = [];
-
-async function loadOrders() {
-  try {
-    const res = await fetch(SHEET);
-    const csv = await res.text();
-    const rows = csv.split("\n").slice(1).filter(r => r.trim());
-
-    const map = {};
-    rows.forEach(r => {
-      // Handle commas inside quoted fields
-      const c = r.match(/(".*?"|[^,]+)(?=,|$)/g) || r.split(",");
-      const clean = c.map(v => v.replace(/^"|"$/g, '').trim());
-
-      const orderId = clean[0];
-      if (!orderId) return;
-
-      if (!map[orderId]) {
-        map[orderId] = {
-          orderId: clean[0],
-          date:    clean[1],
-          shop:    clean[2],
-          mobile:  clean[3],
-          items:   [],
-          total:   parseFloat(clean[8]) || 0,
-        };
-      }
-      map[orderId].items.push({
-        item:      clean[4],
-        qty:       parseFloat(clean[5]) || 0,
-        rate:      parseFloat(clean[6]) || 0,
-        lineTotal: parseFloat(clean[7]) || 0,
-      });
-    });
-
-    allOrders = Object.values(map).reverse(); // newest first by default
-    updateSummary();
-    applyFilters();
-
-    // Hide loader
-    const l = document.getElementById("loader");
-    l.classList.add("out");
-    setTimeout(() => l.remove(), 800);
-  } catch(err) {
-    document.getElementById("loader").innerHTML = `
-      <div style="font-size:40px;opacity:.15">⚠</div>
-      <div style="font-family:var(--font-head);font-size:18px;color:var(--red)">Failed to load orders</div>
-      <div style="font-size:12px;color:var(--text2);margin-top:6px">Please refresh the page</div>`;
-  }
+// ── Camera Data Generator ──
+function generateCameras(ip, model) {
+  const base = ip.split('.').slice(0, 3).join('.');
+  const names = [
+    ['Lobby Entrance', '4K', ['ptz','motion','ir'], 'online'],
+    ['Parking Lot North', '2K', ['motion','outdoor','ir'], 'online'],
+    ['Parking Lot West', '4K', ['motion','outdoor'], 'online'],
+    ['Reception Desk', '1080P', ['ir'], 'online'],
+    ['Server Room', '4K', ['ptz','motion','ir'], 'online'],
+    ['Side Entrance', '2K', ['motion','outdoor','ir'], 'online'],
+    ['Warehouse A', '4K', ['ptz','motion'], 'online'],
+    ['Rear Entrance', '1080P', ['outdoor','ir'], 'offline'],
+  ];
+  return names.map((d, i) => ({
+    id: `CAM-0${i+1}`,
+    name: d[0],
+    res: d[1],
+    tags: d[2],
+    status: d[3],
+    ip: `${base}.${100 + i}`,
+    port: 554,
+    recording: d[3] === 'online' && i !== 3,
+    motion: [2].includes(i),
+    model: model
+  }));
 }
 
-function updateSummary() {
-  const totalRev  = allOrders.reduce((s, o) => s + o.total, 0);
-  const totalItems= allOrders.reduce((s, o) => s + o.items.reduce((si, i) => si + i.qty, 0), 0);
-  const shops     = new Set(allOrders.map(o => o.mobile)).size;
-
-  document.getElementById("sumOrders").textContent  = allOrders.length;
-  document.getElementById("sumRevenue").textContent = "₹" + totalRev.toLocaleString('en-IN', {maximumFractionDigits:0});
-  document.getElementById("sumItems").textContent   = totalItems.toLocaleString('en-IN');
-  document.getElementById("sumShops").textContent   = shops;
-
-  document.getElementById("totalOrdersChip").textContent = allOrders.length;
-  document.getElementById("totalRevenueChip").textContent = "₹" + totalRev.toLocaleString('en-IN', {maximumFractionDigits:0});
-
-  const today = new Date().toLocaleDateString('en-IN');
-  const todayOrders = allOrders.filter(o => o.date.includes(new Date().toLocaleDateString('en-IN', {day:'2-digit',month:'2-digit',year:'numeric'}))).length;
-  document.getElementById("todayCount").textContent = todayOrders || "—";
+// ── Screen Transitions ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
 }
 
-function applyFilters() {
-  const q    = document.getElementById("searchInput").value.toLowerCase().trim();
-  const sort = document.getElementById("sortSelect").value;
-
-  let data = allOrders.filter(o =>
-    (o.shop   || "").toLowerCase().includes(q) ||
-    (o.mobile || "").includes(q) ||
-    (o.orderId|| "").toLowerCase().includes(q)
-  );
-
-  if (sort === "oldest")     data = [...data].reverse();
-  if (sort === "total_high") data = [...data].sort((a,b) => b.total - a.total);
-  if (sort === "total_low")  data = [...data].sort((a,b) => a.total - b.total);
-
-  renderOrders(data);
+function loading(text, duration) {
+  const ov = document.getElementById('loadingOverlay');
+  document.getElementById('loadingText').textContent = text;
+  ov.classList.add('show');
+  return new Promise(r => setTimeout(() => { ov.classList.remove('show'); r(); }, duration));
 }
 
-function renderOrders(data) {
-  const container = document.getElementById("ordersContainer");
+function proceedToLogin() {
+  const model = document.getElementById('cameraModel').value;
+  const ip = document.getElementById('ipAddress').value.trim();
+  const err = document.getElementById('connectError');
+  if (!model || !ip) { err.classList.add('show'); return; }
+  err.classList.remove('show');
+  appState.model = model; appState.ip = ip;
+  loading('SCANNING HOST...', 1800).then(() => {
+    document.getElementById('loginIpDisplay').textContent = ip + '  [' + model + ']';
+    showScreen('screen-login');
+  });
+}
 
-  if (!data.length) {
-    container.innerHTML = `
-      <div class="empty-s">
-        <span class="empty-icon">📦</span>
-        <div class="empty-title">No Orders Found</div>
-        <div class="empty-sub">Try adjusting your search</div>
-      </div>`;
-    return;
-  }
+function goBack() {
+  document.getElementById('authError').classList.remove('show');
+  showScreen('screen-connect');
+}
 
-  container.innerHTML = data.map((o, idx) => {
-    const itemRows = o.items.map(i => `
-      <tr>
-        <td class="item-name">${i.item || "—"}</td>
-        <td class="td-mono">${i.qty}</td>
-        <td class="td-mono">₹${i.rate.toFixed(2)}</td>
-        <td class="td-mono td-green">₹${i.lineTotal.toFixed(2)}</td>
-      </tr>`).join("");
+function doLogin() {
+  const user = document.getElementById('loginUser').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const err = document.getElementById('authError');
+  if (!user || !pass) { err.textContent = '⚠ Username and password required.'; err.classList.add('show'); return; }
+  err.classList.remove('show');
+  loading('AUTHENTICATING...', 1200).then(() => {
+    return loading('LOADING CAMERAS...', 1400);
+  }).then(() => {
+    appState.user = user;
+    appState.cameras = generateCameras(appState.ip, appState.model);
+    initDashboard();
+    showScreen('screen-dashboard');
+  });
+}
 
-    return `
-      <div class="order-card" style="animation-delay:${idx * .04}s">
-        <div class="order-top-bar"></div>
-        <div class="order-head">
-          <div>
-            <div class="order-id">${o.orderId}</div>
-            <div class="order-meta">
-              <div class="meta-item">🏪 <span>${o.shop || "—"}</span></div>
-              <div class="meta-item">📱 <span>${o.mobile || "—"}</span></div>
-              <div class="meta-item">
-                <span class="item-count-badge">${o.items.length} item${o.items.length !== 1 ? 's' : ''}</span>
-              </div>
-            </div>
+// ── Dashboard Init ──
+function initDashboard() {
+  const cams = appState.cameras;
+  document.getElementById('dashUser').textContent = appState.user.toUpperCase();
+  document.getElementById('dashIp').textContent = appState.ip;
+  const online = cams.filter(c => c.status === 'online').length;
+  const offline = cams.filter(c => c.status === 'offline').length;
+  const rec = cams.filter(c => c.recording).length;
+  const mot = cams.filter(c => c.motion).length;
+  document.getElementById('connectedCamCount').textContent = online;
+  document.getElementById('camBadge').textContent = online;
+  document.getElementById('statOnline').textContent = online;
+  document.getElementById('statOffline').textContent = offline;
+  document.getElementById('statRecording').textContent = rec;
+  document.getElementById('statMotion').textContent = mot;
+  renderCameras();
+  renderRecordings();
+  updateClock();
+  setInterval(updateClock, 1000);
+}
+
+function updateClock() {
+  const now = new Date();
+  document.getElementById('dashClock').textContent = now.toLocaleTimeString('en-US', { hour12: false });
+}
+
+// ── Camera Grid ──
+function renderCameras() {
+  const grid = document.getElementById('cameraGrid');
+  grid.innerHTML = '';
+  appState.cameras.forEach((cam, i) => {
+    const card = document.createElement('div');
+    card.className = `cam-card${cam.status === 'offline' ? ' offline' : ''}`;
+    card.id = `cam-card-${i}`;
+    const tagHtml = cam.tags.map(t => `<span class="tag ${t}">${t.toUpperCase()}</span>`).join('');
+    const statusIcon = cam.status === 'online' ? (cam.motion ? 'motion' : 'online') : 'offline';
+    const statusLabel = cam.status === 'online' ? (cam.motion ? 'MOTION' : 'LIVE') : 'OFFLINE';
+    card.innerHTML = `
+      <div class="cam-feed">
+        <div class="cam-feed-inner" id="feed-${i}">
+          <canvas id="canvas-${i}" width="280" height="157"></canvas>
+          <div class="scanline"></div>
+        </div>
+        <div class="cam-feed-overlay">
+          <div class="cam-overlay-top">
+            <span class="cam-timestamp" id="ts-${i}"></span>
+            ${cam.recording ? '<span class="cam-rec"><span class="rdot"></span>REC</span>' : ''}
           </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-            <div class="order-date">${o.date || "—"}</div>
-            <div class="order-total-badge">₹${o.total.toFixed(2)}</div>
+          <div class="cam-overlay-bottom">
+            <span class="cam-res">${cam.res}</span>
+            <span class="cam-motion${cam.motion ? ' show' : ''}">⚠ MOTION</span>
           </div>
         </div>
-        <table class="items-table">
-          <thead>
-            <tr>
-              <th>Medicine</th>
-              <th>Qty</th>
-              <th>Rate</th>
-              <th>Line Total</th>
-            </tr>
-          </thead>
-          <tbody>${itemRows}</tbody>
-        </table>
-        <div class="order-foot">
-          <div class="foot-items">${o.items.length} medicine${o.items.length !== 1 ? 's' : ''} in this order</div>
-          <div class="foot-total"><small>ORDER TOTAL</small>₹${o.total.toFixed(2)}</div>
+      </div>
+      <div class="cam-info">
+        <div class="cam-name">
+          ${cam.name}
+          <span class="cam-num">${cam.id} • ${cam.ip}</span>
         </div>
-      </div>`;
-  }).join("");
+        <div class="cam-status">
+          <div class="status-dot ${statusIcon}"></div>
+          ${statusLabel}
+        </div>
+      </div>
+      <div class="cam-tags">${tagHtml}</div>
+    `;
+    card.onclick = () => selectCamera(i);
+    grid.appendChild(card);
+    if (cam.status === 'online') animateFeed(i, cam);
+    updateFeedTime(i);
+  });
+  setInterval(() => appState.cameras.forEach((c, i) => updateFeedTime(i)), 1000);
 }
 
-loadOrders();
+function updateFeedTime(i) {
+  const el = document.getElementById(`ts-${i}`);
+  if (el) el.textContent = new Date().toLocaleTimeString('en-US', { hour12: false });
+}
+
+// Animated noise feed simulation
+function animateFeed(idx, cam) {
+  const canvas = document.getElementById(`canvas-${idx}`);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  let t = 0;
+
+  const palettes = [
+    { bg: '#0a1f10', fg: 'rgba(0,180,80,0.08)' },
+    { bg: '#0a1520', fg: 'rgba(0,100,180,0.08)' },
+    { bg: '#1a1008', fg: 'rgba(180,120,0,0.06)' },
+    { bg: '#0d0d1a', fg: 'rgba(80,0,180,0.06)' },
+  ];
+  const pal = palettes[idx % palettes.length];
+
+  function frame() {
+    ctx.fillStyle = pal.bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // Grid lines (simulated floor/walls)
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < W; x += 35) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + 30, H); ctx.stroke();
+    }
+    for (let y = 0; y < H; y += 30) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y + 5); ctx.stroke();
+    }
+
+    // Moving object simulation
+    const objX = (W / 2) + Math.sin(t * 0.02) * (W * 0.25);
+    const objY = H * 0.55;
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    ctx.fillRect(objX - 8, objY - 20, 16, 28);
+    ctx.fillStyle = 'rgba(255,255,255,0.05)';
+    ctx.beginPath();
+    ctx.arc(objX, objY - 25, 8, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Noise overlay
+    const noise = ctx.createImageData(W, H);
+    for (let i = 0; i < noise.data.length; i += 4) {
+      const n = Math.random() * 12;
+      noise.data[i] = noise.data[i+1] = noise.data[i+2] = n;
+      noise.data[i+3] = 18;
+    }
+    ctx.putImageData(noise, 0, 0);
+
+    // Vignette
+    const grad = ctx.createRadialGradient(W/2, H/2, H*0.3, W/2, H/2, H*0.8);
+    grad.addColorStop(0, 'transparent');
+    grad.addColorStop(1, 'rgba(0,0,0,0.5)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    t++;
+    requestAnimationFrame(frame);
+  }
+  frame();
+}
+
+function selectCamera(i) {
+  document.querySelectorAll('.cam-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById(`cam-card-${i}`).classList.add('selected');
+  appState.selectedCam = i;
+  toast(`CAM-0${i+1} selected — PTZ controls active`);
+}
+
+function refreshCameras() {
+  toast('Refreshing camera feeds...');
+  renderCameras();
+}
+
+// ── Recordings ──
+function renderRecordings() {
+  const list = document.getElementById('recordingsList');
+  const entries = [
+    { cam: 'CAM-01', name: 'Lobby Entrance', time: '2026-05-05 12:30', dur: '01:15:22', size: '4.2 GB' },
+    { cam: 'CAM-03', name: 'Parking Lot West', time: '2026-05-05 11:00', dur: '02:00:00', size: '7.8 GB' },
+    { cam: 'CAM-05', name: 'Server Room', time: '2026-05-05 08:00', dur: '04:30:11', size: '14.1 GB' },
+    { cam: 'CAM-07', name: 'Warehouse A', time: '2026-05-04 22:00', dur: '08:00:00', size: '28.4 GB' },
+  ];
+  list.innerHTML = entries.map(e => `
+    <div class="alert-item info" style="cursor:pointer;" onclick="toast('Playing ${e.cam} recording...')">
+      <div>
+        <strong style="color:var(--accent)">${e.cam}</strong> — ${e.name}
+        <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--muted);margin-top:2px;">${e.time} &nbsp;|&nbsp; Duration: ${e.dur} &nbsp;|&nbsp; Size: ${e.size}</div>
+      </div>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--accent);cursor:pointer;">▶ PLAY</span>
+    </div>
+  `).join('');
+}
+
+// ── Controls ──
+function showTab(tab, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+function ptzCmd(dir) {
+  const labels = {
+    '↑': 'Tilting UP', '↓': 'Tilting DOWN', '←': 'Panning LEFT', '→': 'Panning RIGHT',
+    '↖': 'Moving UP-LEFT', '↗': 'Moving UP-RIGHT', '↙': 'Moving DOWN-LEFT', '↘': 'Moving DOWN-RIGHT',
+    '⏹': 'PTZ STOP'
+  };
+  toast(labels[dir] || `PTZ: ${dir}`);
+}
+
+function updateSlider(id, val) {
+  document.getElementById(id).textContent = val + '%';
+}
+
+function quickAction(msg) { toast('✓ ' + msg); }
+
+function toast(msg) {
+  const t = document.getElementById('actionToast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(t._hide);
+  t._hide = setTimeout(() => t.style.display = 'none', 2500);
+}
+
+function disconnect() {
+  loading('DISCONNECTING...', 900).then(() => {
+    appState = { model: '', ip: '', user: '', cameras: [], selectedCam: null };
+    document.getElementById('cameraModel').value = '';
+    document.getElementById('ipAddress').value = '';
+    document.getElementById('loginUser').value = '';
+    document.getElementById('loginPass').value = '';
+    showScreen('screen-connect');
+  });
+}
+
+// Allow Enter key on inputs
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('screen-connect').classList.contains('active')) proceedToLogin();
+    else if (document.getElementById('screen-login').classList.contains('active')) doLogin();
+  }
+});
 </script>
 </body>
 </html>
