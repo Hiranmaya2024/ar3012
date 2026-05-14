@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- Aaradhya Pharmaceuticals Order App v2.2.0 - FULLY FUNCTIONAL with VOICE & DATA FETCH -->
+<!-- Aaradhya Pharmaceuticals Order App v2.3.0 - 5% TAX Calculation (Tax = Total × 5%, Final = Total + Tax) -->
 <html lang="en" data-theme="pharma" data-lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Aaradhya Pharmaceuticals | Order with 5% Benefit</title>
+<title>Aaradhya Pharmaceuticals | Order with 5% Tax</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Oriya:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -18,12 +18,12 @@
   --border:#dae3ef;--input-bg:rgba(255,255,255,.13);--input-border:rgba(255,255,255,.25);
   --radius:14px;--radius-sm:9px;--tr:0.18s cubic-bezier(.4,0,.2,1);
   --font:'DM Sans',sans-serif;--font-d:'Playfair Display',serif;
-  --addition-badge:#f59e0b;
+  --tax-badge:#f59e0b;
 }
-[data-theme="darknight"]{--hdr-bg:#0f0f1a;--accent:#7c5ce8;--accent-light:#1a1435;--add-btn:#7c5ce8;--cart-bg:#1a0f3a;--checkout-bg:#5c3ddb;--card-bg:#181828;--card-shadow:0 2px 12px rgba(0,0,0,.4);--body-bg:#0d0d1a;--text-primary:#e8e0ff;--text-secondary:#9b8ec4;--border:#2d2550;--addition-badge:#fbbf24}
-[data-theme="jungle"]{--hdr-bg:#1a3d1a;--accent:#33a854;--accent-light:#e8f5e9;--add-btn:#33a854;--cart-bg:#1a3d1a;--checkout-bg:#f9a825;--checkout-text:#1a3d1a;--card-bg:#fff;--body-bg:#f1f8f1;--text-primary:#1a3d1a;--text-secondary:#4a7a4a;--border:#c8e6c9;--addition-badge:#f97316}
-[data-theme="avengers"]{--hdr-bg:#7b0000;--accent:#e53935;--accent-light:#fff3f3;--add-btn:#e53935;--cart-bg:#1a1a2e;--checkout-bg:#ffd600;--checkout-text:#1a1a2e;--card-bg:#fff;--body-bg:#f5f5f5;--text-primary:#1a1a2e;--text-secondary:#6a6a8e;--border:#e0e0ee;--addition-badge:#ffaa00}
-[data-theme="indian"]{--hdr-bg:#ff6f00;--accent:#f57c00;--accent-light:#fff8e1;--add-btn:#f57c00;--cart-bg:#bf360c;--checkout-bg:#388e3c;--checkout-text:#1a3d1a;--card-bg:#fffdf7;--body-bg:#fff8e1;--text-primary:#3e2723;--text-secondary:#795548;--border:#ffe0b2;--addition-badge:#e67e22}
+[data-theme="darknight"]{--hdr-bg:#0f0f1a;--accent:#7c5ce8;--accent-light:#1a1435;--add-btn:#7c5ce8;--cart-bg:#1a0f3a;--checkout-bg:#5c3ddb;--card-bg:#181828;--card-shadow:0 2px 12px rgba(0,0,0,.4);--body-bg:#0d0d1a;--text-primary:#e8e0ff;--text-secondary:#9b8ec4;--border:#2d2550;--tax-badge:#fbbf24}
+[data-theme="jungle"]{--hdr-bg:#1a3d1a;--accent:#33a854;--accent-light:#e8f5e9;--add-btn:#33a854;--cart-bg:#1a3d1a;--checkout-bg:#f9a825;--checkout-text:#1a3d1a;--card-bg:#fff;--body-bg:#f1f8f1;--text-primary:#1a3d1a;--text-secondary:#4a7a4a;--border:#c8e6c9;--tax-badge:#f97316}
+[data-theme="avengers"]{--hdr-bg:#7b0000;--accent:#e53935;--accent-light:#fff3f3;--add-btn:#e53935;--cart-bg:#1a1a2e;--checkout-bg:#ffd600;--checkout-text:#1a1a2e;--card-bg:#fff;--body-bg:#f5f5f5;--text-primary:#1a1a2e;--text-secondary:#6a6a8e;--border:#e0e0ee;--tax-badge:#ffaa00}
+[data-theme="indian"]{--hdr-bg:#ff6f00;--accent:#f57c00;--accent-light:#fff8e1;--add-btn:#f57c00;--cart-bg:#bf360c;--checkout-bg:#388e3c;--checkout-text:#1a3d1a;--card-bg:#fffdf7;--body-bg:#fff8e1;--text-primary:#3e2723;--text-secondary:#795548;--border:#ffe0b2;--tax-badge:#e67e22}
 html{font-size:16px}
 body{font-family:var(--font);background:var(--body-bg);color:var(--text-primary);min-height:100vh;padding-bottom:120px;-webkit-font-smoothing:antialiased}
 [data-lang="hi"] body,[data-lang="hi"] input,[data-lang="hi"] select,[data-lang="hi"] button{font-family:'Noto Sans Devanagari','DM Sans',sans-serif}
@@ -91,7 +91,7 @@ body{font-family:var(--font);background:var(--body-bg);color:var(--text-primary)
 .cart-info{display:flex;flex-direction:column;gap:1px}
 .cart-count{font-size:.75rem;opacity:.8}
 .cart-total{font-size:1.1rem;font-weight:700}
-.addition-badge{background:var(--addition-badge);color:#000;border-radius:12px;padding:2px 8px;font-size:.7rem;font-weight:700;margin-left:6px;display:inline-flex;align-items:center;gap:3px}
+.tax-badge{background:var(--tax-badge);color:#000;border-radius:12px;padding:2px 8px;font-size:.7rem;font-weight:700;margin-left:6px;display:inline-flex;align-items:center;gap:3px}
 .cart-btns{display:flex;gap:7px}
 .btn-bill{background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:var(--radius-sm);padding:10px 13px;font-weight:700;cursor:pointer}
 .btn-checkout{background:var(--checkout-bg);color:var(--checkout-text);border:none;border-radius:var(--radius-sm);padding:10px 14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px}
@@ -122,7 +122,7 @@ body{font-family:var(--font);background:var(--body-bg);color:var(--text-primary)
 .bill-shop-meta span{font-size:.72rem;opacity:.8}
 .bill-shop-meta strong{display:block;font-size:.85rem}
 .bill-sec-hdr{background:#1a6bbd;color:#fff;padding:8px 16px;font-size:.72rem;font-weight:700;text-transform:uppercase}
-.bill-addition-row{background:#fffbeb;border-left:4px solid #f59e0b;padding:8px 12px;margin:10px;border-radius:8px;display:flex;justify-content:space-between;font-weight:600}
+.bill-tax-row{background:#fffbeb;border-left:4px solid #f59e0b;padding:8px 12px;margin:10px;border-radius:8px;display:flex;justify-content:space-between;font-weight:600}
 .bill-tbl{width:100%;border-collapse:collapse;font-size:.78rem}
 .bill-tbl th{background:#e8f2ff;color:#0a2e52;padding:8px 10px;text-align:left}
 .bill-tbl td{padding:8px 10px;border-bottom:1px solid #f0f4f9}
@@ -134,8 +134,6 @@ body{font-family:var(--font);background:var(--body-bg);color:var(--text-primary)
 .bill-footer{padding:12px 16px;text-align:center;font-size:.68rem;background:#fafcff;border-top:2px dashed #dae3ef}
 .lang-overlay,.t-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;backdrop-filter:blur(2px)}
 .lang-sheet,.t-sheet{position:fixed;bottom:0;left:0;right:0;background:var(--card-bg);border-radius:20px 20px 0 0;padding:24px 16px 32px;z-index:310;display:none}
-.lang-handle,.t-handle{width:40px;height:4px;background:var(--border);border-radius:10px;margin:0 auto 18px}
-.lang-sheet h3,.t-sheet h3{font-family:var(--font-d);font-size:1.1rem;margin-bottom:16px;text-align:center}
 .lang-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
 .t-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
 .lang-opt,.t-opt{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:var(--radius-sm);border:2px solid var(--border);cursor:pointer;background:var(--body-bg);color:var(--text-secondary)}
@@ -146,7 +144,7 @@ body{font-family:var(--font);background:var(--body-bg);color:var(--text-primary)
 <body>
 <header class="header">
   <div class="header-top">
-    <div class="brand"><span class="brand-icon" id="brandIcon">💊</span><div class="brand-text"><span class="brand-name" id="brandName">Aaradhya Pharmaceuticals</span><span class="brand-version">v2.2</span></div></div>
+    <div class="brand"><span class="brand-icon" id="brandIcon">💊</span><div class="brand-text"><span class="brand-name" id="brandName">Aaradhya Pharmaceuticals</span><span class="brand-version">v2.3</span></div></div>
     <div class="header-actions"><button class="lang-btn" id="langBtn" onclick="openLang()">🌐 EN</button><button class="theme-btn" id="themeBtn" onclick="openTheme()">🎨 Theme</button></div>
   </div>
   <div class="hrow cols2"><input id="shop" type="text" placeholder="🏪 Shop Name"><input id="mobile" type="tel" inputmode="numeric" placeholder="📱 Mobile No."></div>
@@ -155,7 +153,7 @@ body{font-family:var(--font);background:var(--body-bg);color:var(--text-primary)
 </header>
 <div id="list"><div class="loading-state"><div class="spinner"></div><span>Loading products...</span></div></div>
 <div id="sentinel"></div>
-<div class="cart-bar"><div class="cart-bar-top"><div class="cart-info"><span class="cart-count" id="cartCount">0 items</span><span class="cart-total" id="cartTotal">₹0.00</span><span class="addition-badge" id="additionBadge" style="display:none">+5%</span></div><div class="cart-btns"><button class="btn-bill" onclick="openBill()">🧾 Bill</button><button class="btn-checkout" onclick="sendOrder()">🛒 <span id="checkoutText">WhatsApp Order</span></button></div></div><div class="cart-footer"><span>© Aaradhya Pharmaceuticals 2026</span><span>|</span><span>Powered by <span class="cf-ai">AI</span></span></div></div>
+<div class="cart-bar"><div class="cart-bar-top"><div class="cart-info"><span class="cart-count" id="cartCount">0 items</span><span class="cart-total" id="cartTotal">₹0.00</span><span class="tax-badge" id="taxBadge" style="display:none">+5% Tax</span></div><div class="cart-btns"><button class="btn-bill" onclick="openBill()">🧾 Bill</button><button class="btn-checkout" onclick="sendOrder()">🛒 <span id="checkoutText">WhatsApp Order</span></button></div></div><div class="cart-footer"><span>© Aaradhya Pharmaceuticals 2026</span><span>|</span><span>Powered by <span class="cf-ai">AI</span></span></div></div>
 <div id="billOverlay"><div class="bo-head"><div><div class="bo-title">🧾 Order Bill</div><div class="bo-date" id="boDate"></div></div><button class="bo-close" onclick="closeBill()">✕</button></div><div class="bo-body" id="boBody"></div><div class="bo-foot"><button class="bo-btn bo-pdf" onclick="downloadBill('pdf')">📄 PDF</button><button class="bo-btn bo-jpg" onclick="downloadBill('jpg')">🖼️ JPG</button><button class="bo-btn bo-wa" onclick="sendOrder()">🛒 WhatsApp</button></div></div>
 <div id="lightbox"><div class="lb-bar"><span class="lb-title" id="lbTitle"></span><button class="lb-btn" onclick="closeLightbox()">✕</button></div><div id="lightbox-img-wrap"><button id="lbPrev" class="lb-btn" onclick="lbGalleryNav(-1)" style="position:absolute;left:10px;display:none">‹</button><img id="lightbox-img" src=""><button id="lbNext" class="lb-btn" onclick="lbGalleryNav(1)" style="position:absolute;right:10px;display:none">›</button></div><div class="lb-controls"><button class="lb-btn" onclick="lbZoom(-0.25)">−</button><span id="lbZoomLabel">100%</span><button class="lb-btn" onclick="lbZoom(0.25)">+</button><button class="lb-btn" onclick="lbReset()">⟳</button></div></div>
 <div id="alertModal"><div class="m-box"><div class="m-hdr"><span class="m-hdr-ico">💊</span><span class="m-hdr-ttl">Aaradhya</span></div><div class="m-body"><div class="m-emoji" id="mEmo">✅</div><div class="m-msg" id="mTxt"></div></div><div class="m-foot"><button class="m-ok" onclick="closeModal()">OK</button></div></div></div>
@@ -163,11 +161,11 @@ body{font-family:var(--font);background:var(--body-bg);color:var(--text-primary)
 <div class="t-overlay" id="tOverlay" onclick="closeTheme()"></div><div class="t-sheet" id="tSheet"><div class="t-handle"></div><h3>Theme</h3><div class="t-grid"><button class="t-opt" onclick="applyTheme('pharma')">💊 Pharma</button><button class="t-opt" onclick="applyTheme('darknight')">🦇 Dark</button><button class="t-opt" onclick="applyTheme('jungle')">🌿 Jungle</button><button class="t-opt" onclick="applyTheme('avengers')">⚡ Avengers</button><button class="t-opt" onclick="applyTheme('indian')">🇮🇳 Indian</button></div><button class="t-close" onclick="closeTheme()">Close</button></div>
 
 <script>
-// ==================== LOCALIZATION ====================
+// ========== LOCALIZATION ==========
 const LANG = {
-  en: { brandName: 'Aaradhya Pharmaceuticals', shopPh: '🏪 Shop Name', mobilePh: '📱 Mobile No.', searchPh: 'Search name, company...', allCo: '🏭 All Companies', allCx: '🧪 All Compositions', addCart: '+ Add to Cart', checkout: 'WhatsApp Order', noProducts: 'No products found', errBoth: 'Shop name and mobile number required', errShop: 'Shop name required', errMobile: 'Mobile number required', errCart: 'Cart is empty', welcome: (n) => `Welcome! ${n} products loaded`, found: (n) => `${n} products found`, added: (n) => `${n} added to cart`, orderMsg: (c, t, s) => `Order placed! ${c} items, Subtotal ₹${t.toFixed(2)} +5% = ₹${(t*1.05).toFixed(2)}. Thank you ${s}!`, additionMsg: '+5% Final Value' },
-  hi: { brandName: 'आराध्या फार्मास्यूटिकल्स', shopPh: '🏪 दुकान का नाम', mobilePh: '📱 मोबाइल नंबर', searchPh: 'नाम, कंपनी खोजें...', allCo: '🏭 सभी कंपनियाँ', allCx: '🧪 सभी संरचनाएँ', addCart: '+ कार्ट में जोड़ें', checkout: 'व्हाट्सएप ऑर्डर', noProducts: 'कोई उत्पाद नहीं', errBoth: 'दुकान और मोबाइल नंबर दें', errShop: 'दुकान का नाम दें', errMobile: 'मोबाइल नंबर दें', errCart: 'कार्ट खाली है', welcome: (n) => `स्वागत है! ${n} उत्पाद लोड हुए`, found: (n) => `${n} उत्पाद मिले`, added: (n) => `${n} कार्ट में जोड़ा गया`, orderMsg: (c, t, s) => `ऑर्डर दिया! ${c} आइटम, कुल ₹${t.toFixed(2)} +5% = ₹${(t*1.05).toFixed(2)}. धन्यवाद ${s}!`, additionMsg: '+5% अंतिम मूल्य' },
-  od: { brandName: 'ଆରାଧ୍ୟା ଫାର୍ମାସ୍ୟୁଟିକଲ୍ସ', shopPh: '🏪 ଦୋକାନ ନାମ', mobilePh: '📱 ମୋବାଇଲ୍ ନଂ.', searchPh: 'ନାମ, କମ୍ପାନୀ ଖୋଜନ୍ତୁ...', allCo: '🏭 ସମସ୍ତ କମ୍ପାନୀ', allCx: '🧪 ସମସ୍ତ ସଂରଚନା', addCart: '+ କାର୍ଟରେ ଯୋଡ଼ନ୍ତୁ', checkout: 'WhatsApp ଅର୍ଡ଼ର', noProducts: 'ଉତ୍ପାଦ ମିଳିଲା ନାହିଁ', errBoth: 'ଦୋକାନ ଓ ମୋବାଇଲ ନଂ ଦିଅନ୍ତୁ', errShop: 'ଦୋକାନ ନାମ ଦିଅନ୍ତୁ', errMobile: 'ମୋବାଇଲ ନଂ ଦିଅନ୍ତୁ', errCart: 'କାର୍ଟ ଖାଲି', welcome: (n) => `ସ୍ୱାଗତ! ${n} ଉତ୍ପାଦ ଲୋଡ ହେଲା`, found: (n) => `${n} ଉତ୍ପାଦ ମିଳିଲା`, added: (n) => `${n} ଯୋଡ଼ା ଗଲା`, orderMsg: (c, t, s) => `ଅର୍ଡ଼ର ଦିଆଗଲା! ${c} ଆଇଟମ୍, ସବଟୋଟାଲ୍ ₹${t.toFixed(2)} +5% = ₹${(t*1.05).toFixed(2)}. ଧନ୍ୟବାଦ ${s}!`, additionMsg: '+5% ଶେଷ ମୂଲ୍ୟ' }
+  en: { brandName: 'Aaradhya Pharmaceuticals', shopPh: '🏪 Shop Name', mobilePh: '📱 Mobile No.', searchPh: 'Search...', allCo: '🏭 All Companies', allCx: '🧪 All Compositions', addCart: '+ Add', checkout: 'WhatsApp Order', noProducts: 'No products', errBoth: 'Shop & Mobile required', errShop: 'Shop name required', errMobile: 'Mobile required', errCart: 'Cart empty', taxLabel: 'Tax (5%)', welcome: (n) => `${n} products loaded`, found: (n) => `${n} products found`, added: (n) => `${n} added`, orderMsg: (c, t, tax, final, s) => `Order: ${c} items, Total ₹${t.toFixed(2)} + 5% Tax ₹${tax.toFixed(2)} = ₹${final.toFixed(2)}. Thank you ${s}!` },
+  hi: { brandName: 'आराध्या फार्मास्यूटिकल्स', shopPh: '🏪 दुकान', mobilePh: '📱 मोबाइल', searchPh: 'खोजें...', allCo: 'सभी कंपनियाँ', allCx: 'सभी संरचनाएँ', addCart: '+ जोड़ें', checkout: 'व्हाट्सएप', noProducts: 'कोई उत्पाद नहीं', errBoth: 'दुकान और मोबाइल चाहिए', errShop: 'दुकान चाहिए', errMobile: 'मोबाइल चाहिए', errCart: 'कार्ट खाली', taxLabel: 'कर (5%)', welcome: (n) => `${n} उत्पाद लोड`, found: (n) => `${n} उत्पाद मिले`, added: (n) => `${n} जोड़ा`, orderMsg: (c, t, tax, final, s) => `${c} आइटम, कुल ₹${t.toFixed(2)} + 5% कर ₹${tax.toFixed(2)} = ₹${final.toFixed(2)}. धन्यवाद ${s}!` },
+  od: { brandName: 'ଆରାଧ୍ୟା', shopPh: '🏪 ଦୋକାନ', mobilePh: '📱 ମୋବାଇଲ', searchPh: 'ଖୋଜନ୍ତୁ...', allCo: 'ସମସ୍ତ', allCx: 'ସମସ୍ତ', addCart: '+ ଯୋଡନ୍ତୁ', checkout: 'WhatsApp', noProducts: 'ନାହିଁ', errBoth: 'ଦୋକାନ ଓ ମୋବାଇଲ', errShop: 'ଦୋକାନ', errMobile: 'ମୋବାଇଲ', errCart: 'ଖାଲି', taxLabel: 'କର (5%)', welcome: (n) => `${n} ଉତ୍ପାଦ`, found: (n) => `${n} ଉତ୍ପାଦ`, added: (n) => `${n} ଯୋଡା`, orderMsg: (c, t, tax, final, s) => `${c} ଆଇଟମ୍, ₹${t.toFixed(2)} +5% = ₹${final.toFixed(2)}. ଧନ୍ୟବାଦ ${s}!` }
 };
 
 let curLang = localStorage.getItem('aa_lang') || 'en';
@@ -176,7 +174,7 @@ let COL = { name: 0, pack: 1, mrp: 3, rate: 4, company: 5, composition: 6 };
 
 function t(key, ...args) { let v = LANG[curLang][key] || LANG.en[key]; return typeof v === 'function' ? v(...args) : v || ''; }
 
-// ==================== VOICE OVER ====================
+// ========== VOICE ==========
 let speechQueue = [], isSpeaking = false, currentAudio = null;
 function speak(text, priority = false) {
   if (!text) return;
@@ -188,287 +186,79 @@ function processSpeech() {
   if (!speechQueue.length) { isSpeaking = false; return; }
   isSpeaking = true;
   let text = speechQueue.shift();
-  let clean = text.replace(/[\u{1F000}-\u{1FFFF}]/gu, ' ').replace(/[₹]/g, 'Rupees ').replace(/(\d+)mg/gi, '$1 milligrams').replace(/(\d+)ml/gi, '$1 milliliters');
-  if (curLang === 'od') speakWithWS(clean, () => processSpeech());
-  else speakWithGoogle(clean, (ok) => { if (!ok) speakWithWS(clean, () => processSpeech()); else processSpeech(); });
+  let clean = text.replace(/[\u{1F000}-\u{1FFFF}]/gu, ' ').replace(/[₹]/g, 'Rupees ');
+  if (curLang === 'od') speakWS(clean, () => processSpeech());
+  else speakGoogle(clean, (ok) => { if (!ok) speakWS(clean, () => processSpeech()); else processSpeech(); });
 }
-function speakWithGoogle(text, callback) {
+function speakGoogle(text, cb) {
   try {
-    let url = `https://translate.googleapis.com/translate_tts?ie=UTF-8&tl=${curLang === 'hi' ? 'hi' : 'en'}&q=${encodeURIComponent(text)}&client=tw-ob&ttsspeed=0.9`;
-    let audio = new Audio(); currentAudio = audio;
-    audio.onended = () => { currentAudio = null; callback(true); };
-    audio.onerror = () => { currentAudio = null; callback(false); };
-    audio.src = url; audio.play().catch(() => callback(false));
-  } catch(e) { callback(false); }
+    let audio = new Audio(`https://translate.googleapis.com/translate_tts?ie=UTF-8&tl=${curLang === 'hi' ? 'hi' : 'en'}&q=${encodeURIComponent(text)}&client=tw-ob&ttsspeed=0.9`);
+    currentAudio = audio;
+    audio.onended = () => { currentAudio = null; cb(true); };
+    audio.onerror = () => { currentAudio = null; cb(false); };
+    audio.play().catch(() => cb(false));
+  } catch(e) { cb(false); }
 }
-function speakWithWS(text, callback) {
-  if (!window.speechSynthesis) { if(callback) callback(); return; }
+function speakWS(text, cb) {
+  if (!window.speechSynthesis) { if(cb) cb(); return; }
   window.speechSynthesis.cancel();
-  let utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = curLang === 'hi' ? 'hi-IN' : curLang === 'od' ? 'or-IN' : 'en-IN';
-  utterance.rate = 0.9;
-  utterance.onend = () => { if(callback) callback(); };
-  utterance.onerror = () => { if(callback) callback(); };
-  window.speechSynthesis.speak(utterance);
-}
-if (window.speechSynthesis) window.speechSynthesis.getVoices();
-
-// ==================== CORE FUNCTIONS ====================
-function applyLang(lang) {
-  curLang = lang; localStorage.setItem('aa_lang', lang);
-  document.documentElement.setAttribute('data-lang', lang);
-  document.getElementById('brandName').innerText = t('brandName');
-  document.getElementById('shop').placeholder = t('shopPh');
-  document.getElementById('mobile').placeholder = t('mobilePh');
-  document.getElementById('search').placeholder = t('searchPh');
-  document.getElementById('checkoutText').innerText = t('checkout');
-  refreshCart(); closeLang();
-  speak(`${t('welcome', 0)}`.split(' ')[0] + ' language selected', true);
+  let u = new SpeechSynthesisUtterance(text);
+  u.lang = curLang === 'hi' ? 'hi-IN' : curLang === 'od' ? 'or-IN' : 'en-IN';
+  u.rate = 0.9;
+  u.onend = () => { if(cb) cb(); };
+  u.onerror = () => { if(cb) cb(); };
+  window.speechSynthesis.speak(u);
 }
 
-function applyTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme);
-  localStorage.setItem('aa_theme', theme);
-  const icons = { pharma: '💊', darknight: '🦇', jungle: '🌿', avengers: '⚡', indian: '🇮🇳' };
-  document.getElementById('brandIcon').innerText = icons[theme];
-  closeTheme();
-}
-
-function showModal(emoji, msg, cb) {
-  document.getElementById('mEmo').innerText = emoji;
-  document.getElementById('mTxt').innerText = msg;
-  window.modalCb = cb || null;
-  document.getElementById('alertModal').classList.add('show');
-  speak(msg, true);
-}
+// ========== CORE ==========
+function applyLang(lang) { curLang = lang; localStorage.setItem('aa_lang', lang); document.documentElement.setAttribute('data-lang', lang); document.getElementById('brandName').innerText = t('brandName'); document.getElementById('shop').placeholder = t('shopPh'); document.getElementById('mobile').placeholder = t('mobilePh'); document.getElementById('search').placeholder = t('searchPh'); document.getElementById('checkoutText').innerText = t('checkout'); refreshCart(); closeLang(); speak(`Language changed to ${lang}`, true); }
+function applyTheme(theme) { document.documentElement.setAttribute('data-theme', theme); localStorage.setItem('aa_theme', theme); const icons = { pharma: '💊', darknight: '🦇', jungle: '🌿', avengers: '⚡', indian: '🇮🇳' }; document.getElementById('brandIcon').innerText = icons[theme]; closeTheme(); }
+function showModal(emoji, msg, cb) { document.getElementById('mEmo').innerText = emoji; document.getElementById('mTxt').innerText = msg; window.modalCb = cb || null; document.getElementById('alertModal').classList.add('show'); speak(msg, true); }
 function closeModal() { document.getElementById('alertModal').classList.remove('show'); if (window.modalCb) { let cb = window.modalCb; window.modalCb = null; cb(); } }
 function openLang() { document.getElementById('langSheet').style.display = 'block'; document.getElementById('langOverlay').style.display = 'block'; }
 function closeLang() { document.getElementById('langSheet').style.display = 'none'; document.getElementById('langOverlay').style.display = 'none'; }
 function openTheme() { document.getElementById('tSheet').style.display = 'block'; document.getElementById('tOverlay').style.display = 'block'; }
 function closeTheme() { document.getElementById('tSheet').style.display = 'none'; document.getElementById('tOverlay').style.display = 'none'; }
 
-// ==================== DATA FETCH ====================
-function parseCSV(text) {
-  let rows = [], row = [], col = '', quote = false;
-  for (let i = 0; i < text.length; i++) {
-    let ch = text[i];
-    if (ch === '"') quote = !quote;
-    else if (ch === ',' && !quote) { row.push(col); col = ''; }
-    else if ((ch === '\n' || ch === '\r') && !quote) {
-      if (col || row.length) { row.push(col); rows.push(row); row = []; col = ''; }
-    } else col += ch;
-  }
-  if (col) row.push(col);
-  if (row.length) rows.push(row);
-  return rows;
-}
+// ========== DATA FETCH ==========
+function parseCSV(text) { let rows = [], row = [], col = '', quote = false; for (let i = 0; i < text.length; i++) { let ch = text[i]; if (ch === '"') quote = !quote; else if (ch === ',' && !quote) { row.push(col); col = ''; } else if ((ch === '\n' || ch === '\r') && !quote) { if (col || row.length) { row.push(col); rows.push(row); row = []; col = ''; } } else col += ch; } if (col) row.push(col); if (row.length) rows.push(row); return rows; }
+function toImgUrl(url) { if (!url) return ''; let m = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/); if (m) return `https://lh3.googleusercontent.com/d/${m[1]}=w600`; if (url.includes('lh3.googleusercontent.com')) return url.replace(/=[wsh]\d+/, '=w600'); return url; }
 
-function toImgUrl(url) {
-  if (!url) return '';
-  url = url.trim();
-  let match = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
-  if (match) return `https://lh3.googleusercontent.com/d/${match[1]}=w600`;
-  if (url.includes('lh3.googleusercontent.com')) return url.replace(/=[wsh]\d+/, '=w600');
-  return url;
-}
-
-// CORRECT GOOGLE SHEETS CSV EXPORT URL - using format that actually returns CSV
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSkoAFrWFkerY629v3zhsV5q3NggnlHgSgBqZ2CnAK3n0riqW24dZN3iWm_JJz-XPf9Dtgkayaey-Vg/pub?gid=0&single=true&output=csv';
 
-fetch(CSV_URL)
-  .then(res => { if (!res.ok) throw new Error('Network error'); return res.text(); })
-  .then(txt => {
-    if (!txt || txt.includes('<html')) throw new Error('Invalid CSV response');
-    let rows = parseCSV(txt);
-    if (rows.length < 2) throw new Error('No data rows');
-    let headers = rows[0].map(h => h.toLowerCase().trim());
-    COL.name = headers.findIndex(h => h.includes('product') || h.includes('name'));
-    COL.pack = headers.findIndex(h => h.includes('pack') || h.includes('qty') || h.includes('size'));
-    COL.mrp = headers.findIndex(h => h.includes('mrp'));
-    COL.rate = headers.findIndex(h => h.includes('rate') || h.includes('ptr') || h.includes('price'));
-    COL.company = headers.findIndex(h => h.includes('company') || h.includes('manufacturer') || h.includes('brand'));
-    COL.composition = headers.findIndex(h => h.includes('composition') || h.includes('salt'));
-    
-    products = rows.slice(1).map((r, idx) => {
-      let images = [];
-      for (let j = 8; j < r.length; j++) {
-        let url = (r[j] || '').trim();
-        if (url) { let imgUrl = toImgUrl(url); if (imgUrl) images.push(imgUrl); }
-      }
-      return {
-        id: idx, name: (r[COL.name] || '').trim(), pack: (r[COL.pack] || '').trim(),
-        mrp: parseFloat((r[COL.mrp] || '').replace(/[^\d.]/g, '')) || 0,
-        rate: parseFloat((r[COL.rate] || '').replace(/[^\d.]/g, '')) || 0,
-        company: (r[COL.company] || '').trim(), composition: (r[COL.composition] || '').trim(),
-        images: images
-      };
-    }).filter(p => p.name);
-    
-    filtered = [...products];
-    buildDropdowns();
-    render(true);
-    showModal('💊', t('welcome', products.length));
-    speak(t('welcome', products.length), true);
-  })
-  .catch(err => {
-    console.error(err);
-    document.getElementById('list').innerHTML = '<div class="empty-state"><div>⚠️ Failed to load data. Using demo mode.</div></div>';
-    // Demo data fallback
-    products = [
-      { id: 0, name: 'Paracetamol 500mg', pack: '10 Tablets', mrp: 50, rate: 45, company: 'Cipla', composition: 'Paracetamol', images: [] },
-      { id: 1, name: 'Amoxicillin 250mg', pack: '15 Capsules', mrp: 120, rate: 108, company: 'Glaxo', composition: 'Amoxicillin', images: [] }
-    ];
-    filtered = [...products];
-    buildDropdowns();
-    render(true);
-    showModal('⚠️', 'Using demo data. Connect Google Sheet for live products.');
-  });
+fetch(CSV_URL).then(res => { if (!res.ok) throw new Error(); return res.text(); }).then(txt => {
+  if (!txt || txt.includes('<html')) throw new Error();
+  let rows = parseCSV(txt); if (rows.length < 2) throw new Error();
+  let headers = rows[0].map(h => h.toLowerCase().trim());
+  COL.name = headers.findIndex(h => h.includes('product') || h.includes('name'));
+  COL.pack = headers.findIndex(h => h.includes('pack') || h.includes('qty'));
+  COL.mrp = headers.findIndex(h => h.includes('mrp'));
+  COL.rate = headers.findIndex(h => h.includes('rate') || h.includes('ptr'));
+  COL.company = headers.findIndex(h => h.includes('company') || h.includes('manufacturer'));
+  COL.composition = headers.findIndex(h => h.includes('composition') || h.includes('salt'));
+  products = rows.slice(1).map((r, idx) => { let images = []; for (let j = 8; j < r.length; j++) { let u = (r[j] || '').trim(); if (u) { let iu = toImgUrl(u); if (iu) images.push(iu); } } return { id: idx, name: (r[COL.name] || '').trim(), pack: (r[COL.pack] || '').trim(), mrp: parseFloat((r[COL.mrp] || '').replace(/[^\d.]/g, '')) || 0, rate: parseFloat((r[COL.rate] || '').replace(/[^\d.]/g, '')) || 0, company: (r[COL.company] || '').trim(), composition: (r[COL.composition] || '').trim(), images }; }).filter(p => p.name);
+  filtered = [...products]; buildDropdowns(); render(true); showModal('💊', t('welcome', products.length)); speak(t('welcome', products.length), true);
+}).catch(() => { document.getElementById('list').innerHTML = '<div class="empty-state">⚠️ Demo Mode - Using Sample Data</div>'; products = [{ id: 0, name: 'Paracetamol 500mg', pack: '10 Tablets', mrp: 50, rate: 45, company: 'Cipla', composition: 'Paracetamol', images: [] }, { id: 1, name: 'Amoxicillin', pack: '15 Capsules', mrp: 120, rate: 108, company: 'Glaxo', composition: 'Amoxicillin', images: [] }]; filtered = [...products]; buildDropdowns(); render(true); });
 
-function buildDropdowns() {
-  let companies = [...new Set(products.map(p => p.company).filter(Boolean))].sort();
-  let compositions = [...new Set(products.map(p => p.composition).filter(Boolean))].sort();
-  let fc = document.getElementById('filterCompany');
-  fc.innerHTML = '<option value="">' + t('allCo') + '</option>';
-  companies.forEach(c => { let o = document.createElement('option'); o.value = c; o.textContent = c; fc.appendChild(o); });
-  let fx = document.getElementById('filterComposition');
-  fx.innerHTML = '<option value="">' + t('allCx') + '</option>';
-  compositions.forEach(c => { let o = document.createElement('option'); o.value = c; o.textContent = c; fx.appendChild(o); });
-}
-
-function doFilter() {
-  let search = document.getElementById('search').value.toLowerCase().trim();
-  let company = document.getElementById('filterCompany').value;
-  let comp = document.getElementById('filterComposition').value;
-  filtered = products.filter(p => {
-    if (company && p.company !== company) return false;
-    if (comp && p.composition !== comp) return false;
-    if (search && !(p.name.toLowerCase().includes(search) || p.company.toLowerCase().includes(search))) return false;
-    return true;
-  });
-  visible = 12; render(true);
-  if (filtered.length && (search || company || comp)) speak(t('found', filtered.length));
-}
-
-function render(reset) {
-  let list = document.getElementById('list');
-  if (reset) list.innerHTML = '';
-  if (!filtered.length) { list.innerHTML = '<div class="empty-state">🔍 ' + t('noProducts') + '</div>'; return; }
-  filtered.slice(0, visible).forEach(p => {
-    if (document.getElementById('card-' + p.id)) return;
-    let card = document.createElement('div'); card.className = 'item'; card.id = 'card-' + p.id;
-    let imgWrap = document.createElement('div'); imgWrap.className = 'item-img-wrap';
-    buildCarousel(imgWrap, p.images || [], p.name);
-    card.appendChild(imgWrap);
-    let content = document.createElement('div'); content.className = 'item-content';
-    content.innerHTML = `<div class="item-name">${escapeHtml(p.name)}</div><div class="item-company">${escapeHtml(p.company)}</div><span class="item-pack">📦 ${escapeHtml(p.pack)}</span>${p.composition ? `<div class="item-composition">🧪 ${escapeHtml(p.composition)}</div>` : ''}<div class="price-row"><span class="rate-price">₹${p.rate.toFixed(2)}</span><span class="mrp-price">MRP ₹${p.mrp.toFixed(2)}</span></div><div class="controls" id="ctrl-${p.id}">${mkCtrl(p.id, cart[p.id] || 0)}</div>`;
-    card.appendChild(content);
-    list.appendChild(card);
-  });
-}
-
-function mkCtrl(id, qty) {
-  if (!qty) return `<button class="btn-add" onclick="upd(${id},1)">${t('addCart')}</button>`;
-  return `<div class="qty-control"><button class="btn-qty" onclick="upd(${id},-1)">−</button><span class="qty-num">${qty}</span><button class="btn-qty" onclick="upd(${id},1)">+</button></div>`;
-}
-
-function upd(id, delta) {
-  let prev = cart[id] || 0;
-  cart[id] = Math.max(0, prev + delta);
-  let ctrl = document.getElementById(`ctrl-${id}`);
-  if (ctrl) ctrl.innerHTML = mkCtrl(id, cart[id]);
-  refreshCart();
-  let name = products[id]?.name || 'item';
-  if (prev === 0 && cart[id] === 1) showModal('➕', t('added', name));
-  if (cart[id] > 0) speak(`${name}, quantity ${cart[id]}`);
-}
-
-function getTotals() {
-  let subtotal = 0, count = 0;
-  for (let id in cart) { let q = cart[id]; if (q > 0 && products[id]) { subtotal += q * products[id].rate; count += q; } }
-  return { subtotal, addition: subtotal * 0.05, final: subtotal * 1.05, count };
-}
-
-function refreshCart() {
-  let { subtotal, addition, final, count } = getTotals();
-  document.getElementById('cartCount').innerText = count === 0 ? '0 items' : `${count} item${count !== 1 ? 's' : ''}`;
-  document.getElementById('cartTotal').innerHTML = `₹${final.toFixed(2)}`;
-  let badge = document.getElementById('additionBadge');
-  if (count > 0 && addition > 0.01) { badge.style.display = 'inline-flex'; badge.innerHTML = `+5% (₹${addition.toFixed(2)})`; }
-  else badge.style.display = 'none';
-}
-
-function sendOrder() {
-  let shop = document.getElementById('shop').value.trim(), mob = document.getElementById('mobile').value.trim();
-  if (!shop && !mob) { showModal('⚠️', t('errBoth'), () => highlight('shop')); return; }
-  if (!shop) { showModal('🏪', t('errShop'), () => highlight('shop')); return; }
-  if (!mob) { showModal('📱', t('errMobile'), () => highlight('mobile')); return; }
-  let { subtotal, count } = getTotals();
-  if (!count) { showModal('🛒', t('errCart')); return; }
-  let msg = `🧾 *New Order*%0A*Shop:* ${encodeURIComponent(shop)}%0A*Mobile:* ${encodeURIComponent(mob)}%0A%0A`;
-  for (let id in cart) { let q = cart[id]; if (q > 0 && products[id]) { let p = products[id]; msg += `▪ ${encodeURIComponent(p.name)} × ${q} = ₹${(q * p.rate).toFixed(2)}%0A`; } }
-  msg += `%0A*Subtotal:* ₹${subtotal.toFixed(2)}%0A*+5% Value:* ₹${(subtotal * 0.05).toFixed(2)}%0A*GRAND TOTAL:* ₹${(subtotal * 1.05).toFixed(2)}%0A%0A*Thank you!*`;
-  showModal('✅', t('orderMsg', count, subtotal, shop));
-  speak(t('orderMsg', count, subtotal, shop), true);
-  closeBill();
-  window.open(`https://wa.me/919533762508?text=${msg}`);
-}
-
+function buildDropdowns() { let cos = [...new Set(products.map(p => p.company).filter(Boolean))].sort(); let cxs = [...new Set(products.map(p => p.composition).filter(Boolean))].sort(); let fc = document.getElementById('filterCompany'); fc.innerHTML = '<option value="">' + t('allCo') + '</option>'; cos.forEach(c => { let o = document.createElement('option'); o.value = c; o.textContent = c; fc.appendChild(o); }); let fx = document.getElementById('filterComposition'); fx.innerHTML = '<option value="">' + t('allCx') + '</option>'; cxs.forEach(c => { let o = document.createElement('option'); o.value = c; o.textContent = c; fx.appendChild(o); }); }
+function doFilter() { let s = document.getElementById('search').value.toLowerCase().trim(); let co = document.getElementById('filterCompany').value; let cx = document.getElementById('filterComposition').value; filtered = products.filter(p => { if (co && p.company !== co) return false; if (cx && p.composition !== cx) return false; if (s && !(p.name.toLowerCase().includes(s) || p.company.toLowerCase().includes(s))) return false; return true; }); visible = 12; render(true); if (filtered.length && (s || co || cx)) speak(t('found', filtered.length)); }
+function render(reset) { let list = document.getElementById('list'); if (reset) list.innerHTML = ''; if (!filtered.length) { list.innerHTML = '<div class="empty-state">🔍 ' + t('noProducts') + '</div>'; return; } filtered.slice(0, visible).forEach(p => { if (document.getElementById('card-' + p.id)) return; let card = document.createElement('div'); card.className = 'item'; card.id = 'card-' + p.id; let imgWrap = document.createElement('div'); imgWrap.className = 'item-img-wrap'; buildCarousel(imgWrap, p.images || [], p.name); card.appendChild(imgWrap); let content = document.createElement('div'); content.className = 'item-content'; content.innerHTML = `<div class="item-name">${escapeHtml(p.name)}</div><div class="item-company">${escapeHtml(p.company)}</div><span class="item-pack">📦 ${escapeHtml(p.pack)}</span>${p.composition ? `<div class="item-composition">🧪 ${escapeHtml(p.composition)}</div>` : ''}<div class="price-row"><span class="rate-price">₹${p.rate.toFixed(2)}</span><span class="mrp-price">MRP ₹${p.mrp.toFixed(2)}</span></div><div class="controls" id="ctrl-${p.id}">${mkCtrl(p.id, cart[p.id] || 0)}</div>`; card.appendChild(content); list.appendChild(card); }); }
+function mkCtrl(id, qty) { if (!qty) return `<button class="btn-add" onclick="upd(${id},1)">${t('addCart')}</button>`; return `<div class="qty-control"><button class="btn-qty" onclick="upd(${id},-1)">−</button><span class="qty-num">${qty}</span><button class="btn-qty" onclick="upd(${id},1)">+</button></div>`; }
+function upd(id, delta) { let prev = cart[id] || 0; cart[id] = Math.max(0, prev + delta); let ctrl = document.getElementById(`ctrl-${id}`); if (ctrl) ctrl.innerHTML = mkCtrl(id, cart[id]); refreshCart(); let name = products[id]?.name || 'item'; if (prev === 0 && cart[id] === 1) showModal('➕', t('added', name)); if (cart[id] > 0) speak(`${name}, quantity ${cart[id]}`); }
+function getTotals() { let subtotal = 0, count = 0; for (let id in cart) { let q = cart[id]; if (q > 0 && products[id]) { subtotal += q * products[id].rate; count += q; } } let tax = subtotal * 0.05; let final = subtotal + tax; return { subtotal, tax, final, count }; }
+function refreshCart() { let { subtotal, tax, final, count } = getTotals(); document.getElementById('cartCount').innerText = count === 0 ? '0 items' : `${count} item${count !== 1 ? 's' : ''}`; document.getElementById('cartTotal').innerHTML = `₹${final.toFixed(2)}`; let badge = document.getElementById('taxBadge'); if (count > 0 && tax > 0.01) { badge.style.display = 'inline-flex'; badge.innerHTML = `+5% Tax (₹${tax.toFixed(2)})`; } else badge.style.display = 'none'; }
+function sendOrder() { let shop = document.getElementById('shop').value.trim(), mob = document.getElementById('mobile').value.trim(); if (!shop && !mob) { showModal('⚠️', t('errBoth'), () => highlight('shop')); return; } if (!shop) { showModal('🏪', t('errShop'), () => highlight('shop')); return; } if (!mob) { showModal('📱', t('errMobile'), () => highlight('mobile')); return; } let { subtotal, tax, final, count } = getTotals(); if (!count) { showModal('🛒', t('errCart')); return; } let msg = `🧾 *New Order*%0A*Shop:* ${encodeURIComponent(shop)}%0A*Mobile:* ${encodeURIComponent(mob)}%0A%0A`; for (let id in cart) { let q = cart[id]; if (q > 0 && products[id]) { let p = products[id]; msg += `▪ ${encodeURIComponent(p.name)} × ${q} = ₹${(q * p.rate).toFixed(2)}%0A`; } } msg += `%0A*Subtotal:* ₹${subtotal.toFixed(2)}%0A*Tax (5%):* ₹${tax.toFixed(2)}%0A*FINAL AMOUNT:* ₹${final.toFixed(2)}%0A%0A*Thank you!*`; showModal('✅', t('orderMsg', count, subtotal, tax, final, shop)); speak(t('orderMsg', count, subtotal, tax, final, shop), true); closeBill(); window.open(`https://wa.me/919533762508?text=${msg}`); }
 function highlight(id) { let el = document.getElementById(id); el.classList.add('input-error'); setTimeout(() => el.classList.remove('input-error'), 1500); }
-
-function openBill() {
-  let shop = document.getElementById('shop').value.trim(), mob = document.getElementById('mobile').value.trim();
-  if (!shop) { showModal('🏪', t('errShop'), () => highlight('shop')); return; }
-  if (!mob) { showModal('📱', t('errMobile'), () => highlight('mobile')); return; }
-  let items = [];
-  for (let id in cart) { let q = cart[id]; if (q > 0 && products[id]) { let p = products[id]; items.push({ name: p.name, company: p.company, pack: p.pack, rate: p.rate, qty: q, amount: q * p.rate }); } }
-  if (!items.length) { showModal('🛒', t('errCart')); return; }
-  let { subtotal, addition, final } = getTotals();
-  let now = new Date();
-  document.getElementById('boDate').innerHTML = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
-  let rows = items.map(it => `<tr><td><strong>${escapeHtml(it.name)}</strong><br><small>${escapeHtml(it.company)}</small><br><span style="font-size:10px">${escapeHtml(it.pack)}</span></td><td class="c">${it.qty}</td><td class="r">₹${it.rate.toFixed(2)}</td><td class="r">₹${it.amount.toFixed(2)}</td></tr>`).join('');
-  document.getElementById('boBody').innerHTML = `<div class="bill-card"><div class="bill-shop"><strong>💊 Aaradhya Pharmaceuticals</strong><div class="bill-shop-meta"><span><strong>${escapeHtml(shop)}</strong>Shop</span><span><strong>${escapeHtml(mob)}</strong>Mobile</span><span><strong>${now.toLocaleDateString()}</strong>Date</span></div></div><div class="bill-sec-hdr">📋 Ordered Items</div><table class="bill-tbl"><thead><tr><th>Product</th><th class="c">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead><tbody>${rows}</tbody><tfoot><tr class="bill-tfoot"><td colspan="3">GRAND TOTAL</td><td class="r">₹${final.toFixed(2)}</td></tr></tfoot></table><div class="bill-addition-row"><span>Subtotal</span><span>₹${subtotal.toFixed(2)}</span></div><div class="bill-addition-row" style="background:#e8f2ff"><span>+5% Final Value Addition</span><span><strong>₹${addition.toFixed(2)}</strong></span></div><div class="bill-footer">* Includes 5% value addition | Powered by Aaratech AI</div></div>`;
-  document.getElementById('billOverlay').classList.add('show');
-}
-
+function openBill() { let shop = document.getElementById('shop').value.trim(), mob = document.getElementById('mobile').value.trim(); if (!shop) { showModal('🏪', t('errShop'), () => highlight('shop')); return; } if (!mob) { showModal('📱', t('errMobile'), () => highlight('mobile')); return; } let items = []; for (let id in cart) { let q = cart[id]; if (q > 0 && products[id]) { let p = products[id]; items.push({ name: p.name, company: p.company, pack: p.pack, rate: p.rate, qty: q, amount: q * p.rate }); } } if (!items.length) { showModal('🛒', t('errCart')); return; } let { subtotal, tax, final } = getTotals(); let now = new Date(); document.getElementById('boDate').innerHTML = now.toLocaleDateString() + ' ' + now.toLocaleTimeString(); let rows = items.map(it => `<tr><td><strong>${escapeHtml(it.name)}</strong><br><small>${escapeHtml(it.company)}</small><br><span style="font-size:10px">${escapeHtml(it.pack)}</span></td><td class="c">${it.qty}</td><td class="r">₹${it.rate.toFixed(2)}</td><td class="r">₹${it.amount.toFixed(2)}</td></tr>`).join(''); document.getElementById('boBody').innerHTML = `<div class="bill-card"><div class="bill-shop"><strong>💊 Aaradhya Pharmaceuticals</strong><div class="bill-shop-meta"><span><strong>${escapeHtml(shop)}</strong>Shop</span><span><strong>${escapeHtml(mob)}</strong>Mobile</span><span><strong>${now.toLocaleDateString()}</strong>Date</span></div></div><div class="bill-sec-hdr">📋 Ordered Items</div><table class="bill-tbl"><thead><tr><th>Product</th><th class="c">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead><tbody>${rows}</tbody></table><div class="bill-tax-row"><span>Subtotal</span><span>₹${subtotal.toFixed(2)}</span></div><div class="bill-tax-row" style="background:#e8f2ff"><span>Tax (5%)</span><span><strong>₹${tax.toFixed(2)}</strong></span></div><div class="bill-tax-row" style="background:#d1fae5;border-left-color:#10b981"><span><strong>FINAL AMOUNT</strong></span><span><strong>₹${final.toFixed(2)}</strong></span></div><div class="bill-footer">* Tax calculated at 5% on total | Powered by Aaratech AI</div></div>`; document.getElementById('billOverlay').classList.add('show'); }
 function closeBill() { document.getElementById('billOverlay').classList.remove('show'); }
-
-function buildCarousel(wrap, images, name) {
-  if (!images.length) { wrap.innerHTML = '<div class="item-img-blank"><span>📷</span></div>'; return; }
-  let cur = 0, total = images.length;
-  let track = document.createElement('div'); track.className = 'img-track'; track.style.cssText = 'display:flex;width:100%;height:100%;transition:transform .3s ease;';
-  images.forEach((src, i) => {
-    let slide = document.createElement('div'); slide.style.cssText = 'min-width:100%;width:100%;flex-shrink:0;';
-    let img = document.createElement('img'); img.src = src; img.alt = name; img.style.cssText = 'width:100%;height:auto;min-height:110px;object-fit:cover;display:block;';
-    img.onerror = () => slide.innerHTML = '<div class="item-img-blank">📷</div>';
-    slide.appendChild(img); slide.addEventListener('click', () => openLightbox(images, i, name));
-    track.appendChild(slide);
-  });
-  let wrapDiv = document.createElement('div'); wrapDiv.style.cssText = 'width:100%;height:100%;overflow:hidden;position:relative;'; wrapDiv.appendChild(track); wrap.appendChild(wrapDiv);
-  if (total > 1) {
-    let dots = document.createElement('div'); dots.className = 'img-dots';
-    for (let d = 0; d < total; d++) { let dot = document.createElement('div'); dot.className = 'img-dot' + (d === 0 ? ' active' : ''); dot.onclick = (e) => { e.stopPropagation(); cur = d; update(); }; dots.appendChild(dot); }
-    wrap.appendChild(dots);
-    let prev = document.createElement('button'); prev.className = 'img-arrow prev'; prev.innerHTML = '‹'; prev.onclick = (e) => { e.stopPropagation(); cur = (cur - 1 + total) % total; update(); };
-    let next = document.createElement('button'); next.className = 'img-arrow next'; next.innerHTML = '›'; next.onclick = (e) => { e.stopPropagation(); cur = (cur + 1) % total; update(); };
-    wrap.appendChild(prev); wrap.appendChild(next);
-    function update() { track.style.transform = `translateX(-${cur * 100}%)`; dots.querySelectorAll('.img-dot').forEach((d, i) => d.classList.toggle('active', i === cur)); }
-  }
-}
-
-let lbImages = [], lbIndex = 0;
-function openLightbox(images, idx, name) { lbImages = images; lbIndex = idx; document.getElementById('lightbox-img').src = images[idx]; document.getElementById('lbTitle').innerText = `${name} (${idx+1}/${images.length})`; document.getElementById('lightbox').classList.add('show'); document.getElementById('lbPrev').style.display = images.length > 1 ? 'flex' : 'none'; document.getElementById('lbNext').style.display = images.length > 1 ? 'flex' : 'none'; }
+function buildCarousel(wrap, images, name) { if (!images.length) { wrap.innerHTML = '<div class="item-img-blank"><span>📷</span></div>'; return; } let cur = 0, total = images.length; let track = document.createElement('div'); track.className = 'img-track'; track.style.cssText = 'display:flex;width:100%;height:100%;transition:transform .3s ease;'; images.forEach((src, i) => { let slide = document.createElement('div'); slide.style.cssText = 'min-width:100%;width:100%;flex-shrink:0;'; let img = document.createElement('img'); img.src = src; img.alt = name; img.style.cssText = 'width:100%;height:auto;min-height:110px;object-fit:cover;display:block;'; img.onerror = () => slide.innerHTML = '<div class="item-img-blank">📷</div>'; slide.appendChild(img); slide.addEventListener('click', () => openLightbox(images, i, name)); track.appendChild(slide); }); let wrapDiv = document.createElement('div'); wrapDiv.style.cssText = 'width:100%;height:100%;overflow:hidden;position:relative;'; wrapDiv.appendChild(track); wrap.appendChild(wrapDiv); if (total > 1) { let dots = document.createElement('div'); dots.className = 'img-dots'; for (let d = 0; d < total; d++) { let dot = document.createElement('div'); dot.className = 'img-dot' + (d === 0 ? ' active' : ''); dot.onclick = (e) => { e.stopPropagation(); cur = d; update(); }; dots.appendChild(dot); } wrap.appendChild(dots); let prev = document.createElement('button'); prev.className = 'img-arrow prev'; prev.innerHTML = '‹'; prev.onclick = (e) => { e.stopPropagation(); cur = (cur - 1 + total) % total; update(); }; let next = document.createElement('button'); next.className = 'img-arrow next'; next.innerHTML = '›'; next.onclick = (e) => { e.stopPropagation(); cur = (cur + 1) % total; update(); }; wrap.appendChild(prev); wrap.appendChild(next); function update() { track.style.transform = `translateX(-${cur * 100}%)`; dots.querySelectorAll('.img-dot').forEach((d, i) => d.classList.toggle('active', i === cur)); } } }
+let lbImages = [], lbIndex = 0; let zoomScale = 1;
+function openLightbox(images, idx, name) { lbImages = images; lbIndex = idx; document.getElementById('lightbox-img').src = images[idx]; document.getElementById('lbTitle').innerText = `${name} (${idx+1}/${images.length})`; document.getElementById('lightbox').classList.add('show'); document.getElementById('lbPrev').style.display = images.length > 1 ? 'flex' : 'none'; document.getElementById('lbNext').style.display = images.length > 1 ? 'flex' : 'none'; zoomScale = 1; document.getElementById('lightbox-img').style.transform = 'scale(1)'; }
 function closeLightbox() { document.getElementById('lightbox').classList.remove('show'); }
-function lbGalleryNav(dir) { if (!lbImages.length) return; lbIndex = (lbIndex + dir + lbImages.length) % lbImages.length; document.getElementById('lightbox-img').src = lbImages[lbIndex]; document.getElementById('lbTitle').innerText = `${lbIndex+1}/${lbImages.length}`; lbReset(); }
-let zoomScale = 1; function lbZoom(d) { zoomScale = Math.min(4, Math.max(0.5, zoomScale + d)); document.getElementById('lightbox-img').style.transform = `scale(${zoomScale})`; document.getElementById('lbZoomLabel').innerText = Math.round(zoomScale * 100) + '%'; }
+function lbGalleryNav(dir) { if (!lbImages.length) return; lbIndex = (lbIndex + dir + lbImages.length) % lbImages.length; document.getElementById('lightbox-img').src = lbImages[lbIndex]; document.getElementById('lbTitle').innerText = `${lbIndex+1}/${lbImages.length}`; zoomScale = 1; document.getElementById('lightbox-img').style.transform = 'scale(1)'; document.getElementById('lbZoomLabel').innerText = '100%'; }
+function lbZoom(d) { zoomScale = Math.min(4, Math.max(0.5, zoomScale + d)); document.getElementById('lightbox-img').style.transform = `scale(${zoomScale})`; document.getElementById('lbZoomLabel').innerText = Math.round(zoomScale * 100) + '%'; }
 function lbReset() { zoomScale = 1; document.getElementById('lightbox-img').style.transform = 'scale(1)'; document.getElementById('lbZoomLabel').innerText = '100%'; }
-
-function downloadBill(fmt) {
-  let card = document.querySelector('#boBody .bill-card'); if (!card) { showModal('⚠️', 'Bill not ready'); return; }
-  let container = document.createElement('div'); container.style.cssText = 'position:fixed;left:-9999px;top:0;width:480px;background:#fff;padding:12px'; container.appendChild(card.cloneNode(true)); document.body.appendChild(container);
-  setTimeout(() => {
-    if (!window.html2canvas) { let s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'; s.onload = () => capture(container, fmt); document.head.appendChild(s); } else capture(container, fmt);
-  }, 100);
-}
+function downloadBill(fmt) { let card = document.querySelector('#boBody .bill-card'); if (!card) { showModal('⚠️', 'Bill not ready'); return; } let container = document.createElement('div'); container.style.cssText = 'position:fixed;left:-9999px;top:0;width:480px;background:#fff;padding:12px'; container.appendChild(card.cloneNode(true)); document.body.appendChild(container); setTimeout(() => { if (!window.html2canvas) { let s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'; s.onload = () => capture(container, fmt); document.head.appendChild(s); } else capture(container, fmt); }, 100); }
 function capture(container, fmt) { html2canvas(container, { scale: 2, backgroundColor: '#fff' }).then(canvas => { document.body.removeChild(container); if (fmt === 'jpg') canvas.toBlob(blob => { let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Bill_${Date.now()}.jpg`; a.click(); }, 'image/jpeg'); else { if (!window.jspdf) { let s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'; s.onload = () => makePDF(canvas); document.head.appendChild(s); } else makePDF(canvas); } showModal('📄', 'Bill downloaded'); }).catch(() => { document.body.removeChild(container); showModal('⚠️', 'Download failed'); }); }
 function makePDF(canvas) { let { jsPDF } = window.jspdf; let pdf = new jsPDF({ unit: 'mm', format: 'a4' }); pdf.addImage(canvas.toDataURL('image/jpeg'), 'JPEG', 0, 0, 210, canvas.height * 210 / canvas.width); pdf.save(`Bill_${Date.now()}.pdf`); }
 function escapeHtml(str) { return (str || '').replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
