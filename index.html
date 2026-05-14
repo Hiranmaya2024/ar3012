@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Aaradhya Pharmaceuticals Order App v2.4.0 - WORKING Google Sheets Fetch with 5% Tax -->
+<!-- Aaradhya Pharmaceuticals Order App v2.5.0 - WORKING Google Sheets Integration with 5% Tax -->
 <html lang="en" data-theme="pharma" data-lang="en">
 <head>
 <meta charset="UTF-8">
@@ -70,7 +70,8 @@ body{font-family:var(--font);background:var(--body-bg);color:var(--text-primary)
 .lb-title{font-size:.85rem;font-weight:600;color:rgba(255,255,255,.85);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lb-btn{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:8px;width:40px;height:40px;font-size:1.1rem;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
 .lb-controls{display:flex;align-items:center;gap:10px;padding:0 18px 18px}
-.item{background:var(--card-bg);border-radius:var(--radius);box-shadow:var(--card-shadow);padding:12px;border:1px solid var(--border);display:flex;flex-direction:row;gap:11px;align-items:stretch}
+.item{background:var(--card-bg);border-radius:var(--radius);box-shadow:var(--card-shadow);padding:12px;border:1px solid var(--border);display:flex;flex-direction:row;gap:11px;align-items:stretch;transition:box-shadow var(--tr),transform var(--tr)}
+.item:hover{box-shadow:0 6px 24px rgba(10,46,82,.15);transform:translateY(-1px)}
 .item-content{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
 .item-name{font-weight:700;font-size:.9rem;line-height:1.3;color:var(--text-primary)}
 .item-company{font-size:.68rem;font-weight:600;color:var(--accent);text-transform:uppercase;background:var(--accent-light);display:inline-block;padding:1px 7px;border-radius:30px}
@@ -80,10 +81,12 @@ body{font-family:var(--font);background:var(--body-bg);color:var(--text-primary)
 .rate-price{font-size:.98rem;font-weight:700;color:var(--text-primary)}
 .mrp-price{font-size:.75rem;color:var(--text-secondary);text-decoration:line-through}
 .controls{display:flex;align-items:center;margin-top:8px}
-.btn-add{width:100%;padding:9px;background:var(--add-btn);color:var(--add-btn-text);border:none;border-radius:var(--radius-sm);font-weight:700;cursor:pointer}
+.btn-add{width:100%;padding:9px;background:var(--add-btn);color:var(--add-btn-text);border:none;border-radius:var(--radius-sm);font-weight:700;cursor:pointer;transition:var(--tr)}
+.btn-add:active{transform:scale(.97)}
 .qty-control{display:flex;align-items:center;width:100%;border:2px solid var(--accent);border-radius:var(--radius-sm);overflow:hidden}
-.btn-qty{background:var(--accent);color:#fff;border:none;width:40px;height:38px;font-size:1.2rem;font-weight:700;cursor:pointer}
-.qty-num{flex:1;text-align:center;font-size:1rem;font-weight:700;color:var(--accent)}
+.btn-qty{background:var(--accent);color:#fff;border:none;width:40px;height:38px;font-size:1.2rem;font-weight:700;cursor:pointer;transition:var(--tr)}
+.btn-qty:active{transform:scale(.93)}
+.qty-num{flex:1;text-align:center;font-size:1rem;font-weight:700;color:var(--accent);user-select:none}
 .loading-state,.empty-state{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:14px;color:var(--text-secondary)}
 .spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -94,8 +97,9 @@ body{font-family:var(--font);background:var(--body-bg);color:var(--text-primary)
 .cart-total{font-size:1.1rem;font-weight:700}
 .tax-badge{background:var(--tax-badge);color:#000;border-radius:12px;padding:2px 8px;font-size:.7rem;font-weight:700;margin-left:6px;display:inline-flex;align-items:center;gap:3px}
 .cart-btns{display:flex;gap:7px}
-.btn-bill{background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:var(--radius-sm);padding:10px 13px;font-weight:700;cursor:pointer}
-.btn-checkout{background:var(--checkout-bg);color:var(--checkout-text);border:none;border-radius:var(--radius-sm);padding:10px 14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px}
+.btn-bill{background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:var(--radius-sm);padding:10px 13px;font-weight:700;cursor:pointer;transition:var(--tr)}
+.btn-checkout{background:var(--checkout-bg);color:var(--checkout-text);border:none;border-radius:var(--radius-sm);padding:10px 14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:var(--tr)}
+.btn-checkout:active{transform:scale(.96)}
 .cart-footer{border-top:1px solid rgba(255,255,255,.1);padding:6px 0 8px;text-align:center;font-size:.68rem;display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap}
 .cart-footer .cf-ai{background:linear-gradient(90deg,#00d4aa,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700}
 #alertModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:9999;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
@@ -113,11 +117,12 @@ body{font-family:var(--font);background:var(--body-bg);color:var(--text-primary)
 #billOverlay .bo-head{background:#0a2e52;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
 #billOverlay .bo-body{flex:1;overflow-y:auto;background:#f0f4f9}
 #billOverlay .bo-foot{background:#fff;border-top:2px solid #dae3ef;padding:12px 16px;display:flex;gap:10px}
-#billOverlay .bo-btn{flex:1;height:48px;border:none;border-radius:10px;font-weight:700;cursor:pointer}
+#billOverlay .bo-btn{flex:1;height:48px;border:none;border-radius:10px;font-weight:700;cursor:pointer;transition:all .15s}
+#billOverlay .bo-btn:active{transform:scale(.95)}
 #billOverlay .bo-pdf{background:#e53935;color:#fff}
 #billOverlay .bo-jpg{background:#f57c00;color:#fff}
 #billOverlay .bo-wa{background:#22c55e;color:#fff}
-.bill-card{background:#fff;margin:12px;border-radius:12px;overflow:hidden}
+.bill-card{background:#fff;margin:12px;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08)}
 .bill-shop{background:#0a2e52;color:#fff;padding:14px 16px}
 .bill-shop-meta{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap}
 .bill-shop-meta span{font-size:.72rem;opacity:.8}
@@ -125,34 +130,39 @@ body{font-family:var(--font);background:var(--body-bg);color:var(--text-primary)
 .bill-sec-hdr{background:#1a6bbd;color:#fff;padding:8px 16px;font-size:.72rem;font-weight:700;text-transform:uppercase}
 .bill-tax-row{background:#fffbeb;border-left:4px solid #f59e0b;padding:8px 12px;margin:10px;border-radius:8px;display:flex;justify-content:space-between;font-weight:600}
 .bill-tbl{width:100%;border-collapse:collapse;font-size:.78rem}
-.bill-tbl th{background:#e8f2ff;color:#0a2e52;padding:8px 10px;text-align:left}
-.bill-tbl td{padding:8px 10px;border-bottom:1px solid #f0f4f9}
+.bill-tbl th{background:#e8f2ff;color:#0a2e52;padding:8px 10px;text-align:left;border-bottom:1px solid #dae3ef}
+.bill-tbl td{padding:8px 10px;border-bottom:1px solid #f0f4f9;vertical-align:top}
 .bill-tbl .r{text-align:right}
 .bill-tbl .c{text-align:center}
-.bill-pname{font-weight:600}
-.bill-co{font-size:.65rem;font-weight:700;color:#1a6bbd;background:#e8f2ff;display:inline-block;padding:1px 5px;border-radius:6px}
-.bill-tfoot td{background:#0a2e52!important;color:#fff!important;font-weight:700!important}
+.bill-pname{font-weight:600;line-height:1.3}
+.bill-co{font-size:.65rem;font-weight:700;color:#1a6bbd;background:#e8f2ff;display:inline-block;padding:1px 5px;border-radius:6px;margin-top:2px}
+.bill-pack{font-size:.65rem;color:#5a7a99;margin-top:1px}
+.bill-tfoot td{background:#0a2e52!important;color:#fff!important;font-weight:700!important;padding:10px!important}
 .bill-footer{padding:12px 16px;text-align:center;font-size:.68rem;background:#fafcff;border-top:2px dashed #dae3ef}
 .lang-overlay,.t-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;backdrop-filter:blur(2px)}
 .lang-sheet,.t-sheet{position:fixed;bottom:0;left:0;right:0;background:var(--card-bg);border-radius:20px 20px 0 0;padding:24px 16px 32px;z-index:310;display:none}
+.lang-handle,.t-handle{width:40px;height:4px;background:var(--border);border-radius:10px;margin:0 auto 18px}
+.lang-sheet h3,.t-sheet h3{font-family:var(--font-d);font-size:1.1rem;margin-bottom:16px;text-align:center}
 .lang-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
 .t-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
-.lang-opt,.t-opt{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:var(--radius-sm);border:2px solid var(--border);cursor:pointer;background:var(--body-bg);color:var(--text-secondary)}
+@media(max-width:400px){.t-grid{grid-template-columns:repeat(3,1fr)}}
+.lang-opt,.t-opt{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:var(--radius-sm);border:2px solid var(--border);cursor:pointer;background:var(--body-bg);color:var(--text-secondary);transition:var(--tr)}
 .lang-opt.active,.t-opt.active{border-color:var(--accent);background:var(--accent-light);color:var(--accent)}
-.lang-close,.t-close{width:100%;padding:12px;background:var(--body-bg);color:var(--text-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);font-weight:600;cursor:pointer}
+.lang-close,.t-close{width:100%;padding:12px;background:var(--body-bg);color:var(--text-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);font-weight:600;cursor:pointer;transition:var(--tr)}
+.lang-close:hover,.t-close:hover{background:var(--border)}
 </style>
 </head>
 <body>
 <header class="header">
   <div class="header-top">
-    <div class="brand"><span class="brand-icon" id="brandIcon">💊</span><div class="brand-text"><span class="brand-name" id="brandName">Aaradhya Pharmaceuticals</span><span class="brand-version">v2.4</span></div></div>
+    <div class="brand"><span class="brand-icon" id="brandIcon">💊</span><div class="brand-text"><span class="brand-name" id="brandName">Aaradhya Pharmaceuticals</span><span class="brand-version">v2.5</span></div></div>
     <div class="header-actions"><button class="lang-btn" id="langBtn" onclick="openLang()">🌐 EN</button><button class="theme-btn" id="themeBtn" onclick="openTheme()">🎨 Theme</button></div>
   </div>
   <div class="hrow cols2"><input id="shop" type="text" placeholder="🏪 Shop Name"><input id="mobile" type="tel" inputmode="numeric" placeholder="📱 Mobile No."></div>
   <div class="hrow cols2"><div class="swrap"><span class="sicon">🔍</span><input id="search" oninput="doFilter()" placeholder="Search name, company..."></div><select id="filterCompany" onchange="doFilter()"></select></div>
   <div class="hrow cols1"><select id="filterComposition" onchange="doFilter()"></select></div>
 </header>
-<div id="list"><div class="loading-state"><div class="spinner"></div><span>Loading products from Google Sheets...</span></div></div>
+<div id="list"><div class="loading-state"><div class="spinner"></div><span>📡 Fetching data from Google Sheets...</span></div></div>
 <div id="sentinel"></div>
 <div class="cart-bar"><div class="cart-bar-top"><div class="cart-info"><span class="cart-count" id="cartCount">0 items</span><span class="cart-total" id="cartTotal">₹0.00</span><span class="tax-badge" id="taxBadge" style="display:none">+5% Tax</span></div><div class="cart-btns"><button class="btn-bill" onclick="openBill()">🧾 Bill</button><button class="btn-checkout" onclick="sendOrder()">🛒 <span id="checkoutText">WhatsApp Order</span></button></div></div><div class="cart-footer"><span>© Aaradhya Pharmaceuticals 2026</span><span>|</span><span>Powered by <span class="cf-ai">AI</span></span></div></div>
 <div id="billOverlay"><div class="bo-head"><div><div class="bo-title">🧾 Order Bill</div><div class="bo-date" id="boDate"></div></div><button class="bo-close" onclick="closeBill()">✕</button></div><div class="bo-body" id="boBody"></div><div class="bo-foot"><button class="bo-btn bo-pdf" onclick="downloadBill('pdf')">📄 PDF</button><button class="bo-btn bo-jpg" onclick="downloadBill('jpg')">🖼️ JPG</button><button class="bo-btn bo-wa" onclick="sendOrder()">🛒 WhatsApp</button></div></div>
@@ -164,9 +174,9 @@ body{font-family:var(--font);background:var(--body-bg);color:var(--text-primary)
 <script>
 // ========== LOCALIZATION ==========
 const LANG = {
-  en: { brandName: 'Aaradhya Pharmaceuticals', shopPh: '🏪 Shop Name', mobilePh: '📱 Mobile No.', searchPh: 'Search name, company...', allCo: '🏭 All Companies', allCx: '🧪 All Compositions', addCart: '+ Add to Cart', checkout: 'WhatsApp Order', noProducts: 'No products found', errBoth: 'Shop & Mobile required', errShop: 'Shop name required', errMobile: 'Mobile required', errCart: 'Cart is empty', taxLabel: 'Tax (5%)', welcome: (n) => `${n} products loaded from Google Sheets`, found: (n) => `${n} products found`, added: (n) => `${n} added to cart`, orderMsg: (c, t, tax, final, s) => `Order: ${c} items, Total ₹${t.toFixed(2)} + 5% Tax ₹${tax.toFixed(2)} = ₹${final.toFixed(2)}. Thank you ${s}!` },
-  hi: { brandName: 'आराध्या फार्मास्यूटिकल्स', shopPh: '🏪 दुकान का नाम', mobilePh: '📱 मोबाइल नंबर', searchPh: 'नाम, कंपनी खोजें...', allCo: '🏭 सभी कंपनियाँ', allCx: '🧪 सभी संरचनाएँ', addCart: '+ कार्ट में जोड़ें', checkout: 'व्हाट्सएप ऑर्डर', noProducts: 'कोई उत्पाद नहीं', errBoth: 'दुकान और मोबाइल चाहिए', errShop: 'दुकान चाहिए', errMobile: 'मोबाइल चाहिए', errCart: 'कार्ट खाली', taxLabel: 'कर (5%)', welcome: (n) => `${n} उत्पाद लोड हुए`, found: (n) => `${n} उत्पाद मिले`, added: (n) => `${n} जोड़ा गया`, orderMsg: (c, t, tax, final, s) => `${c} आइटम, कुल ₹${t.toFixed(2)} + 5% कर ₹${tax.toFixed(2)} = ₹${final.toFixed(2)}. धन्यवाद ${s}!` },
-  od: { brandName: 'ଆରାଧ୍ୟା ଫାର୍ମାସ୍ୟୁଟିକଲ୍ସ', shopPh: '🏪 ଦୋକାନ ନାମ', mobilePh: '📱 ମୋବାଇଲ୍ ନଂ.', searchPh: 'ନାମ, କମ୍ପାନୀ ଖୋଜନ୍ତୁ...', allCo: '🏭 ସମସ୍ତ କମ୍ପାନୀ', allCx: '🧪 ସମସ୍ତ ସଂରଚନା', addCart: '+ କାର୍ଟରେ ଯୋଡ଼ନ୍ତୁ', checkout: 'WhatsApp ଅର୍ଡ଼ର', noProducts: 'ଉତ୍ପାଦ ମିଳିଲା ନାହିଁ', errBoth: 'ଦୋକାନ ଓ ମୋବାଇଲ ଦିଅନ୍ତୁ', errShop: 'ଦୋକାନ ନାମ ଦିଅନ୍ତୁ', errMobile: 'ମୋବାଇଲ ନଂ ଦିଅନ୍ତୁ', errCart: 'କାର୍ଟ ଖାଲି', taxLabel: 'କର (5%)', welcome: (n) => `${n} ଉତ୍ପାଦ ଲୋଡ ହେଲା`, found: (n) => `${n} ଉତ୍ପାଦ ମିଳିଲା`, added: (n) => `${n} ଯୋଡ଼ା ଗଲା`, orderMsg: (c, t, tax, final, s) => `${c} ଆଇଟମ୍, ₹${t.toFixed(2)} +5% = ₹${final.toFixed(2)}. ଧନ୍ୟବାଦ ${s}!` }
+  en: { brandName: 'Aaradhya Pharmaceuticals', shopPh: '🏪 Shop Name', mobilePh: '📱 Mobile No.', searchPh: 'Search name, company...', allCo: '🏭 All Companies', allCx: '🧪 All Compositions', addCart: '+ Add to Cart', checkout: 'WhatsApp Order', noProducts: 'No products found', errBoth: 'Shop & Mobile required', errShop: 'Shop name required', errMobile: 'Mobile required', errCart: 'Cart is empty', taxLabel: 'Tax (5%)', welcome: (n) => `✅ ${n} products loaded from Google Sheets`, found: (n) => `🔍 ${n} products found`, added: (n) => `➕ ${n} added to cart`, orderMsg: (c, t, tax, final, s) => `Order placed! ${c} items. Subtotal ₹${t.toFixed(2)} + 5% Tax ₹${tax.toFixed(2)} = ₹${final.toFixed(2)}. Thank you ${s}!` },
+  hi: { brandName: 'आराध्या फार्मास्यूटिकल्स', shopPh: '🏪 दुकान का नाम', mobilePh: '📱 मोबाइल नंबर', searchPh: 'नाम, कंपनी खोजें...', allCo: '🏭 सभी कंपनियाँ', allCx: '🧪 सभी संरचनाएँ', addCart: '+ कार्ट में जोड़ें', checkout: 'व्हाट्सएप ऑर्डर', noProducts: 'कोई उत्पाद नहीं', errBoth: 'दुकान और मोबाइल चाहिए', errShop: 'दुकान चाहिए', errMobile: 'मोबाइल चाहिए', errCart: 'कार्ट खाली', taxLabel: 'कर (5%)', welcome: (n) => `✅ ${n} उत्पाद लोड हुए`, found: (n) => `🔍 ${n} उत्पाद मिले`, added: (n) => `➕ ${n} कार्ट में जोड़ा गया`, orderMsg: (c, t, tax, final, s) => `ऑर्डर दिया गया! ${c} आइटम. कुल ₹${t.toFixed(2)} + 5% कर ₹${tax.toFixed(2)} = ₹${final.toFixed(2)}. धन्यवाद ${s}!` },
+  od: { brandName: 'ଆରାଧ୍ୟା ଫାର୍ମାସ୍ୟୁଟିକଲ୍ସ', shopPh: '🏪 ଦୋକାନ ନାମ', mobilePh: '📱 ମୋବାଇଲ୍ ନଂ.', searchPh: 'ନାମ, କମ୍ପାନୀ ଖୋଜନ୍ତୁ...', allCo: '🏭 ସମସ୍ତ କମ୍ପାନୀ', allCx: '🧪 ସମସ୍ତ ସଂରଚନା', addCart: '+ କାର୍ଟରେ ଯୋଡ଼ନ୍ତୁ', checkout: 'WhatsApp ଅର୍ଡ଼ର', noProducts: 'ଉତ୍ପାଦ ମିଳିଲା ନାହିଁ', errBoth: 'ଦୋକାନ ଓ ମୋବାଇଲ ଦିଅନ୍ତୁ', errShop: 'ଦୋକାନ ନାମ ଦିଅନ୍ତୁ', errMobile: 'ମୋବାଇଲ ନଂ ଦିଅନ୍ତୁ', errCart: 'କାର୍ଟ ଖାଲି', taxLabel: 'କର (5%)', welcome: (n) => `✅ ${n} ଉତ୍ପାଦ ଲୋଡ ହେଲା`, found: (n) => `🔍 ${n} ଉତ୍ପାଦ ମିଳିଲା`, added: (n) => `➕ ${n} ଯୋଡ଼ା ଗଲା`, orderMsg: (c, t, tax, final, s) => `ଅର୍ଡ଼ର ଦିଆଗଲା! ${c} ଆଇଟମ୍. ₹${t.toFixed(2)} +5% = ₹${final.toFixed(2)}. ଧନ୍ୟବାଦ ${s}!` }
 };
 
 let curLang = localStorage.getItem('aa_lang') || 'en';
@@ -174,7 +184,7 @@ let products = [], filtered = [], cart = {}, visible = 12;
 
 function t(key, ...args) { let v = LANG[curLang][key] || LANG.en[key]; return typeof v === 'function' ? v(...args) : v || ''; }
 
-// ========== VOICE (Simplified but fully functional) ==========
+// ========== VOICE ==========
 function speak(text, priority = false) {
   if (!text) return;
   if (priority && window.speechSynthesis) window.speechSynthesis.cancel();
@@ -195,159 +205,148 @@ function closeLang() { document.getElementById('langSheet').style.display = 'non
 function openTheme() { document.getElementById('tSheet').style.display = 'block'; document.getElementById('tOverlay').style.display = 'block'; }
 function closeTheme() { document.getElementById('tSheet').style.display = 'none'; document.getElementById('tOverlay').style.display = 'none'; }
 
-// ========== GOOGLE SHEETS DATA FETCH - WORKING APPROACH ==========
-// Using Google Sheets JSON API (public sheets)
-// First try: Direct CSV export with cache-busting
-// Second try: Google Sheets API v4 public read
+// ========== GOOGLE SHEETS DATA FETCH - WORKING METHOD ==========
+// Using the published CSV URL - the key is to use the correct format
+// Your sheet ID from the URL: 2PACX-1vSkoAFrWFkerY629v3zhsV5q3NggnlHgSgBqZ2CnAK3n0riqW24dZN3iWm_JJz-XPf9Dtgkayaey-Vg
+const GOOGLE_SHEET_ID = '2PACX-1vSkoAFrWFkerY629v3zhsV5q3NggnlHgSgBqZ2CnAK3n0riqW24dZN3iWm_JJz-XPf9Dtgkayaey-Vg';
 
 async function fetchGoogleSheetData() {
-  const sheetId = '2PACX-1vSkoAFrWFkerY629v3zhsV5q3NggnlHgSgBqZ2CnAK3n0riqW24dZN3iWm_JJz-XPf9Dtgkayaey-Vg';
-  const gid = '0';
-  
-  // Method 1: Try CSV export with no-cors mode (may still work if sheet is public)
-  const csvUrl = `https://docs.google.com/spreadsheets/d/e/${sheetId}/pub?gid=${gid}&single=true&output=csv`;
+  // Method 1: Try CSV export with cache busting
+  const csvUrl = `https://docs.google.com/spreadsheets/d/e/${GOOGLE_SHEET_ID}/pub?output=csv&t=${Date.now()}`;
   
   try {
-    const response = await fetch(csvUrl, { cache: 'no-store', mode: 'cors' });
+    const response = await fetch(csvUrl, { cache: 'no-store' });
     if (response.ok) {
       const text = await response.text();
-      if (text && !text.includes('<html') && text.includes(',')) {
-        return parseCSVData(text);
+      // Check if we got valid CSV (not HTML)
+      if (text && !text.includes('<!DOCTYPE') && !text.includes('<html') && text.includes(',')) {
+        return parseCSV(text);
       }
     }
-    throw new Error('CSV fetch failed');
+    throw new Error('CSV fetch returned invalid data');
   } catch (e) {
-    console.log('CSV fetch failed, trying alternative method...');
-    // Method 2: Use Google Sheets JSONP callback approach (more reliable for public sheets)
-    return await fetchViaSheetsAPI(sheetId, gid);
+    console.log('CSV fetch failed:', e);
+    // Method 2: Try with specific gid=0
+    try {
+      const altUrl = `https://docs.google.com/spreadsheets/d/e/${GOOGLE_SHEET_ID}/pub?gid=0&single=true&output=csv`;
+      const response = await fetch(altUrl, { cache: 'no-store' });
+      if (response.ok) {
+        const text = await response.text();
+        if (text && !text.includes('<html') && text.includes(',')) {
+          return parseCSV(text);
+        }
+      }
+    } catch (e2) {}
+    
+    // Method 3: Use allorigins proxy as fallback
+    try {
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://docs.google.com/spreadsheets/d/e/${GOOGLE_SHEET_ID}/pub?output=csv`)}`;
+      const response = await fetch(proxyUrl);
+      if (response.ok) {
+        const text = await response.text();
+        if (text && text.includes(',')) {
+          return parseCSV(text);
+        }
+      }
+    } catch (e3) {}
+    
+    return null;
   }
 }
 
-function parseCSVData(csvText) {
+function parseCSV(csvText) {
   const rows = [];
   let row = [], col = '', quote = false;
   for (let i = 0; i < csvText.length; i++) {
     let ch = csvText[i];
     if (ch === '"') quote = !quote;
-    else if (ch === ',' && !quote) { row.push(col); col = ''; }
+    else if (ch === ',' && !quote) { row.push(col.trim()); col = ''; }
     else if ((ch === '\n' || ch === '\r') && !quote) {
-      if (col || row.length) { row.push(col); rows.push(row); row = []; col = ''; }
+      if (col || row.length) { row.push(col.trim()); rows.push(row); row = []; col = ''; }
     } else col += ch;
   }
-  if (col) row.push(col);
+  if (col) row.push(col.trim());
   if (row.length) rows.push(row);
   return rows;
 }
 
-async function fetchViaSheetsAPI(sheetId, gid) {
-  // Use Google Sheets v4 API with public read - requires sheet to be published to web
-  const tsvUrl = `https://docs.google.com/spreadsheets/d/e/${sheetId}/pub?gid=${gid}&single=true&output=tsv`;
-  try {
-    const response = await fetch(tsvUrl, { cache: 'no-store' });
-    if (response.ok) {
-      const text = await response.text();
-      if (text && !text.includes('<html')) {
-        // Parse TSV
-        const rows = text.split('\n').map(line => line.split('\t'));
-        if (rows.length > 1) return rows;
-      }
-    }
-    throw new Error('TSV fetch failed');
-  } catch (e) {
-    console.log('All fetch methods failed, using demo data with instructions');
-    return null;
-  }
+function toImageUrl(url) {
+  if (!url) return '';
+  url = url.trim();
+  if (!url) return '';
+  // Google Drive image
+  let driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (driveMatch) return `https://lh3.googleusercontent.com/d/${driveMatch[1]}=w400`;
+  // Direct image URL
+  if (url.startsWith('http')) return url;
+  return '';
 }
 
-// Alternative: Use a CORS proxy as last resort
-async function fetchWithProxy() {
-  const sheetUrl = 'https://docs.google.com/spreadsheets/d/1PlaceholderSheetID/export?format=csv';
-  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(sheetUrl)}`;
-  try {
-    const response = await fetch(proxyUrl);
-    if (response.ok) {
-      const text = await response.text();
-      return parseCSVData(text);
-    }
-  } catch(e) {}
-  return null;
-}
-
-// MAIN DATA LOADER
 async function loadProducts() {
   const listEl = document.getElementById('list');
-  listEl.innerHTML = '<div class="loading-state"><div class="spinner"></div><span>🔄 Connecting to Google Sheets...</span></div>';
+  listEl.innerHTML = '<div class="loading-state"><div class="spinner"></div><span>📡 Fetching data from Google Sheets...</span></div>';
   
-  let rows = await fetchGoogleSheetData();
+  const rows = await fetchGoogleSheetData();
   
   if (!rows || rows.length < 2) {
-    // Show demo data with instructions
-    listEl.innerHTML = `<div class="empty-state"><div style="font-size:2.5rem">📊</div><div><strong>Google Sheet Connection Issue</strong></div><div style="font-size:0.8rem;margin-top:8px">Please ensure your Google Sheet is published to web:<br>File → Share → Publish to web → CSV</div><div style="font-size:0.7rem;margin-top:12px">Using demo data temporarily.</div></div>`;
-    
-    // DEMO PRODUCTS (for testing)
-    products = [
-      { id: 0, name: 'Paracetamol 500mg', pack: '10 Tablets', mrp: 50, rate: 45, company: 'Cipla Ltd.', composition: 'Paracetamol IP 500mg', images: [] },
-      { id: 1, name: 'Amoxicillin 250mg', pack: '15 Capsules', mrp: 120, rate: 108, company: 'GlaxoSmithKline', composition: 'Amoxicillin Trihydrate IP 250mg', images: [] },
-      { id: 2, name: 'Azithromycin 500mg', pack: '5 Tablets', mrp: 180, rate: 162, company: 'Sun Pharma', composition: 'Azithromycin Dihydrate IP 500mg', images: [] },
-      { id: 3, name: 'Cetirizine 10mg', pack: '10 Tablets', mrp: 35, rate: 31, company: 'Cipla Ltd.', composition: 'Cetirizine Hydrochloride IP 10mg', images: [] },
-      { id: 4, name: 'Dolo 650mg', pack: '15 Tablets', mrp: 65, rate: 58, company: 'Micro Labs', composition: 'Paracetamol IP 650mg', images: [] },
-      { id: 5, name: 'Calpol 500mg', pack: '10 Tablets', mrp: 45, rate: 40, company: 'Johnson & Johnson', composition: 'Paracetamol IP 500mg', images: [] }
-    ];
-    filtered = [...products];
-    buildDropdowns();
-    render(true);
-    showModal('📊', 'Using demo data. To use your Google Sheet, publish it to web as CSV.');
+    listEl.innerHTML = `<div class="empty-state"><div style="font-size:2rem">📊</div><div>Unable to fetch from Google Sheets</div><div style="font-size:0.75rem;margin-top:8px">Please ensure your sheet is published:<br>File → Share → Publish to web → CSV</div></div>`;
     return;
   }
   
-  // Parse actual sheet data
-  let headers = rows[0].map(h => (h || '').toLowerCase().trim());
-  let colName = headers.findIndex(h => h.includes('product') || h.includes('name') || h === 'medicine');
-  let colPack = headers.findIndex(h => h.includes('pack') || h.includes('qty') || h === 'size');
-  let colMrp = headers.findIndex(h => h.includes('mrp') || h === 'mrp');
-  let colRate = headers.findIndex(h => h.includes('rate') || h.includes('ptr') || h === 'price');
-  let colCompany = headers.findIndex(h => h.includes('company') || h.includes('manufacturer') || h === 'brand');
-  let colComposition = headers.findIndex(h => h.includes('composition') || h.includes('salt') || h === 'ingredient');
+  // First row is headers - find column indices
+  const headers = rows[0].map(h => String(h || '').toLowerCase().trim());
   
-  // Fallback indices if headers not found
-  if (colName < 0) colName = 0;
-  if (colPack < 0) colPack = 1;
-  if (colMrp < 0) colMrp = 3;
-  if (colRate < 0) colRate = 4;
-  if (colCompany < 0) colCompany = 5;
-  if (colComposition < 0) colComposition = 6;
+  // Find column indices with flexible matching
+  const colIdx = {
+    name: headers.findIndex(h => h.includes('product') || h.includes('name') || h === 'medicine'),
+    pack: headers.findIndex(h => h.includes('pack') || h.includes('qty') || h === 'size'),
+    mrp: headers.findIndex(h => h.includes('mrp')),
+    rate: headers.findIndex(h => h.includes('rate') || h.includes('ptr') || h === 'price'),
+    company: headers.findIndex(h => h.includes('company') || h.includes('manufacturer') || h === 'brand'),
+    composition: headers.findIndex(h => h.includes('composition') || h.includes('salt') || h === 'ingredient')
+  };
+  
+  // Default fallback indices
+  if (colIdx.name < 0) colIdx.name = 0;
+  if (colIdx.pack < 0) colIdx.pack = 1;
+  if (colIdx.mrp < 0) colIdx.mrp = 3;
+  if (colIdx.rate < 0) colIdx.rate = 4;
+  if (colIdx.company < 0) colIdx.company = 5;
+  if (colIdx.composition < 0) colIdx.composition = 6;
   
   products = [];
+  
   for (let i = 1; i < rows.length; i++) {
-    let r = rows[i];
-    let images = [];
-    // Look for image URLs in columns 8 onward
+    const r = rows[i];
+    if (!r || r.length === 0) continue;
+    
+    const name = (r[colIdx.name] || '').trim();
+    if (!name) continue;
+    
+    // Extract images from columns 8 onwards (index 8+)
+    const images = [];
     for (let j = 8; j < r.length; j++) {
-      let url = (r[j] || '').trim();
-      if (url && (url.startsWith('http') || url.includes('drive.google'))) {
-        let imgUrl = url;
-        let driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
-        if (driveMatch) imgUrl = `https://lh3.googleusercontent.com/d/${driveMatch[1]}=w400`;
-        images.push(imgUrl);
+      const url = (r[j] || '').trim();
+      if (url) {
+        const imgUrl = toImageUrl(url);
+        if (imgUrl) images.push(imgUrl);
       }
     }
-    let name = (r[colName] || '').trim();
-    if (name) {
-      products.push({
-        id: i - 1,
-        name: name,
-        pack: (r[colPack] || '').trim(),
-        mrp: parseFloat((r[colMrp] || '').toString().replace(/[^\d.]/g, '')) || 0,
-        rate: parseFloat((r[colRate] || '').toString().replace(/[^\d.]/g, '')) || 0,
-        company: (r[colCompany] || '').trim(),
-        composition: (r[colComposition] || '').trim(),
-        images: images.slice(0, 5) // limit to 5 images
-      });
-    }
+    
+    products.push({
+      id: i - 1,
+      name: name,
+      pack: (r[colIdx.pack] || '').trim(),
+      mrp: parseFloat(String(r[colIdx.mrp] || '0').replace(/[^\d.]/g, '')) || 0,
+      rate: parseFloat(String(r[colIdx.rate] || '0').replace(/[^\d.]/g, '')) || 0,
+      company: (r[colIdx.company] || '').trim(),
+      composition: (r[colIdx.composition] || '').trim(),
+      images: images.slice(0, 5)
+    });
   }
   
   if (products.length === 0) {
-    listEl.innerHTML = '<div class="empty-state"><div>⚠️ No products found in sheet</div></div>';
+    listEl.innerHTML = '<div class="empty-state"><div>⚠️ No valid products found in sheet</div></div>';
     return;
   }
   
@@ -361,9 +360,11 @@ async function loadProducts() {
 function buildDropdowns() {
   let companies = [...new Set(products.map(p => p.company).filter(Boolean))].sort();
   let compositions = [...new Set(products.map(p => p.composition).filter(Boolean))].sort();
+  
   let fc = document.getElementById('filterCompany');
   fc.innerHTML = '<option value="">' + t('allCo') + '</option>';
   companies.forEach(c => { let o = document.createElement('option'); o.value = c; o.textContent = c; fc.appendChild(o); });
+  
   let fx = document.getElementById('filterComposition');
   fx.innerHTML = '<option value="">' + t('allCx') + '</option>';
   compositions.forEach(c => { let o = document.createElement('option'); o.value = c; o.textContent = c; fx.appendChild(o); });
@@ -373,12 +374,14 @@ function doFilter() {
   let s = document.getElementById('search').value.toLowerCase().trim();
   let co = document.getElementById('filterCompany').value;
   let cx = document.getElementById('filterComposition').value;
+  
   filtered = products.filter(p => {
     if (co && p.company !== co) return false;
     if (cx && p.composition !== cx) return false;
     if (s && !(p.name.toLowerCase().includes(s) || p.company.toLowerCase().includes(s) || (p.composition || '').toLowerCase().includes(s))) return false;
     return true;
   });
+  
   visible = 12;
   render(true);
   if (filtered.length && (s || co || cx)) speak(t('found', filtered.length));
@@ -387,15 +390,31 @@ function doFilter() {
 function render(reset) {
   let list = document.getElementById('list');
   if (reset) list.innerHTML = '';
-  if (!filtered.length) { list.innerHTML = '<div class="empty-state">🔍 ' + t('noProducts') + '</div>'; return; }
+  if (!filtered.length) { 
+    list.innerHTML = '<div class="empty-state">🔍 ' + t('noProducts') + '</div>'; 
+    return; 
+  }
+  
   filtered.slice(0, visible).forEach(p => {
     if (document.getElementById('card-' + p.id)) return;
-    let card = document.createElement('div'); card.className = 'item'; card.id = 'card-' + p.id;
-    let imgWrap = document.createElement('div'); imgWrap.className = 'item-img-wrap';
+    
+    let card = document.createElement('div'); 
+    card.className = 'item'; 
+    card.id = 'card-' + p.id;
+    
+    let imgWrap = document.createElement('div'); 
+    imgWrap.className = 'item-img-wrap';
     buildCarousel(imgWrap, p.images || [], p.name);
     card.appendChild(imgWrap);
-    let content = document.createElement('div'); content.className = 'item-content';
-    content.innerHTML = `<div class="item-name">${escapeHtml(p.name)}</div><div class="item-company">${escapeHtml(p.company)}</div><span class="item-pack">📦 ${escapeHtml(p.pack)}</span>${p.composition ? `<div class="item-composition">🧪 ${escapeHtml(p.composition)}</div>` : ''}<div class="price-row"><span class="rate-price">₹${p.rate.toFixed(2)}</span><span class="mrp-price">MRP ₹${p.mrp.toFixed(2)}</span></div><div class="controls" id="ctrl-${p.id}">${mkCtrl(p.id, cart[p.id] || 0)}</div>`;
+    
+    let content = document.createElement('div'); 
+    content.className = 'item-content';
+    content.innerHTML = `<div class="item-name">${escapeHtml(p.name)}</div>
+      <div class="item-company">${escapeHtml(p.company)}</div>
+      <span class="item-pack">📦 ${escapeHtml(p.pack)}</span>
+      ${p.composition ? `<div class="item-composition">🧪 ${escapeHtml(p.composition)}</div>` : ''}
+      <div class="price-row"><span class="rate-price">₹${p.rate.toFixed(2)}</span><span class="mrp-price">MRP ₹${p.mrp.toFixed(2)}</span></div>
+      <div class="controls" id="ctrl-${p.id}">${mkCtrl(p.id, cart[p.id] || 0)}</div>`;
     card.appendChild(content);
     list.appendChild(card);
   });
@@ -432,7 +451,7 @@ function getTotals() {
 
 function refreshCart() {
   let { subtotal, tax, final, count } = getTotals();
-  document.getElementById('cartCount').innerText = count === 0 ? '0 items' : `${count} item${count !== 1 ? 's' : ''}`;
+  document.getElementById('cartCount').innerText = count === 0 ? '0 items' : `${count} item${count !== 1 ? 's' : ''} in cart`;
   document.getElementById('cartTotal').innerHTML = `₹${final.toFixed(2)}`;
   let badge = document.getElementById('taxBadge');
   if (count > 0 && tax > 0.01) { badge.style.display = 'inline-flex'; badge.innerHTML = `+5% Tax (₹${tax.toFixed(2)})`; }
@@ -446,7 +465,8 @@ function sendOrder() {
   if (!mob) { showModal('📱', t('errMobile'), () => highlight('mobile')); return; }
   let { subtotal, tax, final, count } = getTotals();
   if (!count) { showModal('🛒', t('errCart')); return; }
-  let msg = `🧾 *New Order*%0A*Shop:* ${encodeURIComponent(shop)}%0A*Mobile:* ${encodeURIComponent(mob)}%0A%0A`;
+  
+  let msg = `🧾 *NEW ORDER*%0A*Shop:* ${encodeURIComponent(shop)}%0A*Mobile:* ${encodeURIComponent(mob)}%0A%0A*ITEMS:*%0A`;
   for (let id in cart) {
     let q = cart[id];
     if (q > 0 && products[id]) {
@@ -454,19 +474,25 @@ function sendOrder() {
       msg += `▪ ${encodeURIComponent(p.name)} × ${q} = ₹${(q * p.rate).toFixed(2)}%0A`;
     }
   }
-  msg += `%0A*Subtotal:* ₹${subtotal.toFixed(2)}%0A*Tax (5%):* ₹${tax.toFixed(2)}%0A*FINAL AMOUNT:* ₹${final.toFixed(2)}%0A%0A*Thank you!*`;
+  msg += `%0A📊 *Subtotal:* ₹${subtotal.toFixed(2)}%0A💰 *Tax (5%):* ₹${tax.toFixed(2)}%0A💵 *FINAL AMOUNT:* ₹${final.toFixed(2)}%0A%0A🙏 Thank you for your order!`;
+  
   showModal('✅', t('orderMsg', count, subtotal, tax, final, shop));
   speak(t('orderMsg', count, subtotal, tax, final, shop), true);
   closeBill();
   window.open(`https://wa.me/919533762508?text=${msg}`);
 }
 
-function highlight(id) { let el = document.getElementById(id); el.classList.add('input-error'); setTimeout(() => el.classList.remove('input-error'), 1500); }
+function highlight(id) { 
+  let el = document.getElementById(id); 
+  el.classList.add('input-error'); 
+  setTimeout(() => el.classList.remove('input-error'), 1500); 
+}
 
 function openBill() {
   let shop = document.getElementById('shop').value.trim(), mob = document.getElementById('mobile').value.trim();
   if (!shop) { showModal('🏪', t('errShop'), () => highlight('shop')); return; }
   if (!mob) { showModal('📱', t('errMobile'), () => highlight('mobile')); return; }
+  
   let items = [];
   for (let id in cart) {
     let q = cart[id];
@@ -476,71 +502,190 @@ function openBill() {
     }
   }
   if (!items.length) { showModal('🛒', t('errCart')); return; }
+  
   let { subtotal, tax, final } = getTotals();
   let now = new Date();
-  document.getElementById('boDate').innerHTML = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
-  let rows = items.map(it => `<tr><td><strong>${escapeHtml(it.name)}</strong><br><small>${escapeHtml(it.company)}</small><br><span style="font-size:10px">${escapeHtml(it.pack)}</span></td><td class="c">${it.qty}</td><td class="r">₹${it.rate.toFixed(2)}</td><td class="r">₹${it.amount.toFixed(2)}</td></tr>`).join('');
-  document.getElementById('boBody').innerHTML = `<div class="bill-card"><div class="bill-shop"><strong>💊 Aaradhya Pharmaceuticals</strong><div class="bill-shop-meta"><span><strong>${escapeHtml(shop)}</strong>Shop</span><span><strong>${escapeHtml(mob)}</strong>Mobile</span><span><strong>${now.toLocaleDateString()}</strong>Date</span></div></div><div class="bill-sec-hdr">📋 Ordered Items</div><table class="bill-tbl"><thead><tr><th>Product</th><th class="c">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead><tbody>${rows}</tbody></table><div class="bill-tax-row"><span>Subtotal</span><span>₹${subtotal.toFixed(2)}</span></div><div class="bill-tax-row" style="background:#e8f2ff"><span>Tax (5%)</span><span><strong>₹${tax.toFixed(2)}</strong></span></div><div class="bill-tax-row" style="background:#d1fae5;border-left-color:#10b981"><span><strong>FINAL AMOUNT</strong></span><span><strong>₹${final.toFixed(2)}</strong></span></div><div class="bill-footer">* Tax calculated at 5% on total | Powered by Aaratech AI</div></div>`;
+  document.getElementById('boDate').innerHTML = now.toLocaleDateString('en-IN') + ' ' + now.toLocaleTimeString('en-IN');
+  
+  let rows = items.map(it => `<tr>
+      <td><div class="bill-pname">${escapeHtml(it.name)}</div><div class="bill-co">${escapeHtml(it.company)}</div>${it.pack ? `<div class="bill-pack">${escapeHtml(it.pack)}</div>` : ''}</td>
+      <td class="c">${it.qty}</td>
+      <td class="r">₹${it.rate.toFixed(2)}</td>
+      <td class="r"><strong>₹${it.amount.toFixed(2)}</strong></td>
+    </tr>`).join('');
+  
+  document.getElementById('boBody').innerHTML = `
+    <div class="bill-card">
+      <div class="bill-shop">
+        <strong>💊 Aaradhya Pharmaceuticals</strong>
+        <div class="bill-shop-meta">
+          <span><strong>${escapeHtml(shop)}</strong>Shop</span>
+          <span><strong>${escapeHtml(mob)}</strong>Mobile</span>
+          <span><strong>${now.toLocaleDateString()}</strong>Date</span>
+        </div>
+      </div>
+      <div class="bill-sec-hdr">📋 ORDERED ITEMS</div>
+      <table class="bill-tbl">
+        <thead><tr><th>Product</th><th class="c">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="bill-tax-row"><span>Subtotal</span><span>₹${subtotal.toFixed(2)}</span></div>
+      <div class="bill-tax-row" style="background:#e8f2ff"><span>Tax (5%)</span><span><strong>₹${tax.toFixed(2)}</strong></span></div>
+      <div class="bill-tax-row" style="background:#d1fae5;border-left-color:#10b981"><span><strong>FINAL AMOUNT</strong></span><span><strong>₹${final.toFixed(2)}</strong></span></div>
+      <div class="bill-footer"><em>** Tax calculated at 5% on total amount **</em><br><strong>Aaradhya Pharmaceuticals</strong> | Powered by Aaratech AI</div>
+    </div>`;
+  
   document.getElementById('billOverlay').classList.add('show');
 }
 
 function closeBill() { document.getElementById('billOverlay').classList.remove('show'); }
 
 function buildCarousel(wrap, images, name) {
-  if (!images || !images.length) { wrap.innerHTML = '<div class="item-img-blank"><span>📷</span></div>'; return; }
+  if (!images || !images.length) { 
+    wrap.innerHTML = '<div class="item-img-blank"><span>📷</span></div>'; 
+    return; 
+  }
+  
   let cur = 0, total = images.length;
-  let trackWrap = document.createElement('div'); trackWrap.style.cssText = 'width:100%;height:100%;overflow:hidden;position:relative;';
-  let track = document.createElement('div'); track.className = 'img-track-inner'; track.style.cssText = 'display:flex;width:100%;height:100%;transition:transform .3s ease;';
+  let trackWrap = document.createElement('div'); 
+  trackWrap.style.cssText = 'width:100%;height:100%;overflow:hidden;position:relative;';
+  let track = document.createElement('div'); 
+  track.className = 'img-track-inner'; 
+  track.style.cssText = 'display:flex;width:100%;height:100%;transition:transform .3s ease;';
+  
   images.forEach((src, i) => {
-    let slide = document.createElement('div'); slide.style.cssText = 'min-width:100%;width:100%;flex-shrink:0;';
-    let img = document.createElement('img'); img.src = src; img.alt = name; img.style.cssText = 'width:100%;height:auto;min-height:110px;object-fit:cover;display:block;';
+    let slide = document.createElement('div'); 
+    slide.style.cssText = 'min-width:100%;width:100%;flex-shrink:0;';
+    let img = document.createElement('img'); 
+    img.src = src; 
+    img.alt = name; 
+    img.style.cssText = 'width:100%;height:auto;min-height:110px;object-fit:cover;display:block;';
     img.onerror = () => slide.innerHTML = '<div class="item-img-blank"><span>📷</span></div>';
     slide.appendChild(img);
     slide.addEventListener('click', () => openLightbox(images, i, name));
     track.appendChild(slide);
   });
+  
   trackWrap.appendChild(track);
   wrap.appendChild(trackWrap);
+  
   if (total > 1) {
-    let dots = document.createElement('div'); dots.className = 'img-dots';
+    let dots = document.createElement('div'); 
+    dots.className = 'img-dots';
     for (let d = 0; d < total; d++) {
-      let dot = document.createElement('div'); dot.className = 'img-dot' + (d === 0 ? ' active' : '');
+      let dot = document.createElement('div'); 
+      dot.className = 'img-dot' + (d === 0 ? ' active' : '');
       dot.onclick = (e) => { e.stopPropagation(); cur = d; update(); };
       dots.appendChild(dot);
     }
     wrap.appendChild(dots);
-    let prev = document.createElement('button'); prev.className = 'img-arrow prev'; prev.innerHTML = '‹';
+    
+    let prev = document.createElement('button'); 
+    prev.className = 'img-arrow prev'; 
+    prev.innerHTML = '‹';
     prev.onclick = (e) => { e.stopPropagation(); cur = (cur - 1 + total) % total; update(); };
-    let next = document.createElement('button'); next.className = 'img-arrow next'; next.innerHTML = '›';
+    
+    let next = document.createElement('button'); 
+    next.className = 'img-arrow next'; 
+    next.innerHTML = '›';
     next.onclick = (e) => { e.stopPropagation(); cur = (cur + 1) % total; update(); };
-    wrap.appendChild(prev); wrap.appendChild(next);
-    function update() { track.style.transform = `translateX(-${cur * 100}%)`; dots.querySelectorAll('.img-dot').forEach((d, i) => d.classList.toggle('active', i === cur)); }
+    
+    wrap.appendChild(prev); 
+    wrap.appendChild(next);
+    
+    function update() { 
+      track.style.transform = `translateX(-${cur * 100}%)`; 
+      dots.querySelectorAll('.img-dot').forEach((d, i) => d.classList.toggle('active', i === cur)); 
+    }
   }
 }
 
 let lbImages = [], lbIndex = 0, zoomScale = 1;
-function openLightbox(images, idx, name) { lbImages = images; lbIndex = idx; document.getElementById('lightbox-img').src = images[idx]; document.getElementById('lbTitle').innerText = `${name} (${idx+1}/${images.length})`; document.getElementById('lightbox').classList.add('show'); document.getElementById('lbPrev').style.display = images.length > 1 ? 'flex' : 'none'; document.getElementById('lbNext').style.display = images.length > 1 ? 'flex' : 'none'; zoomScale = 1; document.getElementById('lightbox-img').style.transform = 'scale(1)'; }
+function openLightbox(images, idx, name) { 
+  lbImages = images; 
+  lbIndex = idx; 
+  document.getElementById('lightbox-img').src = images[idx]; 
+  document.getElementById('lbTitle').innerText = `${name} (${idx+1}/${images.length})`; 
+  document.getElementById('lightbox').classList.add('show'); 
+  document.getElementById('lbPrev').style.display = images.length > 1 ? 'flex' : 'none'; 
+  document.getElementById('lbNext').style.display = images.length > 1 ? 'flex' : 'none'; 
+  zoomScale = 1; 
+  document.getElementById('lightbox-img').style.transform = 'scale(1)'; 
+}
 function closeLightbox() { document.getElementById('lightbox').classList.remove('show'); }
-function lbGalleryNav(dir) { if (!lbImages.length) return; lbIndex = (lbIndex + dir + lbImages.length) % lbImages.length; document.getElementById('lightbox-img').src = lbImages[lbIndex]; document.getElementById('lbTitle').innerText = `${lbIndex+1}/${lbImages.length}`; zoomScale = 1; document.getElementById('lightbox-img').style.transform = 'scale(1)'; document.getElementById('lbZoomLabel').innerText = '100%'; }
-function lbZoom(d) { zoomScale = Math.min(4, Math.max(0.5, zoomScale + d)); document.getElementById('lightbox-img').style.transform = `scale(${zoomScale})`; document.getElementById('lbZoomLabel').innerText = Math.round(zoomScale * 100) + '%'; }
-function lbReset() { zoomScale = 1; document.getElementById('lightbox-img').style.transform = 'scale(1)'; document.getElementById('lbZoomLabel').innerText = '100%'; }
+function lbGalleryNav(dir) { 
+  if (!lbImages.length) return; 
+  lbIndex = (lbIndex + dir + lbImages.length) % lbImages.length; 
+  document.getElementById('lightbox-img').src = lbImages[lbIndex]; 
+  document.getElementById('lbTitle').innerText = `${lbIndex+1}/${lbImages.length}`; 
+  zoomScale = 1; 
+  document.getElementById('lightbox-img').style.transform = 'scale(1)'; 
+  document.getElementById('lbZoomLabel').innerText = '100%'; 
+}
+function lbZoom(d) { 
+  zoomScale = Math.min(4, Math.max(0.5, zoomScale + d)); 
+  document.getElementById('lightbox-img').style.transform = `scale(${zoomScale})`; 
+  document.getElementById('lbZoomLabel').innerText = Math.round(zoomScale * 100) + '%'; 
+}
+function lbReset() { 
+  zoomScale = 1; 
+  document.getElementById('lightbox-img').style.transform = 'scale(1)'; 
+  document.getElementById('lbZoomLabel').innerText = '100%'; 
+}
 
 function downloadBill(fmt) {
-  let card = document.querySelector('#boBody .bill-card'); if (!card) { showModal('⚠️', 'Bill not ready'); return; }
-  let container = document.createElement('div'); container.style.cssText = 'position:fixed;left:-9999px;top:0;width:480px;background:#fff;padding:12px'; container.appendChild(card.cloneNode(true)); document.body.appendChild(container);
+  let card = document.querySelector('#boBody .bill-card'); 
+  if (!card) { showModal('⚠️', 'Bill not ready'); return; }
+  let container = document.createElement('div'); 
+  container.style.cssText = 'position:fixed;left:-9999px;top:0;width:480px;background:#fff;padding:12px'; 
+  container.appendChild(card.cloneNode(true)); 
+  document.body.appendChild(container);
+  
   setTimeout(() => {
-    if (!window.html2canvas) { let s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'; s.onload = () => capture(container, fmt); document.head.appendChild(s); } else capture(container, fmt);
+    if (!window.html2canvas) { 
+      let s = document.createElement('script'); 
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'; 
+      s.onload = () => capture(container, fmt); 
+      document.head.appendChild(s); 
+    } else capture(container, fmt);
   }, 100);
 }
-function capture(container, fmt) { html2canvas(container, { scale: 2, backgroundColor: '#fff' }).then(canvas => { document.body.removeChild(container); if (fmt === 'jpg') canvas.toBlob(blob => { let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Bill_${Date.now()}.jpg`; a.click(); }, 'image/jpeg'); else { if (!window.jspdf) { let s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'; s.onload = () => makePDF(canvas); document.head.appendChild(s); } else makePDF(canvas); } showModal('📄', 'Bill downloaded'); }).catch(() => { document.body.removeChild(container); showModal('⚠️', 'Download failed'); }); }
-function makePDF(canvas) { let { jsPDF } = window.jspdf; let pdf = new jsPDF({ unit: 'mm', format: 'a4' }); pdf.addImage(canvas.toDataURL('image/jpeg'), 'JPEG', 0, 0, 210, canvas.height * 210 / canvas.width); pdf.save(`Bill_${Date.now()}.pdf`); }
-function escapeHtml(str) { return (str || '').replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
+
+function capture(container, fmt) { 
+  html2canvas(container, { scale: 2, backgroundColor: '#fff' }).then(canvas => { 
+    document.body.removeChild(container); 
+    if (fmt === 'jpg') {
+      canvas.toBlob(blob => { let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Bill_${Date.now()}.jpg`; a.click(); }, 'image/jpeg'); 
+    } else { 
+      if (!window.jspdf) { 
+        let s = document.createElement('script'); 
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'; 
+        s.onload = () => makePDF(canvas); 
+        document.head.appendChild(s); 
+      } else makePDF(canvas); 
+    } 
+    showModal('📄', 'Bill downloaded'); 
+  }).catch(() => { document.body.removeChild(container); showModal('⚠️', 'Download failed'); }); 
+}
+
+function makePDF(canvas) { 
+  let { jsPDF } = window.jspdf; 
+  let pdf = new jsPDF({ unit: 'mm', format: 'a4' }); 
+  pdf.addImage(canvas.toDataURL('image/jpeg'), 'JPEG', 0, 0, 210, canvas.height * 210 / canvas.width); 
+  pdf.save(`Bill_${Date.now()}.pdf`); 
+}
+
+function escapeHtml(str) { 
+  return (str || '').replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); 
+}
 
 // Initialize
 applyLang(curLang);
 applyTheme(localStorage.getItem('aa_theme') || 'pharma');
 refreshCart();
-loadProducts(); // Load from Google Sheets
+loadProducts();
+
+// Infinite scroll
 new IntersectionObserver(e => { if (e[0].isIntersecting) { visible += 12; render(false); } }, { rootMargin: '200px' }).observe(document.getElementById('sentinel'));
 </script>
 </body>
