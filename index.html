@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Aaradhya Pharmaceuticals Order App v2.6.0 - Full Bill Format with Company-wise Summary + 5% Tax -->
+<!-- Aaradhya Pharmaceuticals Order App v2.6.1 - Full Bill Format with Company-wise Summary + 5% Tax + Google Sheets + Static Fallback -->
 <html lang="en" data-theme="pharma" data-lang="en">
 <head>
 <meta charset="UTF-8">
@@ -61,7 +61,6 @@ body{font-family:var(--font);background:var(--body-bg);color:var(--text-primary)
 .img-dot.active{background:#fff;transform:scale(1.3)}
 .img-arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.45);color:#fff;border:none;width:20px;height:20px;border-radius:50%;font-size:.7rem;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;opacity:0}
 .item-img-wrap:hover .img-arrow{opacity:1}
-.img-tap-hint{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.45);color:#fff;font-size:.55rem;padding:2px 5px;border-radius:4px;pointer-events:none}
 #lightbox{display:none;position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.92);backdrop-filter:blur(6px);flex-direction:column;align-items:center;justify-content:center}
 #lightbox.show{display:flex}
 #lightbox-img-wrap{position:relative;width:100%;flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden}
@@ -158,15 +157,7 @@ body{font-family:var(--font);background:var(--body-bg);color:var(--text-primary)
 </style>
 </head>
 <body>
-<header class="header">
-  <div class="header-top">
-    <div class="brand"><span class="brand-icon" id="brandIcon">💊</span><div class="brand-text"><span class="brand-name" id="brandName">Aaradhya Pharmaceuticals</span><span class="brand-version">v2.6</span></div></div>
-    <div class="header-actions"><button class="lang-btn" id="langBtn" onclick="openLang()">🌐 EN</button><button class="theme-btn" id="themeBtn" onclick="openTheme()">🎨 Theme</button></div>
-  </div>
-  <div class="hrow cols2"><input id="shop" type="text" placeholder="🏪 Shop Name"><input id="mobile" type="tel" inputmode="numeric" placeholder="📱 Mobile No."></div>
-  <div class="hrow cols2"><div class="swrap"><span class="sicon">🔍</span><input id="search" oninput="doFilter()" placeholder="Search name, company..."></div><select id="filterCompany" onchange="doFilter()"></select></div>
-  <div class="hrow cols1"><select id="filterComposition" onchange="doFilter()"></select></div>
-</header>
+<header class="header"><div class="header-top"><div class="brand"><span class="brand-icon" id="brandIcon">💊</span><div class="brand-text"><span class="brand-name" id="brandName">Aaradhya Pharmaceuticals</span><span class="brand-version">v2.6</span></div></div><div class="header-actions"><button class="lang-btn" id="langBtn" onclick="openLang()">🌐 EN</button><button class="theme-btn" id="themeBtn" onclick="openTheme()">🎨 Theme</button></div></div><div class="hrow cols2"><input id="shop" type="text" placeholder="🏪 Shop Name"><input id="mobile" type="tel" inputmode="numeric" placeholder="📱 Mobile No."></div><div class="hrow cols2"><div class="swrap"><span class="sicon">🔍</span><input id="search" oninput="doFilter()" placeholder="Search name, company..."></div><select id="filterCompany" onchange="doFilter()"></select></div><div class="hrow cols1"><select id="filterComposition" onchange="doFilter()"></select></div></header>
 <div id="list"><div class="loading-state"><div class="spinner"></div><span>📡 Fetching data from Google Sheets...</span></div></div>
 <div id="sentinel"></div>
 <div class="cart-bar"><div class="cart-bar-top"><div class="cart-info"><span class="cart-count" id="cartCount">0 items</span><span class="cart-total" id="cartTotal">₹0.00</span><span class="tax-badge" id="taxBadge" style="display:none">+5% Tax</span></div><div class="cart-btns"><button class="btn-bill" onclick="openBill()">🧾 Bill</button><button class="btn-checkout" onclick="sendOrder()">🛒 <span id="checkoutText">WhatsApp Order</span></button></div></div><div class="cart-footer"><span>© Aaradhya Pharmaceuticals 2026</span><span>|</span><span>Powered by <span class="cf-ai">AI</span></span></div></div>
@@ -188,91 +179,64 @@ let curLang = localStorage.getItem('aa_lang') || 'en';
 let products = [], filtered = [], cart = {}, visible = 12;
 
 function t(key, ...args) { let v = LANG[curLang][key] || LANG.en[key]; return typeof v === 'function' ? v(...args) : v || ''; }
-
-// ========== VOICE ==========
-function speak(text, priority = false) {
-  if (!text) return;
-  if (priority && window.speechSynthesis) window.speechSynthesis.cancel();
-  if (!window.speechSynthesis) return;
-  let utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = curLang === 'hi' ? 'hi-IN' : curLang === 'od' ? 'or-IN' : 'en-IN';
-  utterance.rate = 0.9;
-  window.speechSynthesis.speak(utterance);
-}
-
-// ========== CORE FUNCTIONS ==========
-function applyLang(lang) { curLang = lang; localStorage.setItem('aa_lang', lang); document.documentElement.setAttribute('data-lang', lang); document.getElementById('brandName').innerText = t('brandName'); document.getElementById('shop').placeholder = t('shopPh'); document.getElementById('mobile').placeholder = t('mobilePh'); document.getElementById('search').placeholder = t('searchPh'); document.getElementById('checkoutText').innerText = t('checkout'); refreshCart(); closeLang(); speak(`Language changed`, true); }
+function speak(text) { if (text && window.speechSynthesis) { window.speechSynthesis.cancel(); let utterance = new SpeechSynthesisUtterance(text); utterance.lang = curLang === 'hi' ? 'hi-IN' : curLang === 'od' ? 'or-IN' : 'en-IN'; utterance.rate = 0.9; window.speechSynthesis.speak(utterance); } }
+function applyLang(lang) { curLang = lang; localStorage.setItem('aa_lang', lang); document.documentElement.setAttribute('data-lang', lang); document.getElementById('brandName').innerText = t('brandName'); document.getElementById('shop').placeholder = t('shopPh'); document.getElementById('mobile').placeholder = t('mobilePh'); document.getElementById('search').placeholder = t('searchPh'); document.getElementById('checkoutText').innerText = t('checkout'); refreshCart(); closeLang(); speak(`Language changed`); }
 function applyTheme(theme) { document.documentElement.setAttribute('data-theme', theme); localStorage.setItem('aa_theme', theme); const icons = { pharma: '💊', darknight: '🦇', jungle: '🌿', avengers: '⚡', indian: '🇮🇳' }; document.getElementById('brandIcon').innerText = icons[theme]; closeTheme(); }
-function showModal(emoji, msg, cb) { document.getElementById('mEmo').innerText = emoji; document.getElementById('mTxt').innerText = msg; window.modalCb = cb || null; document.getElementById('alertModal').classList.add('show'); speak(msg, true); }
+function showModal(emoji, msg, cb) { document.getElementById('mEmo').innerText = emoji; document.getElementById('mTxt').innerText = msg; window.modalCb = cb || null; document.getElementById('alertModal').classList.add('show'); speak(msg); }
 function closeModal() { document.getElementById('alertModal').classList.remove('show'); if (window.modalCb) { let cb = window.modalCb; window.modalCb = null; cb(); } }
 function openLang() { document.getElementById('langSheet').style.display = 'block'; document.getElementById('langOverlay').style.display = 'block'; }
 function closeLang() { document.getElementById('langSheet').style.display = 'none'; document.getElementById('langOverlay').style.display = 'none'; }
 function openTheme() { document.getElementById('tSheet').style.display = 'block'; document.getElementById('tOverlay').style.display = 'block'; }
 function closeTheme() { document.getElementById('tSheet').style.display = 'none'; document.getElementById('tOverlay').style.display = 'none'; }
 
-// ========== GOOGLE SHEETS DATA FETCH ==========
-const GOOGLE_SHEET_ID = '2PACX-1vSkoAFrWFkerY629v3zhsV5q3NggnlHgSgBqZ2CnAK3n0riqW24dZN3iWm_JJz-XPf9Dtgkayaey-Vg';
+// ========== FALLBACK STATIC PRODUCTS (if Google Sheets fails) ==========
+const staticProducts = [
+  { name: "Paracetamol 500mg", pack: "10 tablets", mrp: 60, rate: 48, company: "MedLife Pharma", composition: "Paracetamol", images: [] },
+  { name: "Amoxicillin 250mg", pack: "15 capsules", mrp: 120, rate: 98, company: "Curewell", composition: "Amoxicillin Trihydrate", images: [] },
+  { name: "Cetirizine 10mg", pack: "10 tablets", mrp: 45, rate: 36, company: "AllerGo", composition: "Cetirizine HCl", images: [] },
+  { name: "Azithromycin 500mg", pack: "5 tablets", mrp: 190, rate: 160, company: "Zithrocare", composition: "Azithromycin", images: [] },
+  { name: "Metformin 500mg", pack: "10 tablets", mrp: 40, rate: 32, company: "Diabetex", composition: "Metformin HCl", images: [] },
+  { name: "Omeprazole 20mg", pack: "10 capsules", mrp: 80, rate: 65, company: "GastroHealth", composition: "Omeprazole", images: [] },
+  { name: "Dolo 650mg", pack: "15 tablets", mrp: 55, rate: 45, company: "Micro Labs", composition: "Paracetamol", images: [] },
+  { name: "Vitamin D3 60k", pack: "4 capsules", mrp: 180, rate: 145, company: "NutriLife", composition: "Cholecalciferol", images: [] },
+  { name: "Cough Syrup DM", pack: "100ml", mrp: 95, rate: 78, company: "Respocare", composition: "Dextromethorphan", images: [] }
+];
+function generatePlaceholderSVG(name) { let color = '1a6bbd'; return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 150'%3E%3Crect width='200' height='150' fill='%23${color}'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='14'%3E💊 ${encodeURIComponent(name).slice(0,18)}%3C/text%3E%3C/svg%3E`; }
+function enhanceStaticImages() { staticProducts.forEach(p => { if (!p.images || p.images.length === 0) p.images = [generatePlaceholderSVG(p.name), generatePlaceholderSVG(p.name+' alt')]; }); }
+function useStaticFallback() { enhanceStaticImages(); products = staticProducts.map((p, idx) => ({ id: idx, ...p })); filtered = [...products]; buildDropdowns(); render(true); showModal('✅', t('welcome', products.length)); speak(t('welcome', products.length)); }
 
+// ========== GOOGLE SHEETS FETCH ==========
+const GOOGLE_SHEET_ID = '2PACX-1vSkoAFrWFkerY629v3zhsV5q3NggnlHgSgBqZ2CnAK3n0riqW24dZN3iWm_JJz-XPf9Dtgkayaey-Vg';
 async function fetchGoogleSheetData() {
   const csvUrl = `https://docs.google.com/spreadsheets/d/e/${GOOGLE_SHEET_ID}/pub?output=csv&t=${Date.now()}`;
   try {
     const response = await fetch(csvUrl, { cache: 'no-store' });
     if (response.ok) {
       const text = await response.text();
-      if (text && !text.includes('<!DOCTYPE') && !text.includes('<html') && text.includes(',')) {
-        return parseCSV(text);
-      }
+      if (text && !text.includes('<!DOCTYPE') && !text.includes('<html') && text.includes(',')) return parseCSV(text);
     }
     throw new Error('Invalid CSV');
-  } catch(e) {
-    // Fallback to proxy
-    try {
-      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://docs.google.com/spreadsheets/d/e/${GOOGLE_SHEET_ID}/pub?output=csv`)}`;
-      const response = await fetch(proxyUrl);
-      if (response.ok) {
-        const text = await response.text();
-        if (text && text.includes(',')) return parseCSV(text);
-      }
-    } catch(e2) {}
-    return null;
-  }
+  } catch(e) { return null; }
 }
-
 function parseCSV(csvText) {
   const rows = []; let row = [], col = '', quote = false;
   for (let i = 0; i < csvText.length; i++) {
     let ch = csvText[i];
     if (ch === '"') quote = !quote;
     else if (ch === ',' && !quote) { row.push(col.trim()); col = ''; }
-    else if ((ch === '\n' || ch === '\r') && !quote) {
-      if (col || row.length) { row.push(col.trim()); rows.push(row); row = []; col = ''; }
-    } else col += ch;
+    else if ((ch === '\n' || ch === '\r') && !quote) { if (col || row.length) { row.push(col.trim()); rows.push(row); row = []; col = ''; } }
+    else col += ch;
   }
   if (col) row.push(col.trim());
   if (row.length) rows.push(row);
   return rows;
 }
-
-function toImageUrl(url) {
-  if (!url) return '';
-  url = url.trim();
-  let driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
-  if (driveMatch) return `https://lh3.googleusercontent.com/d/${driveMatch[1]}=w400`;
-  if (url.startsWith('http')) return url;
-  return '';
-}
-
+function toImageUrl(url) { if (!url) return ''; url = url.trim(); let driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/); if (driveMatch) return `https://lh3.googleusercontent.com/d/${driveMatch[1]}=w400`; if (url.startsWith('http')) return url; return ''; }
 async function loadProducts() {
   const listEl = document.getElementById('list');
   listEl.innerHTML = '<div class="loading-state"><div class="spinner"></div><span>📡 Fetching data from Google Sheets...</span></div>';
-  
   const rows = await fetchGoogleSheetData();
-  
-  if (!rows || rows.length < 2) {
-    listEl.innerHTML = `<div class="empty-state"><div style="font-size:2rem">📊</div><div>Unable to fetch from Google Sheets</div><div style="font-size:0.75rem;margin-top:8px">Please ensure your sheet is published:<br>File → Share → Publish to web → CSV</div></div>`;
-    return;
-  }
-  
+  if (!rows || rows.length < 2) { useStaticFallback(); return; }
   const headers = rows[0].map(h => String(h || '').toLowerCase().trim());
   const colIdx = {
     name: headers.findIndex(h => h.includes('product') || h.includes('name') || h === 'medicine'),
@@ -288,7 +252,6 @@ async function loadProducts() {
   if (colIdx.rate < 0) colIdx.rate = 4;
   if (colIdx.company < 0) colIdx.company = 5;
   if (colIdx.composition < 0) colIdx.composition = 6;
-  
   products = [];
   for (let i = 1; i < rows.length; i++) {
     const r = rows[i];
@@ -296,10 +259,8 @@ async function loadProducts() {
     const name = (r[colIdx.name] || '').trim();
     if (!name) continue;
     const images = [];
-    for (let j = 8; j < r.length; j++) {
-      const url = (r[j] || '').trim();
-      if (url) { const imgUrl = toImageUrl(url); if (imgUrl) images.push(imgUrl); }
-    }
+    for (let j = 8; j < r.length; j++) { const url = (r[j] || '').trim(); if (url) { const imgUrl = toImageUrl(url); if (imgUrl) images.push(imgUrl); } }
+    if (images.length === 0) images.push(generatePlaceholderSVG(name));
     products.push({
       id: i - 1, name: name, pack: (r[colIdx.pack] || '').trim(),
       mrp: parseFloat(String(r[colIdx.mrp] || '0').replace(/[^\d.]/g, '')) || 0,
@@ -309,16 +270,13 @@ async function loadProducts() {
       images: images.slice(0, 5)
     });
   }
-  
-  if (products.length === 0) { listEl.innerHTML = '<div class="empty-state"><div>⚠️ No valid products found</div></div>'; return; }
-  
+  if (products.length === 0) { useStaticFallback(); return; }
   filtered = [...products];
   buildDropdowns();
   render(true);
   showModal('✅', t('welcome', products.length));
-  speak(t('welcome', products.length), true);
+  speak(t('welcome', products.length));
 }
-
 function buildDropdowns() {
   let companies = [...new Set(products.map(p => p.company).filter(Boolean))].sort();
   let compositions = [...new Set(products.map(p => p.composition).filter(Boolean))].sort();
@@ -329,7 +287,6 @@ function buildDropdowns() {
   fx.innerHTML = '<option value="">' + t('allCx') + '</option>';
   compositions.forEach(c => { let o = document.createElement('option'); o.value = c; o.textContent = c; fx.appendChild(o); });
 }
-
 function doFilter() {
   let s = document.getElementById('search').value.toLowerCase().trim();
   let co = document.getElementById('filterCompany').value;
@@ -343,7 +300,6 @@ function doFilter() {
   visible = 12; render(true);
   if (filtered.length && (s || co || cx)) speak(t('found', filtered.length));
 }
-
 function render(reset) {
   let list = document.getElementById('list');
   if (reset) list.innerHTML = '';
@@ -360,190 +316,22 @@ function render(reset) {
     list.appendChild(card);
   });
 }
-
-function mkCtrl(id, qty) {
-  if (!qty) return `<button class="btn-add" onclick="upd(${id},1)">${t('addCart')}</button>`;
-  return `<div class="qty-control"><button class="btn-qty" onclick="upd(${id},-1)">−</button><span class="qty-num">${qty}</span><button class="btn-qty" onclick="upd(${id},1)">+</button></div>`;
-}
-
-function upd(id, delta) {
-  let prev = cart[id] || 0;
-  cart[id] = Math.max(0, prev + delta);
-  let ctrl = document.getElementById(`ctrl-${id}`);
-  if (ctrl) ctrl.innerHTML = mkCtrl(id, cart[id]);
-  refreshCart();
-  let name = products[id]?.name || 'item';
-  if (prev === 0 && cart[id] === 1) { showModal('➕', t('added', name)); speak(t('added', name)); }
-}
-
-function getTotals() {
-  let subtotal = 0, count = 0;
-  for (let id in cart) {
-    let q = cart[id];
-    if (q > 0 && products[id]) {
-      subtotal += q * products[id].rate;
-      count += q;
-    }
-  }
-  let tax = subtotal * 0.05;
-  let final = subtotal + tax;
-  return { subtotal, tax, final, count };
-}
-
-function refreshCart() {
-  let { subtotal, tax, final, count } = getTotals();
-  document.getElementById('cartCount').innerText = count === 0 ? '0 items' : `${count} item${count !== 1 ? 's' : ''} in cart`;
-  document.getElementById('cartTotal').innerHTML = `₹${final.toFixed(2)}`;
-  let badge = document.getElementById('taxBadge');
-  if (count > 0 && tax > 0.01) { badge.style.display = 'inline-flex'; badge.innerHTML = `+5% Tax (₹${tax.toFixed(2)})`; }
-  else badge.style.display = 'none';
-}
-
-function sendOrder() {
-  let shop = document.getElementById('shop').value.trim(), mob = document.getElementById('mobile').value.trim();
-  if (!shop && !mob) { showModal('⚠️', t('errBoth'), () => highlight('shop')); return; }
-  if (!shop) { showModal('🏪', t('errShop'), () => highlight('shop')); return; }
-  if (!mob) { showModal('📱', t('errMobile'), () => highlight('mobile')); return; }
-  let { subtotal, tax, final, count } = getTotals();
-  if (!count) { showModal('🛒', t('errCart')); return; }
-  let msg = `🧾 *NEW ORDER*%0A*Shop:* ${encodeURIComponent(shop)}%0A*Mobile:* ${encodeURIComponent(mob)}%0A%0A*ITEMS:*%0A`;
-  for (let id in cart) {
-    let q = cart[id];
-    if (q > 0 && products[id]) {
-      let p = products[id];
-      msg += `▪ ${encodeURIComponent(p.name)} × ${q} = ₹${(q * p.rate).toFixed(2)}%0A`;
-    }
-  }
-  msg += `%0A📊 *Subtotal:* ₹${subtotal.toFixed(2)}%0A💰 *Tax (5%):* ₹${tax.toFixed(2)}%0A💵 *FINAL AMOUNT:* ₹${final.toFixed(2)}%0A%0A🙏 Thank you!`;
-  showModal('✅', t('orderMsg', count, subtotal, tax, final, shop));
-  speak(t('orderMsg', count, subtotal, tax, final, shop), true);
-  closeBill();
-  window.open(`https://wa.me/919533762508?text=${msg}`);
-}
-
+function mkCtrl(id, qty) { if (!qty) return `<button class="btn-add" onclick="upd(${id},1)">${t('addCart')}</button>`; return `<div class="qty-control"><button class="btn-qty" onclick="upd(${id},-1)">−</button><span class="qty-num">${qty}</span><button class="btn-qty" onclick="upd(${id},1)">+</button></div>`; }
+function upd(id, delta) { let prev = cart[id] || 0; cart[id] = Math.max(0, prev + delta); let ctrl = document.getElementById(`ctrl-${id}`); if (ctrl) ctrl.innerHTML = mkCtrl(id, cart[id]); refreshCart(); let name = products[id]?.name || 'item'; if (prev === 0 && cart[id] === 1) { showModal('➕', t('added', name)); speak(t('added', name)); } }
+function getTotals() { let subtotal = 0, count = 0; for (let id in cart) { let q = cart[id]; if (q > 0 && products[id]) { subtotal += q * products[id].rate; count += q; } } let tax = subtotal * 0.05; let final = subtotal + tax; return { subtotal, tax, final, count }; }
+function refreshCart() { let { subtotal, tax, final, count } = getTotals(); document.getElementById('cartCount').innerHTML = count === 0 ? '0 items' : `${count} item${count !== 1 ? 's' : ''} in cart`; document.getElementById('cartTotal').innerHTML = `₹${final.toFixed(2)}`; let badge = document.getElementById('taxBadge'); if (count > 0 && tax > 0.01) { badge.style.display = 'inline-flex'; badge.innerHTML = `+5% Tax (₹${tax.toFixed(2)})`; } else badge.style.display = 'none'; }
+function sendOrder() { let shop = document.getElementById('shop').value.trim(), mob = document.getElementById('mobile').value.trim(); if (!shop && !mob) { showModal('⚠️', t('errBoth'), () => highlight('shop')); return; } if (!shop) { showModal('🏪', t('errShop'), () => highlight('shop')); return; } if (!mob) { showModal('📱', t('errMobile'), () => highlight('mobile')); return; } let { subtotal, tax, final, count } = getTotals(); if (!count) { showModal('🛒', t('errCart')); return; } let msg = `🧾 *NEW ORDER*%0A*Shop:* ${encodeURIComponent(shop)}%0A*Mobile:* ${encodeURIComponent(mob)}%0A%0A*ITEMS:*%0A`; for (let id in cart) { let q = cart[id]; if (q > 0 && products[id]) { let p = products[id]; msg += `▪ ${encodeURIComponent(p.name)} × ${q} = ₹${(q * p.rate).toFixed(2)}%0A`; } } msg += `%0A📊 *Subtotal:* ₹${subtotal.toFixed(2)}%0A💰 *Tax (5%):* ₹${tax.toFixed(2)}%0A💵 *FINAL AMOUNT:* ₹${final.toFixed(2)}%0A%0A🙏 Thank you!`; showModal('✅', t('orderMsg', count, subtotal, tax, final, shop)); speak(t('orderMsg', count, subtotal, tax, final, shop), true); closeBill(); window.open(`https://wa.me/919533762508?text=${msg}`); }
 function highlight(id) { let el = document.getElementById(id); el.classList.add('input-error'); setTimeout(() => el.classList.remove('input-error'), 1500); }
-
-function openBill() {
-  let shop = document.getElementById('shop').value.trim(), mob = document.getElementById('mobile').value.trim();
-  if (!shop) { showModal('🏪', t('errShop'), () => highlight('shop')); return; }
-  if (!mob) { showModal('📱', t('errMobile'), () => highlight('mobile')); return; }
-  
-  let items = [];
-  for (let id in cart) {
-    let q = cart[id];
-    if (q > 0 && products[id]) {
-      let p = products[id];
-      items.push({ name: p.name, company: p.company, pack: p.pack, rate: p.rate, qty: q, amount: q * p.rate });
-    }
-  }
-  if (!items.length) { showModal('🛒', t('errCart')); return; }
-  
-  let { subtotal, tax, final } = getTotals();
-  let now = new Date();
-  document.getElementById('boDate').innerHTML = now.toLocaleDateString('en-IN') + ' ' + now.toLocaleTimeString('en-IN');
-  
-  // Items table rows
-  let itemRows = items.map(it => `<tr>
-      <td><div class="bill-pname">${escapeHtml(it.name)}</div><div class="bill-co">${escapeHtml(it.company)}</div>${it.pack ? `<div class="bill-pack">${escapeHtml(it.pack)}</div>` : ''}</td>
-      <td class="c">${it.qty}</td>
-      <td class="r">₹${it.rate.toFixed(2)}</td>
-      <td class="r"><strong>₹${it.amount.toFixed(2)}</strong></td>
-    </tr>`).join('');
-  
-  // Company-wise summary
-  let companyMap = {};
-  items.forEach(it => {
-    if (!companyMap[it.company]) companyMap[it.company] = { qty: 0, amount: 0 };
-    companyMap[it.company].qty += it.qty;
-    companyMap[it.company].amount += it.amount;
-  });
-  let companyRows = Object.keys(companyMap).sort().map(co => `<tr>
-      <td><strong>${escapeHtml(co)}</strong></td>
-      <td class="c">${companyMap[co].qty}</td>
-      <td class="r"><strong>₹${companyMap[co].amount.toFixed(2)}</strong></td>
-    </tr>`).join('');
-  
-  document.getElementById('boBody').innerHTML = `
-    <div class="bill-card">
-      <div class="bill-shop">
-        <div class="bill-shop-name">💊 Aaradhya Pharmaceuticals</div>
-        <div class="bill-shop-meta">
-          <span><strong>${escapeHtml(shop)}</strong>Shop</span>
-          <span><strong>${escapeHtml(mob)}</strong>Mobile</span>
-          <span><strong>${now.toLocaleDateString()}</strong>Date</span>
-          <span><strong>${now.toLocaleTimeString()}</strong>Time</span>
-        </div>
-      </div>
-      <div class="bill-sec-hdr">📋 ORDERED ITEMS</div>
-      <table class="bill-tbl">
-        <thead><tr><th>Product</th><th class="c">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead>
-        <tbody>${itemRows}</tbody>
-        <tfoot><tr class="bill-tfoot"><td colspan="3">GRAND TOTAL</td><td class="r">₹${final.toFixed(2)}</td></tr></tfoot>
-      </table>
-      <div class="bill-divider"></div>
-      <div class="bill-sec-hdr">🏭 COMPANY-WISE SUMMARY</div>
-      <table class="bill-tbl">
-        <thead><tr><th>Company</th><th class="c">Units</th><th class="r">Total</th></tr></thead>
-        <tbody>${companyRows}</tbody>
-        <tfoot><tr class="bill-tfoot"><td colspan="2">TOTAL +5% TAX</td><td class="r">₹${final.toFixed(2)}</td></tr></tfoot>
-      </table>
-      <div class="bill-tax-row"><span>Subtotal</span><span>₹${subtotal.toFixed(2)}</span></div>
-      <div class="bill-tax-row" style="background:#e8f2ff"><span>Tax (5%)</span><span><strong>₹${tax.toFixed(2)}</strong></span></div>
-      <div class="bill-tax-row" style="background:#d1fae5;border-left-color:#10b981"><span><strong>FINAL AMOUNT</strong></span><span><strong>₹${final.toFixed(2)}</strong></span></div>
-      <div class="bill-footer"><em>* Tax calculated at 5% on total amount</em><br><strong>Aaradhya Pharmaceuticals</strong> • Aaratech • Powered by AI</div>
-    </div>`;
-  
-  document.getElementById('billOverlay').classList.add('show');
-}
-
+function openBill() { let shop = document.getElementById('shop').value.trim(), mob = document.getElementById('mobile').value.trim(); if (!shop) { showModal('🏪', t('errShop'), () => highlight('shop')); return; } if (!mob) { showModal('📱', t('errMobile'), () => highlight('mobile')); return; } let items = []; for (let id in cart) { let q = cart[id]; if (q > 0 && products[id]) { let p = products[id]; items.push({ name: p.name, company: p.company, pack: p.pack, rate: p.rate, qty: q, amount: q * p.rate }); } } if (!items.length) { showModal('🛒', t('errCart')); return; } let { subtotal, tax, final } = getTotals(); let now = new Date(); document.getElementById('boDate').innerHTML = now.toLocaleDateString('en-IN') + ' ' + now.toLocaleTimeString('en-IN'); let itemRows = items.map(it => `<tr><td><div class="bill-pname">${escapeHtml(it.name)}</div><div class="bill-co">${escapeHtml(it.company)}</div>${it.pack ? `<div class="bill-pack">${escapeHtml(it.pack)}</div>` : ''}</td><td class="c">${it.qty}</td><td class="r">₹${it.rate.toFixed(2)}</td><td class="r"><strong>₹${it.amount.toFixed(2)}</strong></td></tr>`).join(''); let companyMap = {}; items.forEach(it => { if (!companyMap[it.company]) companyMap[it.company] = { qty: 0, amount: 0 }; companyMap[it.company].qty += it.qty; companyMap[it.company].amount += it.amount; }); let companyRows = Object.keys(companyMap).sort().map(co => `<tr><td><strong>${escapeHtml(co)}</strong></td><td class="c">${companyMap[co].qty}</td><td class="r"><strong>₹${companyMap[co].amount.toFixed(2)}</strong></td></tr>`).join(''); document.getElementById('boBody').innerHTML = `<div class="bill-card"><div class="bill-shop"><div class="bill-shop-name">💊 Aaradhya Pharmaceuticals</div><div class="bill-shop-meta"><span><strong>${escapeHtml(shop)}</strong>Shop</span><span><strong>${escapeHtml(mob)}</strong>Mobile</span><span><strong>${now.toLocaleDateString()}</strong>Date</span><span><strong>${now.toLocaleTimeString()}</strong>Time</span></div></div><div class="bill-sec-hdr">📋 ORDERED ITEMS</div><table class="bill-tbl"><thead><tr><th>Product</th><th class="c">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead><tbody>${itemRows}</tbody><tfoot><tr class="bill-tfoot"><td colspan="3">GRAND TOTAL</td><td class="r">₹${final.toFixed(2)}</td></tr></tfoot></table><div class="bill-divider"></div><div class="bill-sec-hdr">🏭 COMPANY-WISE SUMMARY</div><table class="bill-tbl"><thead><tr><th>Company</th><th class="c">Units</th><th class="r">Total</th></tr></thead><tbody>${companyRows}</tbody><tfoot><tr class="bill-tfoot"><td colspan="2">TOTAL +5% TAX</td><td class="r">₹${final.toFixed(2)}</td></tr></tfoot></table><div class="bill-tax-row"><span>Subtotal</span><span>₹${subtotal.toFixed(2)}</span></div><div class="bill-tax-row" style="background:#e8f2ff"><span>Tax (5%)</span><span><strong>₹${tax.toFixed(2)}</strong></span></div><div class="bill-tax-row" style="background:#d1fae5;border-left-color:#10b981"><span><strong>FINAL AMOUNT</strong></span><span><strong>₹${final.toFixed(2)}</strong></span></div><div class="bill-footer"><em>* Tax calculated at 5% on total amount</em><br><strong>Aaradhya Pharmaceuticals</strong> • Aaratech • Powered by AI</div></div>`; document.getElementById('billOverlay').classList.add('show'); }
 function closeBill() { document.getElementById('billOverlay').classList.remove('show'); }
-
-function buildCarousel(wrap, images, name) {
-  if (!images || !images.length) { wrap.innerHTML = '<div class="item-img-blank"><span>📷</span></div>'; return; }
-  let cur = 0, total = images.length;
-  let trackWrap = document.createElement('div'); trackWrap.style.cssText = 'width:100%;height:100%;overflow:hidden;position:relative;';
-  let track = document.createElement('div'); track.className = 'img-track-inner'; track.style.cssText = 'display:flex;width:100%;height:100%;transition:transform .3s ease;';
-  images.forEach((src, i) => {
-    let slide = document.createElement('div'); slide.style.cssText = 'min-width:100%;width:100%;flex-shrink:0;';
-    let img = document.createElement('img'); img.src = src; img.alt = name; img.style.cssText = 'width:100%;height:auto;min-height:110px;object-fit:cover;display:block;';
-    img.onerror = () => slide.innerHTML = '<div class="item-img-blank"><span>📷</span></div>';
-    slide.appendChild(img);
-    slide.addEventListener('click', () => openLightbox(images, i, name));
-    track.appendChild(slide);
-  });
-  trackWrap.appendChild(track);
-  wrap.appendChild(trackWrap);
-  if (total > 1) {
-    let dots = document.createElement('div'); dots.className = 'img-dots';
-    for (let d = 0; d < total; d++) {
-      let dot = document.createElement('div'); dot.className = 'img-dot' + (d === 0 ? ' active' : '');
-      dot.onclick = (e) => { e.stopPropagation(); cur = d; update(); };
-      dots.appendChild(dot);
-    }
-    wrap.appendChild(dots);
-    let prev = document.createElement('button'); prev.className = 'img-arrow prev'; prev.innerHTML = '‹';
-    prev.onclick = (e) => { e.stopPropagation(); cur = (cur - 1 + total) % total; update(); };
-    let next = document.createElement('button'); next.className = 'img-arrow next'; next.innerHTML = '›';
-    next.onclick = (e) => { e.stopPropagation(); cur = (cur + 1) % total; update(); };
-    wrap.appendChild(prev); wrap.appendChild(next);
-    function update() { track.style.transform = `translateX(-${cur * 100}%)`; dots.querySelectorAll('.img-dot').forEach((d, i) => d.classList.toggle('active', i === cur)); }
-  }
-}
-
+function buildCarousel(wrap, images, name) { if (!images || !images.length) { wrap.innerHTML = '<div class="item-img-blank"><span>📷</span></div>'; return; } let cur = 0, total = images.length; let trackWrap = document.createElement('div'); trackWrap.style.cssText = 'width:100%;height:100%;overflow:hidden;position:relative;'; let track = document.createElement('div'); track.className = 'img-track-inner'; track.style.cssText = 'display:flex;width:100%;height:100%;transition:transform .3s ease;'; images.forEach((src, i) => { let slide = document.createElement('div'); slide.style.cssText = 'min-width:100%;width:100%;flex-shrink:0;'; let img = document.createElement('img'); img.src = src; img.alt = name; img.style.cssText = 'width:100%;height:auto;min-height:110px;object-fit:cover;display:block;'; img.onerror = () => slide.innerHTML = '<div class="item-img-blank"><span>📷</span></div>'; slide.appendChild(img); slide.addEventListener('click', () => openLightbox(images, i, name)); track.appendChild(slide); }); trackWrap.appendChild(track); wrap.appendChild(trackWrap); if (total > 1) { let dots = document.createElement('div'); dots.className = 'img-dots'; for (let d = 0; d < total; d++) { let dot = document.createElement('div'); dot.className = 'img-dot' + (d === 0 ? ' active' : ''); dot.onclick = (e) => { e.stopPropagation(); cur = d; update(); }; dots.appendChild(dot); } wrap.appendChild(dots); let prev = document.createElement('button'); prev.className = 'img-arrow prev'; prev.innerHTML = '‹'; prev.onclick = (e) => { e.stopPropagation(); cur = (cur - 1 + total) % total; update(); }; let next = document.createElement('button'); next.className = 'img-arrow next'; next.innerHTML = '›'; next.onclick = (e) => { e.stopPropagation(); cur = (cur + 1) % total; update(); }; wrap.appendChild(prev); wrap.appendChild(next); function update() { track.style.transform = `translateX(-${cur * 100}%)`; dots.querySelectorAll('.img-dot').forEach((d, i) => d.classList.toggle('active', i === cur)); } } }
 let lbImages = [], lbIndex = 0, zoomScale = 1;
-function openLightbox(images, idx, name) { lbImages = images; lbIndex = idx; document.getElementById('lightbox-img').src = images[idx]; document.getElementById('lbTitle').innerText = `${name} (${idx+1}/${images.length})`; document.getElementById('lightbox').classList.add('show'); document.getElementById('lbPrev').style.display = images.length > 1 ? 'flex' : 'none'; document.getElementById('lbNext').style.display = images.length > 1 ? 'flex' : 'none'; zoomScale = 1; document.getElementById('lightbox-img').style.transform = 'scale(1)'; }
+function openLightbox(images, idx, name) { lbImages = images; lbIndex = idx; document.getElementById('lightbox-img').src = images[idx]; document.getElementById('lbTitle').innerText = `${name} (${idx+1}/${images.length})`; document.getElementById('lightbox').classList.add('show'); document.getElementById('lbPrev').style.display = images.length > 1 ? 'flex' : 'none'; document.getElementById('lbNext').style.display = images.length > 1 ? 'flex' : 'none'; zoomScale = 1; document.getElementById('lightbox-img').style.transform = 'scale(1)'; document.getElementById('lbZoomLabel').innerText = '100%'; }
 function closeLightbox() { document.getElementById('lightbox').classList.remove('show'); }
 function lbGalleryNav(dir) { if (!lbImages.length) return; lbIndex = (lbIndex + dir + lbImages.length) % lbImages.length; document.getElementById('lightbox-img').src = lbImages[lbIndex]; document.getElementById('lbTitle').innerText = `${lbIndex+1}/${lbImages.length}`; zoomScale = 1; document.getElementById('lightbox-img').style.transform = 'scale(1)'; document.getElementById('lbZoomLabel').innerText = '100%'; }
 function lbZoom(d) { zoomScale = Math.min(4, Math.max(0.5, zoomScale + d)); document.getElementById('lightbox-img').style.transform = `scale(${zoomScale})`; document.getElementById('lbZoomLabel').innerText = Math.round(zoomScale * 100) + '%'; }
 function lbReset() { zoomScale = 1; document.getElementById('lightbox-img').style.transform = 'scale(1)'; document.getElementById('lbZoomLabel').innerText = '100%'; }
-
-function downloadBill(fmt) {
-  let card = document.querySelector('#boBody .bill-card'); if (!card) { showModal('⚠️', 'Bill not ready'); return; }
-  let container = document.createElement('div'); container.style.cssText = 'position:fixed;left:-9999px;top:0;width:480px;background:#f0f4f9;padding:12px'; container.appendChild(card.cloneNode(true)); document.body.appendChild(container);
-  setTimeout(() => {
-    if (!window.html2canvas) { let s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'; s.onload = () => capture(container, fmt); document.head.appendChild(s); } else capture(container, fmt);
-  }, 100);
-}
+function downloadBill(fmt) { let card = document.querySelector('#boBody .bill-card'); if (!card) { showModal('⚠️', 'Bill not ready'); return; } let container = document.createElement('div'); container.style.cssText = 'position:fixed;left:-9999px;top:0;width:480px;background:#f0f4f9;padding:12px'; container.appendChild(card.cloneNode(true)); document.body.appendChild(container); setTimeout(() => { if (!window.html2canvas) { let s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'; s.onload = () => capture(container, fmt); document.head.appendChild(s); } else capture(container, fmt); }, 100); }
 function capture(container, fmt) { html2canvas(container, { scale: 2, backgroundColor: '#f0f4f9' }).then(canvas => { document.body.removeChild(container); if (fmt === 'jpg') { canvas.toBlob(blob => { let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Bill_${Date.now()}.jpg`; a.click(); }, 'image/jpeg'); } else { if (!window.jspdf) { let s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'; s.onload = () => makePDF(canvas); document.head.appendChild(s); } else makePDF(canvas); } showModal('📄', 'Bill downloaded'); }).catch(() => { document.body.removeChild(container); showModal('⚠️', 'Download failed'); }); }
 function makePDF(canvas) { let { jsPDF } = window.jspdf; let pdf = new jsPDF({ unit: 'mm', format: 'a4' }); pdf.addImage(canvas.toDataURL('image/jpeg'), 'JPEG', 0, 0, 210, canvas.height * 210 / canvas.width); pdf.save(`Bill_${Date.now()}.pdf`); }
 function escapeHtml(str) { return (str || '').replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
